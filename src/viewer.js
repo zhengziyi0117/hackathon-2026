@@ -1,58 +1,57 @@
 import * as T from 'three';
-import {navigationStep,navigationDistance} from './navigation.js';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-export function createViewer(container,{points,onSelect,onStatus,onPosition,splatURL,splatConfig}={}){
-  let renderer;try{renderer=new T.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});}catch{container.innerHTML='<div class="viewer-fallback"><h3>当前浏览器未启用三维渲染</h3><p>仍可从下方切换点位，与导游互动。可尝试 Chrome 或开启硬件加速。</p></div>';return {focus(){},reset(){},mood(){},dispose(){},move(){},setMove(){},async loadSplat(){throw Error('WebGL 不可用')}};}
-  renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;container.prepend(renderer.domElement);renderer.domElement.tabIndex=0;renderer.domElement.setAttribute('aria-label','三维概念景观，拖动旋转，滚轮缩放；聚焦后可用方向键移动。');
-  const scene=new T.Scene();scene.background=new T.Color('#d6e5dc');scene.fog=new T.FogExp2('#d6e5dc',.009);
-  const camera=new T.PerspectiveCamera(44,1,.1,600);camera.position.set(39,29,43);
-  const controls=new OrbitControls(camera,renderer.domElement);controls.target.set(0,0,-2);controls.enableDamping=true;controls.dampingFactor=.065;controls.minDistance=6;controls.maxDistance=105;controls.maxPolarAngle=Math.PI*.475;
-  const hemi=new T.HemisphereLight('#eaf6e6','#467773',1.5);scene.add(hemi);
-  const sun=new T.DirectionalLight('#fff4d5',2);sun.position.set(-30,55,20);scene.add(sun);
-  const world=new T.Group();scene.add(world);world.visible=!splatConfig;controls.enabled=!splatConfig;
-  const mat=(c,roughness=.95)=>new T.MeshStandardMaterial({color:c,roughness});
-  const jade=mat('#38655c'),leaf=mat('#638367'),leaf2=mat('#87a47b'),bark=mat('#7c7060'),sand=mat('#c1b697'),stone=mat('#c7c6af'),roof=mat('#365c56'),wood=mat('#b2976b'),wall=mat('#e6dcc0');
-  function mesh(geo,material,pos,scale,parent=world){const m=new T.Mesh(geo,material);if(pos)m.position.set(...pos);if(scale)m.scale.set(...scale);parent.add(m);return m;}
-  const waterMaterial=new T.ShaderMaterial({uniforms:{time:{value:0},color:{value:new T.Color('#75a59c')}},vertexShader:'varying vec3 vPos; void main(){vPos=position; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',fragmentShader:'uniform float time; uniform vec3 color; varying vec3 vPos; void main(){float r=sin(vPos.x*.9+time*.4+sin(vPos.y*.15))*sin(vPos.y*1.1-time*.6);float r2=sin(vPos.x*.09+vPos.y*.13+time*.18);gl_FragColor=vec4(color+vec3(r*.004+r2*.012),1.);\n#include <tonemapping_fragment>\n#include <colorspace_fragment>\n}',side:T.DoubleSide});
-  const water=mesh(new T.PlaneGeometry(800,800),waterMaterial,[0,-.23,0]);water.rotation.x=-Math.PI/2;
-  function island(x,z,sx,sz){mesh(new T.SphereGeometry(1,32,16),sand,[x,-.25,z],[sx,1.0,sz]);mesh(new T.SphereGeometry(1,32,16),leaf,[x,-.25,z],[sx*.97,1.1,sz*.96]);}
-  island(-16,10,13,10);island(-9,0,7,5);island(14,-7,7,5);island(24,-19,10,8);
-  function tree(x,z,s=1,willow=false){const g=new T.Group();g.position.set(x,.4,z);g.scale.setScalar(s);world.add(g);mesh(new T.CylinderGeometry(.12,.28,4,7),bark,[0,2,0],null,g);const crown=mesh(new T.IcosahedronGeometry(2,2),willow?leaf2:leaf,[0,4,0],[1.4,.65,1],g);if(willow){for(let i=0;i<14;i++){const angle=i/14*Math.PI*2;const curve=new T.CatmullRomCurve3([new T.Vector3(0,4,0),new T.Vector3(Math.cos(angle)*2.3,4.1,Math.sin(angle)*1.8),new T.Vector3(Math.cos(angle)*2.7,.8,Math.sin(angle)*2)]);mesh(new T.TubeGeometry(curve,10,.055,4,false),leaf2,null,null,g);}}return g;}
-  for(let i=0;i<17;i++){const a=i*2.4;tree(-18+Math.cos(a)*(6+i%3),11+Math.sin(a)*6,.6+(i%5)*.14,i%3===0);}
-  for(let i=0;i<9;i++)tree(24+Math.sin(i*1.9)*7,-19+Math.cos(i*1.9)*5,.6+i%3*.2,i%2===0);
-  tree(-12,-1,1.2,true);tree(15,-7,.9,true);
-  function pavilion(x,z,scale=1,levels=1){const group=new T.Group();group.position.set(x,.6,z);group.scale.setScalar(scale);world.add(group);mesh(new T.BoxGeometry(5,.35,5),stone,[0,0,0],null,group);for(let l=0;l<levels;l++){const base=l*3;const size=1-l*.1;for(const xx of [-1.6,1.6])for(const zz of [-1.6,1.6])mesh(new T.CylinderGeometry(.12,.14,2.6,8),wood,[xx*size,base+1.4,zz*size],null,group);if(levels>1)mesh(new T.BoxGeometry(2.8*size,2.2,2.8*size),wall,[0,base+1.4,0],null,group);const roofMesh=mesh(new T.CylinderGeometry(.15,4.1*size,1.3,4),roof,[0,base+3,0],null,group);roofMesh.rotation.y=Math.PI/4;const roofEdge=mesh(new T.CylinderGeometry(3.9*size,4.3*size,.12,4),roof,[0,base+2.4,0],null,group);roofEdge.rotation.y=Math.PI/4;}mesh(new T.ConeGeometry(.22,1,8),wood,[0,levels*3+.7,0],null,group);}
-  pavilion(-8,2,1.2);pavilion(23,-19,.85,5);pavilion(14,-7,.65);
-  // A continuous conceptual causeway connecting the two shores.
-  const bridgeGroup=new T.Group();bridgeGroup.position.set(2,.3,-2);bridgeGroup.rotation.y=-.14;world.add(bridgeGroup);
-  const arch=new T.Shape();arch.moveTo(-11,0);for(let x=-11;x<=11;x+=.5)arch.lineTo(x,1.2+Math.sin((x+11)/22*Math.PI)*1.8);arch.lineTo(11,0);arch.lineTo(-11,0);const hole=new T.Path();hole.absellipse(0,.05,7,1.3,0,Math.PI,false);arch.holes.push(hole);const archMesh=mesh(new T.ExtrudeGeometry(arch,{depth:2.3,bevelEnabled:false}),stone,[0,0,-1.15],null,bridgeGroup);
-  for(let x=-10;x<=10;x+=2){const y=1.2+Math.sin((x+11)/22*Math.PI)*1.8;for(const z of [-1.3,1.3])mesh(new T.BoxGeometry(.15,.8,.15),stone,[x,y+.3,z],null,bridgeGroup);}
-  for(let i=0;i<30;i++){const a=i*.8;mesh(new T.DodecahedronGeometry(.4+i%3*.15),stone,[-13+Math.cos(a)*9,.1,11+Math.sin(a)*7],[1,.4,1]);}
-  for(let i=0;i<16;i++){const geo=new T.IcosahedronGeometry(1,2);const verts=geo.attributes.position;for(let j=0;j<verts.count;j++){const y=verts.getY(j);verts.setY(j,y*(1+Math.sin(verts.getX(j)*5+i)*.13));}geo.computeVertexNormals();mesh(geo,mat(i%2?'#8aab9a':'#74958b'),[-115+i*15,-5,-65-(i%3)*18],[23+i%4*4,13+i%5*4,22]);}
-  const boat=new T.Group();boat.position.set(0,0,16);world.add(boat);mesh(new T.SphereGeometry(1,16,8),wood,[0,0,0],[.9,.35,2.7],boat);mesh(new T.BoxGeometry(1.2,.12,3),bark,[0,.15,0],null,boat);mesh(new T.BoxGeometry(.12,.1,5),wood,[1,.45,0],null,boat);
-  const markers=new T.Group();world.add(markers);const targets=[];
-  for(const p of points||[]){const g=new T.Group();g.position.set(p.position[0],p.id==='causeway'?5:4,p.position[2]);g.userData.pointId=p.id;const dot=mesh(new T.SphereGeometry(.43,20,16),new T.MeshBasicMaterial({color:'#f2dba6'}),null,null,g);dot.userData.pointId=p.id;const ring=mesh(new T.TorusGeometry(.7,.04,8,32),new T.MeshBasicMaterial({color:'#ffffff'}),null,null,g);g.add(ring);markers.add(g);targets.push(dot);}
-  const labels=document.createElement('div');labels.className='scene-labels';container.append(labels);const labelEls=(points||[]).map(p=>{const el=document.createElement('button');el.className='scene-label';el.textContent=p.name;el.onclick=()=>onSelect?.(p.id);labels.append(el);return {el,p};});
-  const ray=new T.Raycaster(),pointer=new T.Vector2();let down;
-  let walk=false,dragging=false,dragPoint;const held=new Set(),heldMoves=new Set();let fast=false;
-  const onDown=e=>{down=[e.clientX,e.clientY];dragPoint=down;dragging=true;renderer.domElement.focus();if(walk)renderer.domElement.setPointerCapture(e.pointerId);};const onMove=e=>{if(!walk||!dragging)return;camera.rotation.order='YXZ';camera.rotation.y-=(e.clientX-dragPoint[0])*.004;camera.rotation.x=T.MathUtils.clamp(camera.rotation.x-(e.clientY-dragPoint[1])*.004,-1.3,1.3);dragPoint=[e.clientX,e.clientY];destination=null;};const release=()=>{dragging=false;};const onUp=e=>{dragging=false;if(splat)return;if(!down||Math.hypot(e.clientX-down[0],e.clientY-down[1])>5)return;const rect=renderer.domElement.getBoundingClientRect();pointer.set((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);ray.setFromCamera(pointer,camera);const hit=ray.intersectObjects(targets);if(hit[0])onSelect?.(hit[0].object.userData.pointId);};renderer.domElement.addEventListener('pointerdown',onDown);renderer.domElement.addEventListener('pointerup',onUp);renderer.domElement.addEventListener('pointermove',onMove);window.addEventListener('pointerup',release);renderer.domElement.addEventListener('pointercancel',release);
+import {navigationStep,navigationDistance,clampToBounds} from './navigation.js';
+// Walk-only Gaussian Splat viewer for generated scenic worlds. config.bounds is read on every move so callers can change it live.
+export function createViewer(container,{onStatus,onPosition,splatURL,splatConfig:config}){
+  let renderer;
+  try{renderer=new T.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});}
+  catch{const box=document.createElement('div'),h=document.createElement('h3'),p=document.createElement('p');box.className='viewer-fallback';h.textContent='当前浏览器未启用三维渲染';p.textContent='可尝试 Chrome 或开启硬件加速。';box.append(h,p);container.prepend(box);onStatus?.('error');return {reset(){},move(){},setMove(){},dispose(){}};}
+  renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.NoToneMapping;
+  container.prepend(renderer.domElement);renderer.domElement.tabIndex=0;
+  renderer.domElement.setAttribute('aria-label','由照片生成的三维景点。拖动环顾，WASD 或方向键移动，Shift 加速，Q 下降、E 上升。');
+  const scene=new T.Scene();scene.background=new T.Color('#d6e5dc');
+  const camera=new T.PerspectiveCamera(65,1,.1,600);camera.rotation.order='YXZ';
+  const home=()=>{camera.position.set(...config.home);camera.lookAt(...config.target);};home();
   const keyDirections={ArrowUp:'forward',ArrowDown:'back',ArrowLeft:'left',ArrowRight:'right',w:'forward',s:'back',a:'left',d:'right',q:'down',e:'up'};
-  function move(direction,distance){if(splatConfig&&!splat)return;if(destination)destination=null;const d=new T.Vector3();camera.getWorldDirection(d);const before=camera.position.clone();camera.position.fromArray(navigationStep(camera.position.toArray(),d.toArray(),direction,distance));if(!walk)controls.target.add(camera.position.clone().sub(before));}
-  function key(e){const k=e.key.length===1?e.key.toLowerCase():e.key;if(k==='Shift'){fast=true;return;}if(keyDirections[k]){e.preventDefault();held.add(k);}}
-  const keyUp=e=>{const k=e.key.length===1?e.key.toLowerCase():e.key;held.delete(k);if(k==='Shift')fast=false;},clearKeys=()=>{held.clear();heldMoves.clear();fast=false;};
-  const wheel=e=>{if(walk){e.preventDefault();move(e.deltaY>0?'forward':'back',Math.min(2,Math.max(.12,Math.abs(e.deltaY)*.008)));}};
-  renderer.domElement.addEventListener('keydown',key);window.addEventListener('keyup',keyUp);window.addEventListener('blur',clearKeys);renderer.domElement.addEventListener('blur',()=>{held.clear();fast=false;});renderer.domElement.addEventListener('wheel',wheel,{passive:false});
-  let destination=null,splat=null,closed=false,frame,loadId=0,activeConfig=null,lastPositionUpdate=0;const clock=new T.Clock();
-  function resize(){const w=container.clientWidth,h=container.clientHeight;if(!w||!h)return;renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();}const observer=new ResizeObserver(resize);observer.observe(container);resize();
-  function render(){if(closed)return;frame=requestAnimationFrame(render);const delta=Math.min(clock.getDelta(),.05),time=clock.elapsedTime;const directions=new Set([...held].map(k=>keyDirections[k]).concat([...heldMoves]));for(const direction of directions)move(direction,delta*(walk?(fast?9:3):10)/Math.sqrt(directions.size));if(walk&&time-lastPositionUpdate>.1){lastPositionUpdate=time;onPosition?.({position:camera.position.toArray(),yaw:camera.rotation.y,distance:navigationDistance(camera.position.toArray(),activeConfig.home)});}waterMaterial.uniforms.time.value=time;boat.position.y=Math.sin(time*.7)*.05;targets.forEach((t,i)=>t.parent.children[1].lookAt(camera.position));
-    if(destination){camera.position.lerp(destination.camera,.055);controls.target.lerp(destination.target,.055);if(camera.position.distanceTo(destination.camera)<.05)destination=null;}
-    if(!walk)controls.update();labelEls.forEach(({el,p})=>{const v=new T.Vector3(p.position[0],p.id==='causeway'?6:5,p.position[2]);v.project(camera);el.style.left=(v.x*.5+.5)*container.clientWidth+'px';el.style.top=(-v.y*.5+.5)*container.clientHeight+'px';el.hidden=!!splat||!!splatConfig||v.z>1||v.z<0||Math.abs(v.x)>.95||Math.abs(v.y)>.94;});renderer.render(scene,camera);
-  }render();onStatus?.('ready');
-  const api={focus(id){const p=points.find(x=>x.id===id);if(!p||(splatConfig&&!splat))return;if(splat){const v=activeConfig?.views?.[id];if(v){destination=null;camera.position.set(...v.camera);camera.lookAt(...v.target);}return;}const target=new T.Vector3(...p.position);target.y=1.5;destination={target,camera:target.clone().add(new T.Vector3(13,9,14))};labelEls.forEach(x=>x.el.classList.toggle('selected',x.p.id===id));},move(direction){move(direction,walk ? 1 : 1.5);},setMove(direction,active){if(active)heldMoves.add(direction);else heldMoves.delete(direction);},reset(){if(walk){destination=null;camera.position.set(...activeConfig.home);camera.lookAt(...activeConfig.target);return;}destination=splat?{target:new T.Vector3(0,1.6,0),camera:new T.Vector3(0,1.6,4)}:{target:new T.Vector3(0,0,-2),camera:new T.Vector3(39,29,43)};},mood(night){scene.background.set(night?'#172f35':'#d6e5dc');if(scene.fog)scene.fog.color.copy(scene.background);sun.color.set(night?'#a0bbd2':'#fff4d5');sun.intensity=night?.7:2;hemi.intensity=night?.6:1.5;waterMaterial.uniforms.color.value.set(night?'#173f49':'#75a59c');},async loadSplat(url,fileBytes,fileName,config){
-    const request=++loadId;onStatus?.('loading');let next;try{const {SplatMesh}=await import('@sparkjsdev/spark');next=new SplatMesh(fileBytes?{fileBytes,fileName}:{url});await next.initialized;if(closed||request!==loadId){next.dispose();return;}if(splat){scene.remove(splat);splat.dispose();}splat=next;activeConfig=config||null;walk=!!config;controls.enabled=!walk;
-    if(config){next.scale.setScalar(config.metric_scale_factor);next.rotation.x=Math.PI;next.position.y=config.ground_plane_offset;camera.position.set(...config.home);camera.lookAt(...config.target);camera.fov=65;renderer.toneMapping=T.NoToneMapping;scene.fog=null;}else{camera.position.set(0,1.6,4);controls.target.set(0,1.6,0);camera.fov=44;}
-    camera.updateProjectionMatrix();scene.add(next);world.visible=false;controls.minDistance=.3;controls.maxDistance=150;destination=null;renderer.domElement.setAttribute('aria-label',walk?'世界模型生成的三维湖景。拖动环顾，WASD 或方向键移动，Shift 加速，Q 下降、E 上升，重置返回起点。':'导入的三维资产，拖动旋转，滚轮缩放。');onStatus?.('splat');}catch(e){next?.dispose();if(!closed&&request===loadId)onStatus?.('error');throw e;}
-
-  },dispose(){closed=true;loadId++;clearKeys();cancelAnimationFrame(frame);observer.disconnect();controls.dispose();renderer.domElement.removeEventListener('keydown',key);window.removeEventListener('keyup',keyUp);window.removeEventListener('pointerup',release);window.removeEventListener('blur',clearKeys);scene.traverse(o=>{o.geometry?.dispose();if(o.material){for(const m of Array.isArray(o.material)?o.material:[o.material])m.dispose();}});splat?.dispose();renderer.dispose();renderer.domElement.remove();labels.remove();}};
-  if(splatURL)api.loadSplat(splatURL,undefined,undefined,splatConfig).catch(()=>{});return api;
+  const held=new Set(),heldMoves=new Set();let fast=false,dragPoint=null,atEdge=false,splat=null,closed=false,frame,lastPositionUpdate=0;
+  function move(direction,distance){
+    if(!splat)return;
+    const d=new T.Vector3();camera.getWorldDirection(d);
+    const next=navigationStep(camera.position.toArray(),d.toArray(),direction,distance),bounded=clampToBounds(next,config.home,config.bounds);
+    atEdge=bounded.some((v,i)=>v!==next[i]);camera.position.fromArray(bounded);
+  }
+  const onDown=e=>{dragPoint=[e.clientX,e.clientY];renderer.domElement.focus();renderer.domElement.setPointerCapture(e.pointerId);};
+  const onMove=e=>{if(!dragPoint)return;camera.rotation.y-=(e.clientX-dragPoint[0])*.004;camera.rotation.x=T.MathUtils.clamp(camera.rotation.x-(e.clientY-dragPoint[1])*.004,-1.3,1.3);dragPoint=[e.clientX,e.clientY];};
+  const release=()=>{dragPoint=null;};
+  const keyOf=e=>e.key.length===1?e.key.toLowerCase():e.key;
+  const key=e=>{const k=keyOf(e);if(k==='Shift'){fast=true;return;}if(keyDirections[k]){e.preventDefault();held.add(k);}};
+  const keyUp=e=>{const k=keyOf(e);held.delete(k);if(k==='Shift')fast=false;};
+  const clearKeys=()=>{held.clear();heldMoves.clear();fast=false;};
+  const wheel=e=>{e.preventDefault();move(e.deltaY>0?'forward':'back',Math.min(2,Math.max(.12,Math.abs(e.deltaY)*.008)));};
+  const el=renderer.domElement;
+  el.addEventListener('pointerdown',onDown);el.addEventListener('pointermove',onMove);el.addEventListener('pointerup',release);el.addEventListener('pointercancel',release);
+  el.addEventListener('keydown',key);el.addEventListener('blur',()=>{held.clear();fast=false;});el.addEventListener('wheel',wheel,{passive:false});
+  window.addEventListener('keyup',keyUp);window.addEventListener('blur',clearKeys);
+  const observer=new ResizeObserver(()=>{const w=container.clientWidth,h=container.clientHeight;if(!w||!h)return;renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();});observer.observe(container);
+  const clock=new T.Clock();
+  (function render(){
+    if(closed)return;frame=requestAnimationFrame(render);
+    const delta=Math.min(clock.getDelta(),.05),time=clock.elapsedTime;
+    const directions=new Set([...held].map(k=>keyDirections[k]).concat([...heldMoves]));
+    for(const direction of directions)move(direction,delta*(fast?9:3)/Math.sqrt(directions.size));
+    if(splat&&time-lastPositionUpdate>.1){lastPositionUpdate=time;onPosition?.({distance:navigationDistance(camera.position.toArray(),config.home),edge:atEdge});}
+    renderer.render(scene,camera);
+  })();
+  onStatus?.('loading');
+  import('@sparkjsdev/spark').then(async({SplatMesh})=>{
+    const next=new SplatMesh({url:splatURL});await next.initialized;
+    if(closed){next.dispose();return;}
+    next.scale.setScalar(config.metric_scale_factor);next.rotation.x=Math.PI;next.position.y=config.ground_plane_offset;
+    splat=next;scene.add(next);onStatus?.('splat');
+  }).catch(()=>{if(!closed)onStatus?.('error');});
+  return {
+    move(direction){move(direction,1);},
+    setMove(direction,active){if(active)heldMoves.add(direction);else heldMoves.delete(direction);},
+    reset(){atEdge=false;home();},
+    dispose(){closed=true;clearKeys();cancelAnimationFrame(frame);observer.disconnect();window.removeEventListener('keyup',keyUp);window.removeEventListener('blur',clearKeys);splat?.dispose();renderer.dispose();el.remove();}
+  };
 }

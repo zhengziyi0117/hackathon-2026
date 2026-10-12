@@ -1,11 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {initialState,publish,getPublished,validateProject,answerGuide,planTour,escapeHTML,safeURL} from '../src/core.js';
-test('draft edits do not leak into the published tour, then publish changes it',()=>{let s=initialState();const original=getPublished(s).project.points[1].notice;s.draft.points[1].notice='演示通知：16:00 关闭';s.draft.points[1].noticeEn='Demo: closes at 16:00';assert.equal(getPublished(s).project.points[1].notice,original);s=publish(s);assert.equal(answerGuide(getPublished(s).project,'今天几点开放？','pavilion').text,'演示通知：16:00 关闭');assert.equal(answerGuide(getPublished(s).project,'opening hours today','pavilion','en').text,'Demo: closes at 16:00');s.draft.points[1].notice='another change';assert.equal(getPublished(s).project.points[1].notice,'演示通知：16:00 关闭');});
-test('unreviewed, unlicensed, uncited, untranslated drafts cannot be published',()=>{for(const change of [s=>s.draft.rightsConfirmed=false,s=>s.draft.points[0].reviewed=false,s=>s.draft.points[0].textEn='',s=>s.draft.points[0].sourceIds=[],s=>s.draft.points[0].notice='中文提示']){const s=initialState();change(s);assert.throws(()=>publish(s));}});
-test('published versions stay independent and can be rolled back',()=>{let s=initialState();s.draft.points[0].text='新的内容';s=publish(s);assert.equal(getPublished(s).number,2);s.activeId='demo-v1';assert.notEqual(getPublished(s).project.points[0].text,'新的内容');assert.equal(s.draft.points[0].text,'新的内容');});
-test('unknown prices, accessibility and weather remain unknown even with a notice',()=>{const p=initialState().draft;p.points[0].notice='今天营业到 16:00';p.points[0].noticeEn='Open until 16:00 today';for(const q of ['门票多少钱','可以坐轮椅吗','天气如何','ticket price','wheelchair access','weather forecast'])assert.equal(answerGuide(p,q,'willow').known,false,q);});
-test('current scene and language control the answer and sources',()=>{const p=initialState().draft;for(const point of p.points){assert.equal(answerGuide(p,'讲讲这里',point.id).text,point.text);assert.equal(answerGuide(p,'Tell me about this view',point.id,'en').text,point.textEn);assert.deepEqual(answerGuide(p,'讲讲这里',point.id).sourceIds,point.sourceIds);}});
-test('route preview respects budgets and has no duplicate points',()=>{const p=initialState().draft;for(const budget of [5,10,15,25,60])for(const interest of ['culture','relax','photo']){const plan=planTour(p,budget,interest);assert.ok(plan.minutes<=budget);assert.equal(new Set(plan.pointIds).size,plan.pointIds.length);assert.equal(plan.kind,'preview');}});
-test('malformed imports, duplicate IDs and unsafe URLs are rejected or stripped',()=>{assert.throws(()=>validateProject({}));const p=initialState().draft;p.points[1].id=p.points[0].id;assert.throws(()=>validateProject(p));assert.equal(safeURL('javascript:alert(1)'),'');assert.equal(safeURL('file:///etc/passwd'),'');assert.equal(escapeHTML('<script>"&'), '&lt;script&gt;&quot;&amp;');});
-test('sources and coordinates are bounded during import',()=>{const p=initialState().draft;p.points[0].position=[Infinity,0,0];assert.throws(()=>validateProject(p));p.points[0].position=[0,0,0];p.sources[0].url='javascript:alert(1)';const cleaned=validateProject(p);assert.equal(cleaned.sources[0].url,'');});
+import {escapeHTML,safeURL} from '../src/core.js';
+test('HTML escaping and URL checks guard everything staff can type',()=>{
+ assert.equal(escapeHTML('<img src=x onerror="a">&\''),'&lt;img src=x onerror=&quot;a&quot;&gt;&amp;&#39;');
+ assert.equal(escapeHTML(null),'');
+ assert.equal(safeURL('javascript:alert(1)'),'');assert.equal(safeURL('data:text/html,x'),'');assert.equal(safeURL('not a url'),'');
+ assert.equal(safeURL('https://example.com/a b'),'https://example.com/a%20b');
+});

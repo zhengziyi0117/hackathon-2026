@@ -4,7 +4,7 @@ import {execFileSync} from 'node:child_process';
 import {readFile,writeFile,mkdir,stat} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 const originals=[
- 'westlake-concept.png','westlake-photo.jpg','scenic/garden-map.png',
+ 'scenic/garden-map.png',
  ...['left','rear','back','top','detail'].map(v=>`completion/huagang-${v}.png`),
  'real/huagang.jpg','real/duanqiao.jpg','real/quyuan.jpg',
 ];

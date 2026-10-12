@@ -11,3 +11,8 @@ export function navigationStep(position,forward,direction,distance){
   return p;
 }
 export function navigationDistance(position,origin){return Math.hypot(...position.map((x,i)=>x-origin[i]));}
+// Box limits are offsets from home; outside the area the source photo covers, a generated splat turns to blur.
+export function clampToBounds(position,home,bounds){
+  if(!bounds)return position;
+  return position.map((v,i)=>Math.min(home[i]+bounds.max[i],Math.max(home[i]+bounds.min[i],v)));
+}

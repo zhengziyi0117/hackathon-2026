@@ -5,24 +5,6 @@
   "changes": "Web delivery copies: resized when larger than 1920 px and JPEG-compressed; no scene or content edits.",
   "entries": [
     {
-      "source": "/assets/westlake-concept.png",
-      "output": "/assets/web/westlake-concept.jpg",
-      "sourceSha256": "4a3bda2a0e950f370cae0778c706551783fa1431492fa65b5c45e00cce5ee776",
-      "outputSha256": "bede374bef9dd15511fc66a360e2d8cb4e987512ff8fb32c6ed08aa4c5790be4",
-      "originalBytes": 2573767,
-      "webBytes": 643224,
-      "keepOriginalInSite": false
-    },
-    {
-      "source": "/assets/westlake-photo.jpg",
-      "output": "/assets/web/westlake-photo.jpg",
-      "sourceSha256": "f409cf355914e068f6ef1fac3bd74d10d9c5f702abdce35ea8ac844c10880f04",
-      "outputSha256": "fcbb83918eb43c2f9c6a4db42196e51e8ed75ae5d05cea0c67c5b580089aec68",
-      "originalBytes": 5861971,
-      "webBytes": 354343,
-      "keepOriginalInSite": false
-    },
-    {
       "source": "/assets/scenic/garden-map.png",
       "output": "/assets/web/scenic-garden-map.jpg",
       "sourceSha256": "6c61754abfc188c5d94f742e2e644b72ddd3a4be22c5f2712934bacc923063cb",
