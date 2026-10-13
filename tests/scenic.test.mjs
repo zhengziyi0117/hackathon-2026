@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createScenicState,completeDemo,confirmSpot,createDemoWorld,publishScenic,putPhoto,removePhoto,visitorExperience,newSpot,upgradeScenicState,answerSpot,publishProblems,draftChanges,roamOf,roamBounds,DEFAULT_ROAM,extraId,orderedPhotos,pendingAngles,refsIn} from '../src/scenic-core.js';
-const reviewed=()=>{const state=createScenicState(),s=state.draft.spots[0];completeDemo(s);Object.values(s.photos).forEach(p=>p.accepted=true);confirmSpot(s);return {state,s};};
+import {createScenicState,completeDemo,publishScenic,putPhoto,removePhoto,visitorExperience,newSpot,upgradeScenicState,answerSpot,publishProblems,draftChanges,roamOf,roamBounds,DEFAULT_ROAM,extraId,orderedPhotos,pendingAngles,refsIn,worldInputs,worldProblem,worldStale,worldAsset,applyGeneratedWorld} from '../src/scenic-core.js';
+const reviewed=()=>{const state=createScenicState(),s=state.draft.spots[0];completeDemo(s);Object.values(s.photos).forEach(p=>p.accepted=true);return {state,s};};
 test('creator edits never leak into the visitor map before publication or after a later draft edit',()=>{
  const state=createScenicState();state.draft.spots[0].name='草稿新名字';state.draft.spots[0].x=.1;
  assert.equal(state.published.spots[0].name,'花港观鱼 · 御碑亭');assert.equal(state.published.spots[0].x,.795);
@@ -15,23 +15,14 @@ test('demo completion fills only missing angles and preserves supplied image pro
  assert.equal(s.photos.rear.accepted,false);assert.equal(Object.keys(s.photos).length,6);
  assert.throws(()=>completeDemo(newSpot('empty')),/先上传/);
 });
-test('unreviewed AI results cannot be confirmed, generated or published',()=>{
+test('unreviewed AI results cannot be published or sent to world generation',()=>{
  const state=createScenicState(),s=state.draft.spots[0];completeDemo(s);
- assert.throws(()=>confirmSpot(s),/逐张/);assert.throws(()=>createDemoWorld(s,s.revision),/重新审核/);
+ assert.ok(worldInputs(s).every(i=>i.kind!=='ai-demo'));
  assert.throws(()=>publishScenic(state),/未审核/);
 });
-test('changing any image invalidates confirmation and the previous world result',()=>{
- const {s}=reviewed();const revision=s.revision;createDemoWorld(s,revision);assert.equal(s.world.kind,'demo');
- putPhoto(s,'rear',{url:'/different.png',name:'replacement',kind:'upload',accepted:true});
- assert.equal(s.confirmedRevision,null);assert.equal(s.world,null);assert.throws(()=>createDemoWorld(s,revision),/变化/);
-});
-test('removing an accepted angle blocks confirmation until that angle is replaced',()=>{
- const {s}=reviewed();removePhoto(s,'inside');assert.throws(()=>confirmSpot(s),/补齐/);
- completeDemo(s);assert.equal(s.photos.inside.accepted,false);assert.throws(()=>confirmSpot(s),/逐张/);
-});
-test('publishing six reviewed views and a mock job preserves the real pilot and isolates other spots',()=>{
- const {state,s}=reviewed();const other=structuredClone(state.draft.spots[1]);
- createDemoWorld(s,s.revision);publishScenic(state);
+test('publishing six reviewed views preserves the real pilot and isolates other spots',()=>{
+ const {state}=reviewed();const other=structuredClone(state.draft.spots[1]);
+ publishScenic(state);
  assert.deepEqual(state.draft.spots[1],other);assert.equal(visitorExperience(state.published.spots[0]),'world');
  assert.equal(Object.keys(state.published.spots[0].photos).length,6);
  assert.equal(visitorExperience(state.published.spots[1]),'gallery');
@@ -63,7 +54,7 @@ test('the pilot remains available after supplement edits but never after changin
  assert.equal(visitorExperience(s),'gallery');removePhoto(s,'front');assert.equal(visitorExperience(s),'gallery');
 });
 test('migration restores a real pilot hidden by a mock job without replacing published photos',()=>{
- const {state,s}=reviewed();createDemoWorld(s,s.revision);publishScenic(state);state.schema=5;
+ const {state,s}=reviewed();s.world={kind:'demo',revision:s.revision};publishScenic(state);state.schema=5;
  delete state.draft.spots[0].pilotAsset;delete state.published.spots[0].pilotAsset;
  delete state.published.spots[0].photos.back;delete state.published.spots[0].photos.top;
  const photos=structuredClone(state.published.spots[0].photos);
@@ -72,13 +63,38 @@ test('migration restores a real pilot hidden by a mock job without replacing pub
  assert.deepEqual(next.published.spots[0].photos,photos);assert.equal(next.published.spots[0].world.kind,'demo');
 });
 
-test('back and top are separate review requirements and older confirmation is invalidated',()=>{
+test('older confirmations and mock jobs are cleared on migration while published photos stay',()=>{
  const {state,s}=reviewed();assert.ok(s.photos.back);assert.ok(s.photos.top);
- state.schema=4;delete s.photos.back;delete s.photos.top;s.world={kind:'demo',revision:s.revision};
+ state.schema=4;delete s.photos.back;delete s.photos.top;s.confirmedRevision=s.revision;s.world={kind:'demo',revision:s.revision};
  const published=structuredClone(state.published);state.publishedAt='2026-10-12T00:00:00Z';
  const migrated=upgradeScenicState(state);assert.equal(s.confirmedRevision,null);assert.equal(s.world,null);
- assert.deepEqual(migrated.published,published);assert.throws(()=>confirmSpot(s),/背面/);
+ assert.deepEqual(migrated.published,published);
  completeDemo(s);assert.equal(s.photos.back.accepted,false);assert.equal(s.photos.top.accepted,false);
+});
+test('world generation takes compass views only, and AI completions only once accepted',()=>{
+ const s=createScenicState().draft.spots[0];completeDemo(s);
+ assert.deepEqual(worldInputs(s).map(i=>i.angle),['front']);
+ s.photos.back.accepted=true;s.photos.top.accepted=true;
+ assert.deepEqual(worldInputs(s).map(i=>[i.angle,i.kind]),[['front','real'],['back','ai-demo']]);
+ assert.equal(worldProblem(s),'');assert.match(worldProblem(newSpot('x')),/至少需要/);
+ const blank={...newSpot('y'),name:' '};assert.match(worldProblem(blank),/名称/);
+});
+test('a generated world survives photo edits, is flagged stale, and outranks the bundled pilot',()=>{
+ const state=createScenicState(),s=state.draft.spots[1];
+ putPhoto(s,'back',{url:'idb:b1',kind:'upload',accepted:true});
+ applyGeneratedWorld(s,{model:'marble-1.0-draft',inputs:worldInputs(s)},{worldId:'abcd1234-ef',spz:'/generated/abcd1234-ef/world.spz',receipt:'/generated/abcd1234-ef/receipt.json',credits:250});
+ assert.equal(visitorExperience(s),'world');assert.equal(worldStale(s),false);assert.match(worldAsset(s).note,/2 张照片/);
+ putPhoto(s,'top',{url:'idb:t1',kind:'upload',accepted:true});assert.equal(worldStale(s),false,'top is not a generation input');
+ putPhoto(s,'back',{url:'idb:b2',kind:'upload',accepted:true});assert.equal(s.world.kind,'generated');assert.equal(worldStale(s),true);
+ publishScenic(state);assert.equal(visitorExperience(state.published.spots[1]),'world');
+ const p=state.draft.spots[0];applyGeneratedWorld(p,{model:'marble-1.1',inputs:worldInputs(p)},{worldId:'pilot2345-x',spz:'/generated/pilot2345-x/world.spz',receipt:'/generated/pilot2345-x/receipt.json'});
+ assert.equal(worldAsset(p).spz,'/generated/pilot2345-x/world.spz');
+ p.world.spz='https://evil.example/x.spz';assert.equal(worldAsset(p).spz,'/assets/world/huagang-500k.spz');
+});
+test('a new 3D scene is listed as its own change before publishing',()=>{
+ const state=createScenicState();state.draft=structuredClone(state.published);const s=state.draft.spots[2];
+ applyGeneratedWorld(s,{model:'marble-1.0-draft',inputs:worldInputs(s)},{worldId:'abcd1234-ef',spz:'/generated/abcd1234-ef/world.spz',receipt:'/generated/abcd1234-ef/receipt.json'});
+ assert.deepEqual(draftChanges(state),['平湖秋月：3D 场景已更新']);
 });
 test('guide answers only from staff-written material and admits gaps',()=>{
  const s={...newSpot('x'),name:'雷峰塔',guide:'原塔建于五代。现在的塔是 2002 年重建的。'};

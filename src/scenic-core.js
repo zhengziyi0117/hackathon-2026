@@ -78,7 +78,8 @@ function upgradeToSix(state){
 }
 export function canCompleteDemo(spot){return spot.id===PILOT_ID&&spot.photos.front?.url==='/assets/real/huagang.jpg';}
 export function touchSpot(spot) {
-  spot.revision++; spot.confirmedRevision=null; spot.world=null;
+  // A paid, generated world survives photo edits; worldStale() tells the studio its inputs changed.
+  spot.revision++; spot.confirmedRevision=null; if(spot.world?.kind!=='generated')spot.world=null;
   return spot;
 }
 // Beyond the six review angles a spot can hold any number of extra photos, keyed 'more-…'.
@@ -100,32 +101,49 @@ export function completeDemo(spot) {
   for(const {id} of missing)spot.photos[id]=completionPhoto(id,ANGLES.find(a=>a.id===id).name);
   touchSpot(spot); return spot;
 }
-export function confirmProblem(spot) {
-  if(!spot.name.trim())return '请填写景点名称';
-  if(pendingAngles(spot).length)return '请补齐正面、两侧、背面、俯视和近景，再进行确认';
-  if(Object.values(spot.photos).some(p=>p.kind==='ai-demo'&&!p.accepted))return '请逐张查看并接受 AI 补全图片';
+// Real world generation (World Labs Marble). Only compass directions can be placed by azimuth; top and close-up stay photo-only.
+export const WORLD_ANGLES=['front','rear','back','left'];
+export const WORLD_MODELS=[
+  {id:'marble-1.0-draft',name:'快速草稿',label:'Marble 1.0 Draft',credits:n=>n>1?250:230,hint:'几分钟出结果，适合先看效果'},
+  {id:'marble-1.1',name:'精细版',label:'Marble 1.1',credits:n=>n>1?1600:1580,hint:'约 5 分钟，细节和范围更好'},
+];
+export const modelOf=id=>WORLD_MODELS.find(m=>m.id===id);
+// Photos sent to generation: real or uploaded, plus AI completions only after staff accepted them.
+export function worldInputs(spot){
+  return WORLD_ANGLES.map(angle=>[angle,spot.photos[angle]]).filter(([,p])=>p&&(p.kind!=='ai-demo'||p.accepted)).map(([angle,p])=>({angle,url:p.url,kind:p.kind}));
+}
+export function worldProblem(spot){
+  if(!spot.name.trim())return '请先填写景点名称';
+  if(!worldInputs(spot).length)return '至少需要一张正面、侧面或背面照片';
   return '';
 }
-export function confirmSpot(spot) {
-  const problem=confirmProblem(spot);if(problem)throw Error(problem);
-  spot.confirmedRevision=spot.revision;return spot;
-}
-export function createDemoWorld(spot, expectedRevision) {
-  if(spot.revision!==expectedRevision||spot.confirmedRevision!==spot.revision)throw Error('素材已变化，请重新审核确认');
-  spot.world={kind:'demo',label:'世界模型流程样例',revision:spot.revision};return spot;
+const inputKey=inputs=>inputs.map(i=>i.angle+'='+i.url).join('|');
+// The generated world no longer matches the photos it was made from.
+export const worldStale=spot=>spot.world?.kind==='generated'&&inputKey(spot.world.inputs||[])!==inputKey(worldInputs(spot));
+export function applyGeneratedWorld(spot,job,result){
+  spot.world={kind:'generated',model:job.model,worldId:result.worldId,spz:result.spz,receipt:result.receipt,credits:result.credits??null,inputs:job.inputs,createdAt:new Date().toISOString()};
+  return spot;
 }
 export function publishScenic(state) {
   const {draft}=state,problem=publishProblems(draft)[0];
   if(problem)throw Error(problem.text);
   state.published=copy(draft);state.publishNumber++;state.publishedAt=new Date().toISOString();return state;
 }
-export function visitorExperience(spot) {
-  // Supplemental photo review and mocked jobs do not replace this pre-generated asset.
-  // Replacing or removing the actual input photo must sever its visitor association.
-  return spot.id===PILOT_ID&&spot.pilotAsset?.worldId===PILOT_ASSET.worldId&&
+const pilotBound=spot=>spot.id===PILOT_ID&&spot.pilotAsset?.worldId===PILOT_ASSET.worldId&&
     spot.pilotAsset.referenceUrl===PILOT_ASSET.referenceUrl&&
-    spot.photos.front?.kind==='real'&&spot.photos.front.url===PILOT_ASSET.referenceUrl?'world':'gallery';
+    spot.photos.front?.kind==='real'&&spot.photos.front.url===PILOT_ASSET.referenceUrl;
+// The 3D scene a spot shows: its own generated world first, else the bundled single-photo pilot.
+// Replacing or removing the pilot's input photo severs that association.
+export function worldAsset(spot){
+  const w=spot?.world;
+  if(w?.kind==='generated'&&/^\/generated\/[a-zA-Z0-9-]{8,64}\/world\.spz$/.test(w.spz))
+    return {spz:w.spz,receipt:w.receipt,model:w.model,generated:true,
+      note:`由 ${modelOf(w.model)?.label||w.model} 以 ${w.inputs.length} 张照片生成${w.inputs.some(i=>i.kind==='ai-demo')?'（含经审核的 AI 补图）':''}，未拍到的区域由模型推测。`};
+  if(pilotBound(spot))return {spz:'/assets/world/huagang-500k.spz',receipt:'/assets/world/huagang-generation.json',model:'marble-1.1',generated:false,
+    note:'由 Marble 1.1 以一张正面实拍生成，未拍到的区域由模型推测。'};
+  return null;
 }
+export const visitorExperience=spot=>worldAsset(spot)?'world':'gallery';
 
 // Retrieval-only guide: every answer is a sentence the scenic staff wrote, or an honest "not in the material".
 const SERVICE=/开放|几点|营业|门票|票价|价格|多少钱|轮椅|无障碍|天气|排队|人多|拥挤|今天|明天|闭园|停车|交通|怎么去/;
@@ -167,7 +185,6 @@ export function publishProblems(draft){
     if(!Object.keys(s.photos).length)out.push({text:name+'：至少需要一张图片',spotId:s.id,tab:'photos'});
     const pending=Object.values(s.photos).filter(p=>p.kind==='ai-demo'&&!p.accepted).length;
     if(pending)out.push({text:name+'：还有 '+pending+' 张 AI 图片未审核',spotId:s.id,tab:'photos'});
-    if(s.world&&s.world.revision!==s.revision)out.push({text:name+'：3D 结果对应的素材已过期',spotId:s.id,tab:'world'});
   }
   return out;
 }
@@ -175,7 +192,7 @@ export function draftChanges(state){
   const {draft:d,published:p}=state;if(!p)return ['首次发布「'+d.title+'」'];const out=[],before=new Map(p.spots.map(s=>[s.id,s]));
   if(d.title!==p.title)out.push('景区名称改为「'+d.title+'」');if((d.intro||'')!==(p.intro||''))out.push('更新了景区介绍');
   if(JSON.stringify(d.map)!==JSON.stringify(p.map))out.push('更换了景区地图');
-  for(const s of d.spots){const o=before.get(s.id);if(!o)out.push('新增景点：'+s.name);else if(JSON.stringify(o)!==JSON.stringify(s))out.push(s.name+'：内容有修改');before.delete(s.id);}
+  for(const s of d.spots){const o=before.get(s.id);if(!o)out.push('新增景点：'+s.name);else if(JSON.stringify(o)!==JSON.stringify(s))out.push(s.name+(JSON.stringify({...o,world:s.world})===JSON.stringify(s)?'：3D 场景已更新':'：内容有修改'));before.delete(s.id);}
   for(const s of before.values())out.push('移除景点：'+s.name);
   return out;
 }
