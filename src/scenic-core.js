@@ -17,10 +17,22 @@ export function createScenicState() {
   const spots=PLACES.map(p=>({...newSpot(p.id,p.x,p.y),...p,photos:{front:realPhoto(p.id,p.photoName)}}));
   spots[0].world={kind:'pilot',label:'御碑亭实拍试点',revision:0};
   spots[0].pilotAsset=copy(PILOT_ASSET);
-  const draft={title:'西湖 · 六处风景',map:{url:'/assets/scenic/garden-map.png',name:'西湖灵感游览图 · AI 插画',custom:false},spots};
+  const draft={title:'西湖 · 六处风景',intro:WESTLAKE_INTRO,map:{url:'/assets/scenic/garden-map.png',name:'西湖灵感游览图 · AI 插画',custom:false},spots};
   const published=copy(draft);
   for(const {id,name} of ANGLES.filter(a=>a.id!=='front'))published.spots[0].photos[id]={...completionPhoto(id,name),accepted:true};
-  return {schema:7,draft,published,publishedAt:null,publishNumber:1};
+  return {schema:7,id:'westlake',draft,published,publishedAt:null,publishNumber:1};
+}
+const WESTLAKE_INTRO='湖光、长堤与园林，从六处西湖十景开始；御碑亭可以 3D 漫游。';
+// The workspace holds any number of scenic areas; each keeps its own draft, published snapshot and version.
+export const createWorkspace=()=>({schema:8,scenics:[createScenicState()]});
+export function newScenic(title,map){return {schema:7,id:crypto.randomUUID().slice(0,8),draft:{title,intro:'',map,spots:[]},published:null,publishedAt:null,publishNumber:0};}
+export function upgradeWorkspace(value){
+  if(value?.schema===8&&Array.isArray(value.scenics)){value.scenics=value.scenics.map(upgradeScenicState);return value;}
+  if(![1,2,3,4,5,6,7].includes(value?.schema)||!value.draft?.spots||!value.published?.spots)return createWorkspace();
+  // A single-scenic state from before schema 8 becomes the West Lake entry, untouched otherwise.
+  const sc=upgradeScenicState(value);sc.id||='westlake';
+  for(const k of ['draft','published'])if(typeof sc[k].intro!=='string')sc[k].intro=sc.id==='westlake'?WESTLAKE_INTRO:'';
+  return {schema:8,scenics:[sc]};
 }
 export function upgradeScenicState(state){
   if(state.schema===7)return state;
@@ -160,8 +172,8 @@ export function publishProblems(draft){
   return out;
 }
 export function draftChanges(state){
-  const {draft:d,published:p}=state,out=[],before=new Map(p.spots.map(s=>[s.id,s]));
-  if(d.title!==p.title)out.push('景区名称改为「'+d.title+'」');
+  const {draft:d,published:p}=state;if(!p)return ['首次发布「'+d.title+'」'];const out=[],before=new Map(p.spots.map(s=>[s.id,s]));
+  if(d.title!==p.title)out.push('景区名称改为「'+d.title+'」');if((d.intro||'')!==(p.intro||''))out.push('更新了景区介绍');
   if(JSON.stringify(d.map)!==JSON.stringify(p.map))out.push('更换了景区地图');
   for(const s of d.spots){const o=before.get(s.id);if(!o)out.push('新增景点：'+s.name);else if(JSON.stringify(o)!==JSON.stringify(s))out.push(s.name+'：内容有修改');before.delete(s.id);}
   for(const s of before.values())out.push('移除景点：'+s.name);
@@ -170,5 +182,6 @@ export function draftChanges(state){
 
 // Image references shared by draft and published; the bytes live in the photo store, not in state.
 export const REF='idb:';
-export const photoRefs=state=>['draft','published'].flatMap(k=>state[k]?[state[k].map,...state[k].spots.flatMap(s=>Object.values(s.photos||{}))]:[]).filter(Boolean);
+const scenicRefs=sc=>['draft','published'].flatMap(k=>sc[k]?[sc[k].map,...sc[k].spots.flatMap(s=>Object.values(s.photos||{}))]:[]);
+export const photoRefs=state=>(state.scenics||[state]).flatMap(scenicRefs).filter(Boolean);
 export const refsIn=state=>new Set(photoRefs(state).map(p=>p.url).filter(u=>u?.startsWith(REF)).map(u=>u.slice(REF.length)));

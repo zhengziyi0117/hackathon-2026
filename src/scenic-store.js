@@ -1,4 +1,4 @@
-import {createScenicState,upgradeScenicState,copy,photoRefs,refsIn,REF} from './scenic-core.js';
+import {createWorkspace,upgradeWorkspace,copy,photoRefs,refsIn,REF} from './scenic-core.js';
 import {registerImage} from './web-images.js';
 // The workspace object holds only small 'idb:<sha256>' references; image bytes live as Blobs in their own store,
 // shared by draft and published, so the number of photos is bounded by disk quota, not by one IndexedDB value.
@@ -26,15 +26,16 @@ async function preload(value){
   const d=await db();
   for(const key of refsIn(value)){const blob=await tx(d,'photos','readonly',t=>t.objectStore('photos').get(key));if(blob)registerImage(REF+key,URL.createObjectURL(blob));}
 }
+// Resolves to the whole workspace {schema:8,scenics:[…]}.
 export async function loadScenic() {
   if(state)return state;
   try {
     const d=await db();
     const value=await tx(d,'workspace','readonly',t=>t.objectStore('workspace').get('current'));
-    const next=[1,2,3,4,5,6,7].includes(value?.schema)&&value.draft?.spots&&value.published?.spots?upgradeScenicState(value):createScenicState();
+    const next=upgradeWorkspace(value);
     if(await migrateDataURLs(next))await saveScenic(next);
     await preload(next);state=next;
-  }catch{state=createScenicState();}
+  }catch{state=createWorkspace();}
   return state;
 }
 export function saveScenic(value) {
