@@ -15,7 +15,7 @@ const sourceOnly=new Set([...manifest.entries.filter(e=>!e.keepOriginalInSite).m
 await rm('dist',{recursive:true,force:true});
 await mkdir('dist',{recursive:true});
 await cp('public','dist',{recursive:true,filter:source=>!sourceOnly.has(relative(resolve('public'),resolve(source)))});
-const options={entryPoints:['src/app.js'],bundle:true,format:'esm',splitting:true,outdir:'dist',minify:true,sourcemap:false,target:'es2022',loader:{'.wasm':'file'}};
+const options={entryPoints:['src/app.js'],jsx:'automatic',bundle:true,format:'esm',splitting:true,outdir:'dist',minify:true,sourcemap:false,target:'es2022',loader:{'.wasm':'file'}};
 if(process.argv.includes('--watch')){
   // shortcut: public/ is copied once at startup; restart npm run dev after replacing assets.
   const ctx=await context({...options,minify:false,plugins:[{name:'report',setup(b){b.onEnd(r=>console.log(r.errors.length?'构建失败，保存修改后会自动重试':'Built dist/ · '+new Date().toLocaleTimeString('zh-CN',{hour12:false})));}}]});

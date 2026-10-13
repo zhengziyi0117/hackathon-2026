@@ -21,7 +21,7 @@ export function mountScenic(host,{mode,hydrate,toast}) {
   const spot=()=>state.draft.spots.find(s=>s.id===selected);
   const notify=message=>{if(alive)toast(message);};
   function frame(body){
-    if(!isCreator)return `<header class="header sw-header sw-visitor-header"><a class="brand" href="#scenics"><img src="/favicon.svg" alt=""><span>景见<small>JINGJIAN</small></span></a></header>${body}`;
+    if(!isCreator)return `<header class="header sw-header sw-visitor-header"><a class="brand" href="#home"><img src="/favicon.svg" alt=""><span>景见<small>JINGJIAN</small></span></a></header>${body}`;
     return `<header class="st-top"><a class="brand" href="#studio"><img src="/favicon.svg" alt=""><span>景见<small>STUDIO</small></span></a></header>${body}`;
   }
   async function persist(message,redraw=true){
