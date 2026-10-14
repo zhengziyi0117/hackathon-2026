@@ -1,0 +1,95 @@
+{
+  "generatedAt": "2026-10-12T08:55:00.931Z",
+  "model": "marble-1.1",
+  "operationId": "28fec5b7-d447-4cbf-aff8-edbf8af71d7e",
+  "worldId": "55dcc5ef-342c-4548-b937-6ffe6fb330ed",
+  "actualApiCall": true,
+  "input": {
+    "type": "single-real-photo",
+    "path": "/assets/real/huagang.jpg",
+    "sha256": "80f987b71cd2dc92648d7b5a969291fe79131f92bb37066c199834805a51c02e",
+    "credit": {
+      "title": "File:杭州西湖花港观鱼, 2021-01-17 01.jpg",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/5/5f/%E6%9D%AD%E5%B7%9E%E8%A5%BF%E6%B9%96%E8%8A%B1%E6%B8%AF%E8%A7%82%E9%B1%BC%2C_2021-01-17_01.jpg",
+      "source": "https://commons.wikimedia.org/wiki/File:%E6%9D%AD%E5%B7%9E%E8%A5%BF%E6%B9%96%E8%8A%B1%E6%B8%AF%E8%A7%82%E9%B1%BC,_2021-01-17_01.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "artist": "Siyuwj",
+      "date": "2021-01-17 15:39:24",
+      "description": "​杭州西湖花港观鱼",
+      "path": "/assets/real/huagang.jpg",
+      "retrieved": "2026-10-12",
+      "changes": "原照片；页面缩略图按容器裁切，大图可查看完整画面。"
+    },
+    "aiSupplementaryImagesUsed": false
+  },
+  "prompt": "A faithful photographic spatial preview of the Huagang Guanyu imperial stele pavilion in West Lake, Hangzhou, based on the supplied real photograph. Preserve the single small pavilion with its four pale stone columns, single upturned grey tiled roof, carved brown wood brackets and dark wooden railing enclosing the inscribed stone stele. The camera stands on a broad flat pebble-paved path in front, outside the railing. Preserve the surrounding pond, winter trees and original daylight. Continue a modest open paved walking area to both sides and behind the viewer, with garden trees. Keep the pavilion clearly in front and close enough to recognize. No extra pavilions, no imaginary grand buildings, no people. Do not turn the scene into an open lake. Unseen surroundings are inferred, not a surveyed reconstruction.",
+  "semantics": {
+    "metric_scale_factor": 3.1529565,
+    "ground_plane_offset": 1.7218269
+  },
+  "cost": {
+    "total_credits": 1580,
+    "line_items": [
+      {
+        "name": "Pano generation (image, non-pano)",
+        "credits": 80
+      },
+      {
+        "name": "World generation",
+        "credits": 1500
+      }
+    ]
+  },
+  "creditsBefore": 5420,
+  "creditsAfter": 3840,
+  "assets": [
+    {
+      "file": "huagang-500k.spz",
+      "bytes": 7970375,
+      "sha256": "3d4159d2829e48aef39e05c6c673c03553bf9eadef6cf3c45899b2b1afe766f9"
+    },
+    {
+      "file": "huagang-pano.png",
+      "bytes": 13293758,
+      "sha256": "a46d558e1469b67cabdb7199f089560a4c27c32896eb42e1f9f3bad397011c57",
+      "delivery": "Original panorama preserved in source repository; not used by the website viewer or included in the deployment archive.",
+      "repositoryPath": "public/assets/world/huagang-pano.png"
+    }
+  ],
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+  "attribution": "AI spatial derivative by 景见 / Marble 1.1, based on a photograph by Siyuwj, 2021-01-17. Unseen surroundings, geometry and lettering are inferred and may differ from the site.",
+  "limitations": [
+    "Not a surveyed reconstruction",
+    "No on-site validation",
+    "No collision or walkability verification",
+    "Single-photo input; distant viewpoints may expose gaps"
+  ],
+  "view": {
+    "home": [
+      0,
+      1.7218269,
+      0
+    ],
+    "target": [
+      0,
+      1.7218269,
+      -4
+    ]
+  },
+  "verification": {
+    "date": "2026-10-12",
+    "checks": [
+      "API operation succeeded; cost and balance reconciled",
+      "Downloaded 500k SPZ and panorama; SHA-256 recorded",
+      "WebGL viewer rendered the pavilion at the initial camera",
+      "Five one-metre rightward moves reported 5.0 metres; reset exercised"
+    ],
+    "notVerified": [
+      "Survey accuracy",
+      "Physical collision",
+      "Unseen geometry matching the real site"
+    ]
+  }
+}

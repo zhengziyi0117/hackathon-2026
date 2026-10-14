@@ -1,0 +1,89 @@
+{
+  "format": "JPEG",
+  "quality": 85,
+  "maxDimension": 1920,
+  "changes": "Web delivery copies: resized when larger than 1920 px and JPEG-compressed; no scene or content edits.",
+  "entries": [
+    {
+      "source": "/assets/scenic/garden-map.png",
+      "output": "/assets/web/scenic-garden-map.jpg",
+      "sourceSha256": "6c61754abfc188c5d94f742e2e644b72ddd3a4be22c5f2712934bacc923063cb",
+      "outputSha256": "ad9bd397aa4a73be41c672a73cfb82ecfa6956afc58166d4e148e6222b1ef0da",
+      "originalBytes": 3842381,
+      "webBytes": 1079947,
+      "keepOriginalInSite": false
+    },
+    {
+      "source": "/assets/completion/huagang-left.png",
+      "output": "/assets/web/completion-huagang-left.jpg",
+      "sourceSha256": "097cbe9ab68f6c0bdd5ca57d2afa942beb9f9eec82b3849ce1ebaaeacb5b5d5e",
+      "outputSha256": "e260463d11336afea318e8998ab4b413087e75310d4aa4902fcb162c073cf6cf",
+      "originalBytes": 3343603,
+      "webBytes": 860263,
+      "keepOriginalInSite": false
+    },
+    {
+      "source": "/assets/completion/huagang-rear.png",
+      "output": "/assets/web/completion-huagang-rear.jpg",
+      "sourceSha256": "2a851dcf2265ca10ee4c0a8f6657c7260d2ceef00ccaa923df0f193e9e3f2981",
+      "outputSha256": "f06e8c80dbc75faff5321a2f1e7ead4ee6c552380b027e3965fc0acaeae27873",
+      "originalBytes": 3320321,
+      "webBytes": 853302,
+      "keepOriginalInSite": false
+    },
+    {
+      "source": "/assets/completion/huagang-back.png",
+      "output": "/assets/web/completion-huagang-back.jpg",
+      "sourceSha256": "8183fa353d6721d46a9065e33eccfed5505e53d3e29cc77266e9c2122b684acb",
+      "outputSha256": "605f891a91cbd8f53d41f1d4288109c316bd3ecb8dd845cb0b785b5819fb15e9",
+      "originalBytes": 3617480,
+      "webBytes": 959512,
+      "keepOriginalInSite": false
+    },
+    {
+      "source": "/assets/completion/huagang-top.png",
+      "output": "/assets/web/completion-huagang-top.jpg",
+      "sourceSha256": "fb6244319a08c1dab3a04817060c3707d22a4d66d35d810f61275267195b47df",
+      "outputSha256": "9d52c2cea44da420918043744083173d885803f8ddc8d2723c51453964d83627",
+      "originalBytes": 3948655,
+      "webBytes": 1062716,
+      "keepOriginalInSite": false
+    },
+    {
+      "source": "/assets/completion/huagang-detail.png",
+      "output": "/assets/web/completion-huagang-detail.jpg",
+      "sourceSha256": "6d026add076b8c32127e8f016f7b487a38f4411e11aafe89ffac7eb3ae4895e9",
+      "outputSha256": "d8793f6e6cfdaf4f72cdf6ba58de49b8587640b858ad608599df39403260ad5f",
+      "originalBytes": 3242117,
+      "webBytes": 843578,
+      "keepOriginalInSite": false
+    },
+    {
+      "source": "/assets/real/huagang.jpg",
+      "output": "/assets/web/real-huagang.jpg",
+      "sourceSha256": "80f987b71cd2dc92648d7b5a969291fe79131f92bb37066c199834805a51c02e",
+      "outputSha256": "39cdd9bcc771fe4226aa984127f504a30f5ddeaf391eeb3d487658bcdddb8a4b",
+      "originalBytes": 7151384,
+      "webBytes": 958771,
+      "keepOriginalInSite": true
+    },
+    {
+      "source": "/assets/real/duanqiao.jpg",
+      "output": "/assets/web/real-duanqiao.jpg",
+      "sourceSha256": "3fa7a6403a47b329a1328d804a5e3753d89b3c422c0aeeadf57faaabbfb9b5f7",
+      "outputSha256": "1db560d937629961fd84c257d5d74a2e834bd13054f68788cb3f409ceb64dac4",
+      "originalBytes": 5087006,
+      "webBytes": 473684,
+      "keepOriginalInSite": false
+    },
+    {
+      "source": "/assets/real/quyuan.jpg",
+      "output": "/assets/web/real-quyuan.jpg",
+      "sourceSha256": "ed8be478f41a0b2f20fba4020bddca862ce26396f8940d8c9b1132263b836d24",
+      "outputSha256": "7a7790bdd0c666c9a3fdc01d6168c6b94f205a6ca177c82b9c51a94461379c2b",
+      "originalBytes": 1853790,
+      "webBytes": 584248,
+      "keepOriginalInSite": false
+    }
+  ]
+}

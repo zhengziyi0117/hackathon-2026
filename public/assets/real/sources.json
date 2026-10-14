@@ -1,0 +1,76 @@
+{
+  "pinghu": {
+    "title": "File:Autumn Moon Over the Calm Lake DSC 6187 (10595954084).jpg",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/3/38/Autumn_Moon_Over_the_Calm_Lake_DSC_6187_%2810595954084%29.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Autumn_Moon_Over_the_Calm_Lake_DSC_6187_(10595954084).jpg",
+    "license": "CC BY-SA 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+    "artist": "Ludger Heide",
+    "date": "2010-12-25 04:24",
+    "path": "/assets/real/pinghu-verified.jpg",
+    "retrieved": "2026-10-12",
+    "changes": "原照片；页面缩略图按容器裁切，大图可查看完整画面。"
+  },
+  "quyuan": {
+    "title": "File:West Lake, August 2012 06.JPG",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/c/c5/West_Lake%2C_August_2012_06.JPG",
+    "source": "https://commons.wikimedia.org/wiki/File:West_Lake,_August_2012_06.JPG",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "artist": "Nicor",
+    "date": "2012（原文件的月份记录不一致）",
+    "description": "West Lake",
+    "path": "/assets/real/quyuan.jpg",
+    "retrieved": "2026-10-12",
+    "changes": "原照片；页面缩略图按容器裁切，大图可查看完整画面。"
+  },
+  "huagang": {
+    "title": "File:杭州西湖花港观鱼, 2021-01-17 01.jpg",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/5/5f/%E6%9D%AD%E5%B7%9E%E8%A5%BF%E6%B9%96%E8%8A%B1%E6%B8%AF%E8%A7%82%E9%B1%BC%2C_2021-01-17_01.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:%E6%9D%AD%E5%B7%9E%E8%A5%BF%E6%B9%96%E8%8A%B1%E6%B8%AF%E8%A7%82%E9%B1%BC,_2021-01-17_01.jpg",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "artist": "Siyuwj",
+    "date": "2021-01-17 15:39:24",
+    "description": "​杭州西湖花港观鱼",
+    "path": "/assets/real/huagang.jpg",
+    "retrieved": "2026-10-12",
+    "changes": "原照片；页面缩略图按容器裁切，大图可查看完整画面。"
+  },
+  "leifeng": {
+    "title": "File:Leifeng Pagoda 20250505.jpg",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/0/04/Leifeng_Pagoda_20250505.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Leifeng_Pagoda_20250505.jpg",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "artist": "Suicasmo",
+    "date": "2025-05-05 09:48:24",
+    "path": "/assets/real/leifeng-close.jpg",
+    "retrieved": "2026-10-12",
+    "changes": "原照片；页面缩略图按容器裁切，大图可查看完整画面。"
+  },
+  "santan": {
+    "title": "File:Three Pools Mirroring the Moon.jpg",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/0/04/Three_Pools_Mirroring_the_Moon.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Three_Pools_Mirroring_the_Moon.jpg",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+    "artist": "Hangzhou West Lake, Ten Thousand Strangers",
+    "date": "2008-05-03 17:40:10",
+    "path": "/assets/real/santan-towers.jpg",
+    "retrieved": "2026-10-12",
+    "changes": "原照片；页面缩略图按容器裁切，大图可查看完整画面。"
+  },
+  "duanqiao": {
+    "title": "File:Broken Bridge (Hangzhou) 20250505.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Broken_Bridge_(Hangzhou)_20250505.jpg",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/c/c7/Broken_Bridge_%28Hangzhou%29_20250505.jpg",
+    "path": "/assets/real/duanqiao.jpg",
+    "artist": "Suicasmo",
+    "license": "CC0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "date": "2025-05-05",
+    "retrieved": "2026-10-12",
+    "changes": "原照片；页面缩略图按容器裁切，大图可查看完整画面。"
+  }
+}
