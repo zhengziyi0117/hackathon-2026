@@ -37,7 +37,7 @@ export function mountScenic(host,{mode,hydrate,toast}) {
   }
   function guarded(action){return async ev=>{try{if(!busy)await action(ev);}catch(err){notify(err.message);}};}
   function mapHTML(project,edit=false){
-    return `<div class="sw-map-shell ${edit?'sw-edit-map':''}"><div class="sw-map-canvas ${placement?'is-placing':''}" id="scenic-map-canvas"><img class="sw-map-image" src="${e(webImageUrl(project.map.url))}" alt="${e(project.map.name)}" draggable="false">${project.spots.map((s,i)=>`<button class="sw-marker ${selected===s.id?'selected':''}" style="left:${s.x*100}%;top:${s.y*100}%" data-marker="${e(s.id)}" aria-label="选择景点：${e(s.name)}" aria-pressed="${selected===s.id}"><span>${String(i+1).padStart(2,'0')}</span><b>${e(s.name)}</b></button>`).join('')}</div><div class="sw-map-legend"><span>${ic('map')} ${project.map.custom?'景区上传地图':'插画依西湖湖岸构图 · 点位为示意'}</span><span>${edit?(placement==='add'?'点击地图放置新景点':placement==='move'?'点击地图设置新位置':'选择点位进行编辑'):''}</span></div></div>`;
+    return `<div class="sw-map-shell ${edit?'sw-edit-map':''} ${!edit&&project.spots.length>8?'sw-dense-map':''}"><div class="sw-map-canvas ${placement?'is-placing':''}" id="scenic-map-canvas"><img class="sw-map-image" src="${e(webImageUrl(project.map.url))}" alt="${e(project.map.name)}" draggable="false">${project.spots.map((s,i)=>`<button class="sw-marker ${selected===s.id?'selected':''}" style="left:${s.x*100}%;top:${s.y*100}%" data-marker="${e(s.id)}" aria-label="选择景点：${e(s.name)}" aria-pressed="${selected===s.id}"><span>${String(i+1).padStart(2,'0')}</span><b>${e(s.name)}</b></button>`).join('')}</div><div class="sw-map-legend"><span>${ic('map')} ${project.map.custom?'景区上传地图':e(project.map.legend||'插画依西湖湖岸构图 · 点位为示意')}</span><span>${edit?(placement==='add'?'点击地图放置新景点':placement==='move'?'点击地图设置新位置':'选择点位进行编辑'):''}</span></div>${!edit&&project.spots.length>8?`<nav class="sw-map-index" aria-label="景点目录">${project.spots.map((s,i)=>`<button data-marker="${e(s.id)}" aria-pressed="${selected===s.id}"><span>${String(i+1).padStart(2,'0')}</span>${e(s.name)}</button>`).join('')}</nav>`:''}</div>`;
   }
   function drawVisitor(){
     if(mode==='list')return drawList();
@@ -49,7 +49,7 @@ export function mountScenic(host,{mode,hydrate,toast}) {
     const s=p.spots.find(x=>x.id===selected),img=s&&cover(s);
     // One map, one preview card: tapping a pin previews it in place instead of leaving the page.
     const card=s?`<aside class="sw-spot-card" id="spot-card" aria-label="景点预览">${img?`<div class="sw-spot-cover"><img src="${e(webImageUrl(img.url))}" alt=""><span class="sw-tag${['ai-demo','concept'].includes(img.kind)?' ai':''}">${photoLabel(img)}</span></div>`:''}<div class="sw-spot-body"><span class="sw-spot-kind">${ic(visitorExperience(s)==='world'?'box':'images')}${visitorExperience(s)==='world'?'可 3D 漫游':'图片赏景'}</span><h2>${e(s.name)}</h2><p>${e(s.description||'沿着自己的节奏，发现这里的风景。')}</p><div class="sw-spot-actions">${visitorExperience(s)==='world'?`<a class="button primary" href="${link('pilot',s.id)}">${ic('box')}进入 3D 漫游</a><a class="button outline" href="${spotLink(s)}">${ic('images')}看照片</a>`:`<a class="button primary" href="${spotLink(s)}">${ic('images')}看照片</a>`}</div></div></aside>`:'';
-    host.innerHTML=frame(`<main class="sw-visitor page"><div class="sw-visitor-heading"><div><a class="sw-back" href="#scenics">${ic('arrow-left')}全部景区</a><h1>${e(p.title)}</h1><p>点击地图上的景点，看看那里的风景。</p></div></div><div class="sw-explore-layout">${mapHTML(p)}${card}</div></main>`);
+    host.innerHTML=frame(`<main class="sw-visitor page"><div class="sw-visitor-heading"><div><a class="sw-back" href="#scenics">${ic('arrow-left')}全部景区</a><h1>${e(p.title)}</h1><p>点击地图上的景点，看看那里的风景。</p></div>${geoFor(sid)?`<a class="button outline small" href="${link('map')}">${ic('box')}微缩 3D</a>`:''}</div><div class="sw-explore-layout">${mapHTML(p)}${card}</div></main>`);
     bindMap();
   }
   // Visitor home: every published scenic area, then its map.
@@ -316,7 +316,7 @@ export function mountScenic(host,{mode,hydrate,toast}) {
     });
   }
   function bindMap(){
-    $$('[data-marker]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();selected=b.dataset.marker;history.replaceState(null,'',link('map',selected));draw();$('[data-marker="'+CSS.escape(selected)+'"]')?.focus({preventScroll:true});$('#spot-card')?.scrollIntoView({block:'nearest',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});});
+    $$('[data-marker]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();selected=b.dataset.marker;history.replaceState(null,'',link('map',selected)+'&view=scroll');draw();$('[data-marker="'+CSS.escape(selected)+'"]')?.focus({preventScroll:true});$('#spot-card')?.scrollIntoView({block:'nearest',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});});
   }
   function showPublish(){
     const changes=draftChanges(state),problems=publishProblems(state.draft);

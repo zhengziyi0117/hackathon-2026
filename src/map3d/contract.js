@@ -7,11 +7,11 @@ const object=(properties,optional=[])=>({type:'object',properties,required:Objec
 const dictionary=s=>({type:'object',additionalProperties:s,minProperties:1});
 const oneOf=(...anyOf)=>({anyOf});
 const enumeration=(...values)=>({enum:values});
-const version={const:1},id={type:'string',pattern:'^[a-z][a-z0-9-]*$'};
+const version={enum:[1,2]},id={type:'string',pattern:'^[a-z][a-z0-9-]*$'};
 const quality=object({terrainSegments:{type:'integer',minimum:64,maximum:512},landTextureResolution:{type:'integer',minimum:64,maximum:1024},shadowMapSize:{enum:[1024,2048,4096]}});
 const mood=object({name:str,short:str,sky:tuple(color,color,color),fog:color,sun:object({dir:xyz,color,i:nonnegative}),hemi:tuple(color,color,nonnegative),water:tuple(color,color),grass:color,snow:nonnegative,night:nonnegative,blossom:nonnegative,autumn:nonnegative,lotus:nonnegative,exposure:positive,emissionScale:nonnegative,petals:nonnegative,flakes:nonnegative,stars:nonnegative,moon:nonnegative,cloud:color});
 const pose=object({target:xyz,distance:positive,theta:num,phi:positive});
-export const MODEL_IDS=['stele-pavilion','lake-terrace','pavilion','three-lanterns','pagoda','slender-pagoda','arch-bridge'];
+export const MODEL_IDS=['stele-pavilion','lake-terrace','pavilion','three-lanterns','pagoda','slender-pagoda','arch-bridge','palace-hall','palace-gate','palace-wall','palace-platform','palace-tower','palace-paving'];
 export const CONTRACTS={
  manifest:object({schemaVersion:version,id,name:str,geography:str,layout:str,interaction:str,styles:array(id,1),defaultStyle:id}),
  geography:object({schemaVersion:version,id,name:str,frame:object({origin:xy,unitMeters:positive,bounds:object({minX:num,maxX:num,minZ:num,maxZ:num}),source:str,axes:object({x:{const:'east'},z:{const:'south'}}),projection:object({lonUnits:positive,latUnits:positive})}),
@@ -20,7 +20,7 @@ export const CONTRACTS={
   terrain:object({cell:{type:'number',minimum:.05,maximum:1},hills:array(object({at:xy,radius:positive,height:positive})),westRidge:object({startX:num,width:positive,height:nonnegative,noise:nonnegative}),city:object({eastX:num,eastWidth:positive,northX:num,northWidth:positive,northZ:num,northDepth:positive})}),
   network:object({nodes:dictionary(xy),edges:array(object({a:str,b:str,mode:enumeration('walk','boat')}),1)}),
   spots:dictionary(object({node:str,label:xy,scene:str,heading:{type:'number',minimum:0,exclusiveMaximum:360},season:enumeration('spring','summer','dusk','autumn','winter')},['heading']))}),
- layout:object({schemaVersion:version,id,mapId:id,catalogVersion:version,
+ layout:object({schemaVersion:version,id,mapId:id,catalogVersion:{const:1},
   landmarks:array(object({id,model:enumeration(...MODEL_IDS),at:xy,rotation:num,scale:positive,lift:num,spotId:oneOf(id,{type:'null'}),parameters:{type:'object',additionalProperties:positive},absoluteY:num},['absoluteY']),1),
   labels:array(object({text:str,at:xy,kind:enumeration('dike','hill','isle','lake','city'),lift:num})),
   vegetation:object({seed:num,attempts:{type:'integer',minimum:1,maximum:20000},islands:array(tuple(num,num,positive))}),city:object({seed:num}),
@@ -33,6 +33,14 @@ export const CONTRACTS={
   landform:object({cell:{type:'number',minimum:.2,maximum:.6},step:{type:'number',minimum:.1,maximum:.4},minHeight:{type:'number',minimum:.35,maximum:1}}),
   surface:object({paperGrain:nonnegative,roughness:oneOf({type:'number',minimum:0,maximum:1},{type:'null'}),flatTerrain:bool,contours:nonnegative}),water:object({waves:nonnegative,specular:nonnegative,grain:nonnegative,pond:color}),post:object({bloomDay:nonnegative,bloomNight:nonnegative,tilt:nonnegative}),moods:object(Object.fromEntries(['spring','summer','dusk','autumn','winter'].map(k=>[k,mood])))},['landform'])
 };
+// Version 2 adds physical architecture and presentation rules without changing v1 packages.
+const rect=object({id,at:xy,size:tuple(positive,positive),kind:enumeration('building','wall','platform','paving','garden','passage'),height:nonnegative});
+CONTRACTS.geography.properties.architecture=object({floor:num,walkBounds:tuple(num,num,num,num),entities:array(rect,1),portals:array(object({id,at:xy,size:tuple(positive,positive),axis:enumeration('x','z'),direction:enumeration('both','positive','negative'),open:bool})),sourceNote:str});
+CONTRACTS.layout.properties.components=object({city:bool,lotus:bool,pond:bool,vegetation:bool,clouds:bool,paths:bool});
+CONTRACTS.layout.properties.landmarks.items.properties.entityId=id;
+CONTRACTS.interaction.properties.presentation=object({title:str,loading:str,attribution:str,attributionUrl:str,moods:array(str,1),overviewSpots:array(id,1),stampSpots:array(id,1),tour:array(id,1),exitNodes:array(str,1),availabilityNote:str,sourceUrl:str,checkedAt:str});
+CONTRACTS.style.properties.schemaVersion={const:1};
+
 // Implements only the schema vocabulary emitted above; no executable code is accepted in map files.
 export function schemaErrors(schema,value,path='$'){
  if(schema.anyOf)return schema.anyOf.some(s=>!schemaErrors(s,value,path).length)?[]:[path+': does not match any allowed type'];
@@ -64,6 +72,9 @@ export function validatePackage(pkg,styles){
  for(const [id,s] of Object.entries(styles))errors.push(...schemaErrors(CONTRACTS.style,s,'styles.'+id));
  if(errors.length)return errors;
  const {manifest:m,geography:g,layout:l,interaction:r}=pkg;
+ for(const part of [g,l,r])if(part.schemaVersion!==m.schemaVersion)errors.push('schemaVersion: all map layers must match');
+ if(m.schemaVersion===1&&(g.architecture||l.components||r.presentation))errors.push('architecture fields require version 2');
+ if(m.schemaVersion===2&&(!g.architecture||!l.components||!r.presentation))errors.push('version 2 requires architecture, components and presentation');
  if(g.id!==m.id||l.mapId!==m.id||r.mapId!==m.id)errors.push('mapId: all layers must reference the manifest map');
  const B=g.frame.bounds;if(B.minX>=B.maxX||B.minZ>=B.maxZ)errors.push('geography.frame.bounds: inverted bounds');
  if((B.maxX-B.minX)*(B.maxZ-B.minZ)/g.terrain.cell**2>2500000)errors.push('geography.terrain: distance grid exceeds 2.5 million cells');
@@ -77,8 +88,13 @@ export function validatePackage(pkg,styles){
  }
  for(const [id,s] of Object.entries(g.spots)){if(!nodes[s.node])errors.push('spots.'+id+': unknown node');if(!inBounds(s.label))errors.push('spots.'+id+': label outside bounds');}
  const modelIDs=new Set(),bound=new Set();
- const modelParams={pavilion:['size','height','roofH'],pagoda:['tiers','r','body'], 'arch-bridge':['length','height','width','arch']};
+ const modelParams=Object.fromEntries(MODEL_IDS.filter(k=>k.startsWith('palace-')).map(k=>[k,['width','depth','height','base','tiers','roof','gap']]));Object.assign(modelParams,{pavilion:['size','height','roofH'],pagoda:['tiers','r','body'], 'arch-bridge':['length','height','width','arch']});
+ const entities=g.architecture?.entities||[],entityIds=new Set();
+ for(const x of entities){if(entityIds.has(x.id))errors.push('architecture: duplicate entity '+x.id);entityIds.add(x.id);if(!inBounds(x.at))errors.push('architecture: outside bounds '+x.id);}
+ if(g.architecture){const [x0,x1,z0,z1]=g.architecture.walkBounds;if(x0>=x1||z0>=z1)errors.push('architecture: inverted walk bounds');const portals=new Set();for(const gate of g.architecture.portals){if(portals.has(gate.id)||!inBounds(gate.at))errors.push('architecture: invalid portal '+gate.id);portals.add(gate.id);}}
+ if(r.presentation){for(const id of [...r.presentation.tour,...r.presentation.stampSpots,...r.presentation.overviewSpots])if(!g.spots[id])errors.push('presentation: unknown spot '+id);for(const id of r.presentation.exitNodes)if(!nodes[id])errors.push('presentation: unknown exit '+id);for(const id of r.presentation.moods)for(const style of m.styles)if(!styles[style]?.moods[id])errors.push('presentation: unknown mood '+id);}
  for(const model of l.landmarks){
+  if(model.entityId){const entity=entities.find(x=>x.id===model.entityId);if(!entity||entity.at.some((x,i)=>x!==model.at[i])||model.rotation!==0||model.scale!==1||entity.size[0]!==model.parameters.width||entity.size[1]!==model.parameters.depth)errors.push('model and physical entity disagree: '+model.id);}
   if(modelIDs.has(model.id))errors.push('layout.landmarks: duplicate id '+model.id);modelIDs.add(model.id);
   if(!inBounds(model.at))errors.push('layout.landmarks.'+model.id+': outside bounds');
   if(model.spotId){if(!g.spots[model.spotId]||bound.has(model.spotId))errors.push('layout.landmarks.'+model.id+': invalid or duplicate spot binding');bound.add(model.spotId);}

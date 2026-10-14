@@ -1,0 +1,9 @@
+生成日期：2026-10-14
+工具：内置 ImageGen
+用途：故宫 2D 艺术绘卷与景区卡片封面
+产物：public/assets/forbidden-city/palace-scroll.jpg
+处理：原始 PNG 转 JPEG，质量 85；未改变图片内容。
+审核：颜色和空间意象通过；建筑数量、位置与门洞包含生成推测，不作为三维几何、通行或地理数据来源。3D 地图独立采用官方资料整理的示意数据。
+
+实际提示词：
+Create a premium illustrated visitor map of the Forbidden City in Beijing for an interactive travel website, a polished miniature architectural atlas in warm ivory parchment, muted vermilion walls, golden ochre tiled roofs, jade-green trees and pale turquoise moat. Landscape 3:2 canvas. Entire rectangular palace compound centered, straight north-up, south at bottom, almost orthographic top-down with just enough roof dimension to feel handcrafted 3D. Respect the recognizable real plan: continuous rectangular moat, four corner towers, Meridian Gate/Wumen with its unmistakable U shaped wings centered at bottom, five Inner Golden Water bridges above it, Gate of Supreme Harmony, large south ceremonial court, three distinct central halls in sequence (largest Taihedian, small square Zhonghedian, medium Baohedian), then Qianqinggong, small Jiaotaidian, Kunninggong, Imperial Garden and Shenwumen centered at top. East and west densely layered courtyard groups; Ningshou precinct on upper right, Cining precinct on middle left. Palace walls occupy approx x 20%-80%, y 9%-92%; no Tiananmen, no mountainous terrain, no floating fantasy towers. The dominant central axis clear, courtyards spacious and paved, fine roof tile strokes, delicate soft shadows, exquisite measured architectural illustration, calm museum publication quality. No text, no labels, no numbers, no map pins, no UI, no legend, no borders or watermark. This is an artistic illustrated guide, not a survey. It must feel like the same red/gold miniature palace as our Three.js diorama.

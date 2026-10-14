@@ -1,6 +1,9 @@
 // Compiles a versioned map package into terrain and routing functions. No scenic-specific coordinates.
 export function createGeography(data,rules){
-const GEO_FRAME=data.frame,WATER=data.water,PLACES=data.places;
+const GEO_FRAME=data.frame,WATER=data.water,PLACES=data.places,architecture=data.architecture;
+const inRect=(x,z,r,pad=0)=>Math.abs(x-r.at[0])<r.size[0]/2+pad&&Math.abs(z-r.at[1])<r.size[1]/2+pad;
+const blockers=architecture?.entities.filter(e=>['building','wall','platform'].includes(e.kind))||[];
+const passages=architecture?.entities.filter(e=>e.kind==='passage')||[];
 const {origin,projection}=GEO_FRAME;
 const fromLonLat=([lon,lat])=>[(lon-origin[0])*projection.lonUnits,-(lat-origin[1])*projection.latUnits];
 const toLonLat=([x,z])=>[origin[0]+x/projection.lonUnits,origin[1]-z/projection.latUnits];
@@ -80,31 +83,55 @@ function hillHeight(x,z){
  return h*(1-cityAmount(x,z)*.9);
 }
 function terrainHeight(x,z,land=landField(x,z)){
+ if(architecture)return land<0?-.25:architecture.floor;
  if(land<0)return -.12-.5*Math.min(1,-land/2.2);
  const shore=.07+.14*Math.min(1,land/1.2);
  return shore+hillHeight(x,z)*Math.min(1,land/1.6)+noise(x*2.3,z*2.3)*.03*Math.min(1,land);
 }
 // Height a walker stands at: the terrain, or the arched deck of a bridge.
 function groundHeight(x,z){
+ if(architecture&&passages.some(e=>inRect(x,z,e)))return architecture.floor;
  const br=bridgeAt(x,z),t=terrainHeight(x,z);
  if(!br)return t;
  return Math.max(t,.08+BRIDGE.height*(br.b.big?1.4:1)*(1-br.u*br.u));
 }
 const isWater=(x,z)=>landField(x,z)<0;
 function inBounds(x,z,pad=rules.movement.boundsPadding){return x>B.minX+pad&&x<B.maxX-pad&&z>B.minZ+pad&&z<B.maxZ-pad;}
-const walkable=(x,z)=>inBounds(x,z)&&(landField(x,z)>rules.movement.minLand||!!bridgeAt(x,z))&&terrainHeight(x,z)<rules.movement.maxTerrainHeight;
+function walkable(x,z){
+ if(!inBounds(x,z))return false;
+ if(architecture){
+  const [x0,x1,z0,z1]=architecture.walkBounds;
+  if(x<x0||x>x1||z<z0||z>z1)return false;
+  if(blockers.some(e=>inRect(x,z,e,.06)))return false;
+  if(architecture.portals.some(e=>!e.open&&inRect(x,z,e,.06)))return false;
+  return landField(x,z)>rules.movement.minLand||passages.some(e=>inRect(x,z,e));
+ }
+ return (landField(x,z)>rules.movement.minLand||!!bridgeAt(x,z))&&terrainHeight(x,z)<rules.movement.maxTerrainHeight;
+}
+// Segment checks also prevent fast keyboard movement and direct shortcuts tunnelling through walls.
+function canTravel(ax,az,bx,bz){
+ const n=Math.max(1,Math.ceil(Math.hypot(bx-ax,bz-az)/rules.routing.straightSampleStep));
+ for(let i=0;i<=n;i++)if(!walkable(ax+(bx-ax)*i/n,az+(bz-az)*i/n))return false;
+ for(const gate of architecture?.portals||[]){
+  const k=gate.axis==='x'?0:1,a=k===0?ax:az,b=k===0?bx:bz,c=gate.at[k];
+  if(a!==b&&(a-c)*(b-c)<=0){const t=(c-a)/(b-a),cross=k===0?az+(bz-az)*t:ax+(bx-ax)*t;if(Math.abs(cross-gate.at[1-k])<gate.size[1-k]/2){if(!gate.open||gate.direction==='positive'&&b<a||gate.direction==='negative'&&b>a)return false;}}
+ }
+ return true;
+}
 
 const NODES=data.network.nodes;
 const EDGES=data.network.edges.map(({a,b,mode})=>({a,b,mode,length:Math.hypot(NODES[a][0]-NODES[b][0],NODES[a][1]-NODES[b][1])}));
 const SPOT_GEO=data.spots;
 
+let adjacency;
 function shortestPath(from,to){
+ if(!adjacency){adjacency=Object.fromEntries(Object.keys(NODES).map(n=>[n,[]]));for(const e of EDGES){if(!architecture||canTravel(...NODES[e.a],...NODES[e.b]))adjacency[e.a].push({v:e.b,e});if(!architecture||canTravel(...NODES[e.b],...NODES[e.a]))adjacency[e.b].push({v:e.a,e});}}
  const dist={[from]:0},prev={},open=new Set(Object.keys(NODES));
  while(open.size){
   let u=null;for(const n of open)if(dist[n]!==undefined&&(u===null||dist[n]<dist[u]))u=n;
   if(u===null||u===to)break;open.delete(u);
-  for(const e of EDGES){
-   const v=e.a===u?e.b:e.b===u?e.a:null;if(!v||!open.has(v))continue;
+  for(const {v,e} of adjacency[u]||[]){
+   if(!open.has(v))continue;
    const alt=dist[u]+e.length*(e.mode==='boat'?rules.routing.boatCostMultiplier:1);
    if(dist[v]===undefined||alt<dist[v]){dist[v]=alt;prev[v]=u;}
   }
@@ -135,5 +162,5 @@ function neighboursOf(id,ids,limit=3){
  }).filter(Boolean).sort((a,b)=>a.meters-b.meters).slice(0,limit);
 }
 
-return {GEO_FRAME,fromLonLat,toLonLat,WATER,PLACES,CAUSEWAYS,BRIDGE,BRIDGES,distToPolyline,pointOnPolyline,landField,terrainHeight,groundHeight,hillHeight,cityAmount,isWater,inBounds,walkable,NODES,EDGES,SPOT_GEO,shortestPath,nearestNode,bearing,compassName,routeTime,neighboursOf};
+return {architecture,canTravel,GEO_FRAME,fromLonLat,toLonLat,WATER,PLACES,CAUSEWAYS,BRIDGE,BRIDGES,distToPolyline,pointOnPolyline,landField,terrainHeight,groundHeight,hillHeight,cityAmount,isWater,inBounds,walkable,NODES,EDGES,SPOT_GEO,shortestPath,nearestNode,bearing,compassName,routeTime,neighboursOf};
 }

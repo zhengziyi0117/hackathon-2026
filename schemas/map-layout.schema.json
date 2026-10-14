@@ -4,7 +4,10 @@
   "type": "object",
   "properties": {
     "schemaVersion": {
-      "const": 1
+      "enum": [
+        1,
+        2
+      ]
     },
     "id": {
       "type": "string",
@@ -34,7 +37,13 @@
               "three-lanterns",
               "pagoda",
               "slender-pagoda",
-              "arch-bridge"
+              "arch-bridge",
+              "palace-hall",
+              "palace-gate",
+              "palace-wall",
+              "palace-platform",
+              "palace-tower",
+              "palace-paving"
             ]
           },
           "at": {
@@ -80,6 +89,10 @@
           },
           "absoluteY": {
             "type": "number"
+          },
+          "entityId": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$"
           }
         },
         "required": [
@@ -321,6 +334,38 @@
         "terrainSegments",
         "landTextureResolution",
         "shadowMapSize"
+      ],
+      "additionalProperties": false
+    },
+    "components": {
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "boolean"
+        },
+        "lotus": {
+          "type": "boolean"
+        },
+        "pond": {
+          "type": "boolean"
+        },
+        "vegetation": {
+          "type": "boolean"
+        },
+        "clouds": {
+          "type": "boolean"
+        },
+        "paths": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "city",
+        "lotus",
+        "pond",
+        "vegetation",
+        "clouds",
+        "paths"
       ],
       "additionalProperties": false
     }

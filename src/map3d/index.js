@@ -15,7 +15,7 @@ import {bindSpeak,stopSpeaking} from '../narration.js';
 
 
 const ic=n=>`<i data-lucide="${n}"></i>`;
-const SESSION='jj-map3d-osm';
+const SESSION='jj-map3d';
 const TiltShift={uniforms:{tDiffuse:{value:null},uRes:{value:new T.Vector2(1,1)},uFocus:{value:.52},uRange:{value:.36},uAmount:{value:1}},
  vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
  fragmentShader:`uniform sampler2D tDiffuse;uniform vec2 uRes;uniform float uFocus,uRange,uAmount;varying vec2 vUv;
@@ -28,10 +28,12 @@ export function mountMap3D(host,{hydrate,toast}){
  const pkg=mapPackageFor(sid);
  if(!pkg){host.innerHTML='<p>此景区暂未提供三维底图。<a href="#map?s='+encodeURIComponent(sid)+'&view=scroll">查看绘卷</a></p>';return()=>{};}
  const {geo,layout,interaction:rules}=pkg;
- const {NODES,SPOT_GEO,walkable,landField,shortestPath,nearestNode,neighboursOf,compassName,GEO_FRAME}=geo;
- let saved=null;try{saved=JSON.parse(sessionStorage.getItem(SESSION)||'null');}catch{}
+ const presentation=rules.presentation,sessionKey=SESSION+':'+sid,tour=presentation?.tour||[];let tourIndex=-1,tourWalking=false;
+ const stampEligible=id=>!presentation||presentation.stampSpots.includes(id);
+ const {NODES,SPOT_GEO,canTravel,walkable,landField,shortestPath,nearestNode,neighboursOf,compassName,GEO_FRAME}=geo;
+ let saved=null;try{saved=JSON.parse(sessionStorage.getItem(sessionKey)||'null');}catch{}
  let style=styleFor(pkg,params.get('style')||saved?.style);
- const MOODS=style.moods;
+ let MOODS=style.moods;
 
  let alive=true,frame,renderer,spots=[],selected=null,near=null,stamps=loadStamps(sid);
  host.innerHTML=`<main class="m3" id="m3">
@@ -41,7 +43,7 @@ export function mountMap3D(host,{hydrate,toast}){
  <div class="m3-bubble" id="m3-bubble" hidden></div>
  <div class="m3-me" id="m3-me" aria-hidden="true"><span></span></div>
  <header class="m3-top">
-  <div class="m3-title"><a class="m3-chip m3-icon" href="#scenics" aria-label="全部景区">${ic('arrow-left')}</a><div><small>JINGJIAN · ${e(pkg.manifest.name)}</small><h1>湖山微缩游</h1></div></div>
+  <div class="m3-title"><a class="m3-chip m3-icon" href="#scenics" aria-label="全部景区">${ic('arrow-left')}</a><div><small>JINGJIAN · ${e(pkg.manifest.name)}</small><h1>${e(presentation?.title||'湖山微缩游')}</h1></div></div>
   <div class="m3-actions">
    <details class="m3-style-picker" id="m3-style-picker">
     <summary class="m3-chip">${ic('palette')}<span id="m3-style-name">${e(style.name)}</span>${ic('chevron-down')}</summary>
@@ -51,17 +53,18 @@ export function mountMap3D(host,{hydrate,toast}){
    <div class="m3-switch" role="group" aria-label="地图风格"><a class="active" aria-current="page">${ic('box')}微缩 3D</a><a href="#map?s=${encodeURIComponent(sid)}&view=scroll">${ic('scroll')}绘卷 2D</a></div>
   </div>
  </header>
+ ${presentation?`<div class="m3-tour"><button class="m3-chip" id="m3-tour-go">${ic('route')}<span>沿中轴游览</span></button><span id="m3-tour-progress">穿过层院 · 发现宫城</span><button class="m3-chip m3-icon" id="m3-tour-stop" hidden aria-label="退出中轴游览">${ic('x')}</button></div>`:''}
  <aside class="m3-card" id="m3-card" hidden></aside>
  <div class="m3-bottom">
   <button class="m3-passport" id="m3-passport">${ic('stamp')}<span>游园印章</span><b id="m3-count">0/0</b></button>
-  <div class="m3-moods" role="group" aria-label="西湖十景时节">${Object.entries(MOODS).map(([id,m])=>`<button data-mood="${id}" title="${m.name}"><b>${m.short}</b><small>${m.name}</small></button>`).join('')}</div>
+  <div class="m3-moods" role="group" aria-label="景区氛围">${Object.entries(MOODS).filter(([id])=>!presentation||presentation.moods.includes(id)).map(([id,m])=>`<button data-mood="${id}" title="${m.name}"><b>${m.short}</b><small>${m.name}</small></button>`).join('')}</div>
   <p class="m3-hint" id="m3-hint">点地面让小人走过去 · 拖动旋转 · 右键平移 · 滚轮缩放 · WASD 漫步</p>
  </div>
  <section class="m3-book" id="m3-book" hidden></section>
  <div class="m3-seal-fx" id="m3-seal-fx" hidden></div>
- <a class="m3-osm" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">湖岸与堤岛 © OpenStreetMap 贡献者</a>
+ <a class="m3-osm" href="${e(presentation?.attributionUrl||'https://www.openstreetmap.org/copyright')}" target="_blank" rel="noopener">${e(presentation?.attribution||'湖岸与堤岛 © OpenStreetMap 贡献者')}</a>
  <div class="m3-veil" id="m3-veil"></div>
- <div class="m3-loading" id="m3-loading"><div><span>景</span><span>见</span></div><p id="m3-load-text">正在铺开湖山…</p></div>
+ <div class="m3-loading" id="m3-loading"><div><span>景</span><span>见</span></div><p id="m3-load-text">${e(presentation?.loading||'正在铺开湖山…')}</p></div>
 </main>`;
  hydrate();
  const $=s=>host.querySelector(s),$$=s=>[...host.querySelectorAll(s)],stage=$('#m3-stage');
@@ -69,18 +72,19 @@ export function mountMap3D(host,{hydrate,toast}){
  catch{$('#m3-load-text').innerHTML='当前浏览器未开启三维渲染。<a href="#map?s='+encodeURIComponent(sid)+'&view=scroll">改看绘卷地图</a>';return()=>{};}
  renderer.setPixelRatio(Math.min(devicePixelRatio,1.75));renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;
  renderer.toneMapping=T.ACESFilmicToneMapping;renderer.outputColorSpace=T.SRGBColorSpace;stage.append(renderer.domElement);
- const scene=new T.Scene(),camera=new T.PerspectiveCamera(rules.camera.fov,1,.5,900);
+ const scene=new T.Scene(),camera=new T.PerspectiveCamera(rules.camera.fov,1,geo.architecture?.12:.5,900);
  let world=createWorld(scene,{geo,layout,style});
  const terrainHeight=(...at)=>world.terrainHeight(...at),groundHeight=(...at)=>world.groundHeight(...at);
- const composer=new EffectComposer(renderer),bloom=new UnrealBloomPass(new T.Vector2(1,1),.55,.55,.9),tilt=new ShaderPass(TiltShift);
+ const composer=new EffectComposer(renderer,geo.architecture?new T.WebGLRenderTarget(1,1,{type:T.HalfFloatType,samples:4}):undefined),bloom=new UnrealBloomPass(new T.Vector2(1,1),.55,.55,.9),tilt=new ShaderPass(TiltShift);
  composer.addPass(new RenderPass(scene,camera));composer.addPass(bloom);composer.addPass(tilt);composer.addPass(new OutputPass());
- const resize=()=>{const w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;renderer.setSize(w,h);composer.setSize(w,h);composer.setPixelRatio(renderer.getPixelRatio());camera.aspect=w/h;camera.updateProjectionMatrix();tilt.uniforms.uRes.value.set(w,h);};
+ let viewFit=1;
+ const resize=()=>{const w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;renderer.setSize(w,h);composer.setSize(w,h);composer.setPixelRatio(renderer.getPixelRatio());camera.aspect=w/h;viewFit=geo.architecture?Math.max(1,1/camera.aspect):1;camera.updateProjectionMatrix();tilt.uniforms.uRes.value.set(w,h);};
  const ro=new ResizeObserver(resize);ro.observe(stage);resize();
 
  // Camera rig: orbit around a target; goal values are eased in every frame.
  const rigFrom=c=>({target:new T.Vector3(...c.target),dist:c.distance,theta:c.theta,phi:c.phi}),rig=rigFrom(rules.camera.intro),goal=rigFrom(rules.camera.home);
  let ease=1.4,follow=false,userAt=0;
- const placeCamera=()=>{const s=Math.sin(rig.phi);camera.position.set(rig.target.x+s*Math.sin(rig.theta)*rig.dist,rig.target.y+Math.cos(rig.phi)*rig.dist,rig.target.z+s*Math.cos(rig.theta)*rig.dist);camera.lookAt(rig.target);};
+ const placeCamera=()=>{const s=Math.sin(rig.phi),dist=rig.dist*viewFit;camera.position.set(rig.target.x+s*Math.sin(rig.theta)*dist,rig.target.y+Math.cos(rig.phi)*dist,rig.target.z+s*Math.cos(rig.theta)*dist);camera.lookAt(rig.target);};
  const clampTarget=v=>{const b=GEO_FRAME.bounds;v.x=Math.max(b.minX+2,Math.min(b.maxX-2,v.x));v.z=Math.max(b.minZ+2,Math.min(b.maxZ-2,v.z));return v;};
 
  // Place names floating over the map: water, causeways, islands and hills.
@@ -94,11 +98,11 @@ export function mountMap3D(host,{hydrate,toast}){
  const keys=new Set();
 
  const markSeen=()=>{const h=$('#m3-hint');if(h&&!h.classList.contains('gone')){h.classList.add('gone');}};
- const straight=(ax,az,bx,bz)=>{const n=Math.ceil(Math.hypot(bx-ax,bz-az)/rules.routing.straightSampleStep);for(let i=1;i<=n;i++)if(!walkable(ax+(bx-ax)*i/n,az+(bz-az)*i/n))return false;return true;};
+ const straight=canTravel;
  function plan(tx,tz){
   if(straight(me.x,me.z,tx,tz))return [{x:tx,z:tz,mode:'walk'}];
   const nodes=Object.entries(NODES).map(([id,[x,z]])=>({id,d:Math.hypot(x-me.x,z-me.z)})).sort((a,b)=>a.d-b.d);
-  const s=(nodes.slice(0,8).find(n=>straight(me.x,me.z,...NODES[n.id]))||nodes[0]).id;
+  const start=nodes.find(n=>straight(me.x,me.z,...NODES[n.id]));if(!start)return [];const s=start.id;
   const targetWalkable=walkable(tx,tz),endNode=(targetWalkable?Object.keys(NODES).map(id=>({id,d:Math.hypot(NODES[id][0]-tx,NODES[id][1]-tz)})).sort((a,b)=>a.d-b.d).slice(0,6).find(n=>straight(...NODES[n.id],tx,tz)):null)?.id||nearestNode(tx,tz).id;
   const r=shortestPath(s,endNode);if(!r)return [];
   const out=[{x:NODES[s][0],z:NODES[s][1],mode:'walk'}];
@@ -107,6 +111,7 @@ export function mountMap3D(host,{hydrate,toast}){
   return out;
  }
  function walkTo(tx,tz,spotId=null){
+  if(tourIndex>=0&&spotId!==tour[tourIndex])stopTour();
   me.route=plan(tx,tz);me.goal=spotId;follow=true;markSeen();
   if(!me.route.length)toast('那里暂时走不过去，换个地方试试');
   else if(me.route.some(p=>p.mode==='boat'))toast('乘游船过湖');
@@ -121,10 +126,11 @@ export function mountMap3D(host,{hydrate,toast}){
  // Spots from the published scenic snapshot; positions come from the shared geo data.
  const posOf=s=>{const b=GEO_FRAME.bounds;return SPOT_GEO[s.id]?.label||[b.minX+(b.maxX-b.minX)*(.1+.8*(s.x??.5)),b.minZ+(b.maxZ-b.minZ)*(.1+.8*(s.y??.5))];};
  const nodeOf=s=>SPOT_GEO[s.id]?.node||nearestNode(...posOf(s)).id;
- function tagSub(s){const [main,sub]=s.name.split(' · '),scene=SPOT_GEO[s.id]?.scene?.replace('西湖十景 · ','');return sub||(scene&&scene!==main?scene:'西湖十景');}
+ function tagSub(s){const [main,sub]=s.name.split(' · '),scene=SPOT_GEO[s.id]?.scene?.replace('西湖十景 · ','');return sub||(scene&&scene!==main?scene:pkg.manifest.name);}
  function tagsHTML(){return spots.map((s,i)=>`<button class="m3-tag ${stamps[s.id]?'stamped':''}" data-spot="${e(s.id)}" style="--i:${i}"><i class="m3-seal-mini">${stamps[s.id]?'印':String(i+1).padStart(2,'0')}</i><span><b>${e(s.name.split(' · ')[0])}</b><small>${e(tagSub(s))}</small></span>${worldAsset(s)?'<em>3D</em>':''}</button>`).join('');}
  function bindTags(){$$('[data-spot]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();selectSpot(b.dataset.spot,true);});}
- function updateCount(){$('#m3-count').textContent=spots.filter(s=>stamps[s.id]).length+'/'+spots.length;}
+ const stampSpots=()=>spots.filter(s=>stampEligible(s.id));
+ function updateCount(){$('#m3-count').textContent=stampSpots().filter(s=>stamps[s.id]).length+'/'+stampSpots().length;}
  const anchorOf=id=>{const w=world.spots[id],s=spots.find(x=>x.id===id),[x,z]=posOf(s);return new T.Vector3(x,(w?w.object.position.y+w.top:terrainHeight(x,z)+.8)+.25,z);};
 
  function cardHTML(s){
@@ -136,11 +142,12 @@ export function mountMap3D(host,{hydrate,toast}){
   ${photo?`<figure class="m3-cover"><img src="${e(webImageUrl(photo.url))}" alt="${e(s.name)}"><figcaption>${photo.kind==='real'?'实景摄影':'景区图片'}${credit?' · '+credit:''}</figcaption></figure>`:''}
   <div class="m3-card-body">
    <small class="m3-eyebrow">${e(geo?.scene||'景点')}</small><h2>${e(s.name)}</h2><p>${e(s.description||'')}</p>
-   ${mood&&mood!==MOODS[currentMood]?`<button class="m3-season" data-mood-go="${geo.season}">${ic('sparkles')}换到「${mood.name}」时节看看</button>`:''}
+   ${mood&&mood!==MOODS[currentMood]?`<button class="m3-season" data-mood-go="${geo.season}">${ic('sparkles')}换到「${mood.name}」${presentation?'氛围':'时节'}看看</button>`:''}
    <div class="m3-card-actions">
     ${w?`<button class="m3-btn primary" id="m3-enter">${ic('box')}走进三维实景</button>`:`<a class="m3-btn primary" href="#spot?s=${encodeURIComponent(sid)}&id=${encodeURIComponent(s.id)}">${ic('images')}看实景照片</a>`}
-    ${here?(stamps[s.id]?`<button class="m3-btn stamped" disabled>${ic('check')}已盖章</button>`:`<button class="m3-btn seal" id="m3-stamp">${ic('stamp')}盖章打卡</button>`):`<button class="m3-btn" id="m3-go">${ic('footprints')}走过去</button>`}
+    ${here?(!stampEligible(s.id)?`<button class="m3-btn stamped" disabled>${ic('check')}已到达</button>`:stamps[s.id]?`<button class="m3-btn stamped" disabled>${ic('check')}已盖章</button>`:`<button class="m3-btn seal" id="m3-stamp">${ic('stamp')}盖章打卡</button>`):`<button class="m3-btn" id="m3-go">${ic('footprints')}走过去</button>`}
    </div>
+   ${s.notice&&presentation?`<details class="m3-notice"><summary>参观提示</summary><p>${e(s.notice)}</p></details>`:''}
    <div class="m3-guide-row">${s.narration?.text?`<button class="m3-guide-link" id="m3-listen">${ic('volume-2')}<span>听讲解</span></button>`:''}<a class="m3-guide-link" href="#spot?s=${encodeURIComponent(sid)}&id=${encodeURIComponent(s.id)}&guide=1">${ic('message-circle')}问问导游 · 照片与讲解</a></div>
    ${nb.length?`<div class="m3-near"><h3>顺路去</h3>${nb.map(n=>{const o=spots.find(x=>x.id===n.id);return `<button data-walk="${n.id}"><span>${e(o.name.split(' · ')[0])}</span><small>${compassName(n.bearing)} · ${n.boat?'游船':'步行'}约 ${n.minutes} 分钟</small>${ic('arrow-right')}</button>`;}).join('')}</div>`:''}
   </div>`;
@@ -165,9 +172,10 @@ export function mountMap3D(host,{hydrate,toast}){
   $('#m3-veil').classList.add('on');setTimeout(()=>{if(alive)location.hash=`#pilot?s=${encodeURIComponent(sid)}&id=${encodeURIComponent(s.id)}&from=map`;},1050);
  }
  function stamp(s){
+  if(!stampEligible(s.id)||near!==s.id)return;
   stamps=saveStamp(sid,s.id);updateCount();
   const fx=$('#m3-seal-fx');fx.innerHTML=sealSVG(s,true);fx.hidden=false;fx.classList.remove('play');void fx.offsetWidth;fx.classList.add('play');thunk();
-  setTimeout(()=>{if(!alive)return;fx.hidden=true;$('#m3-tags').innerHTML=tagsHTML();bindTags();openCard(s.id);if(spots.every(x=>stamps[x.id]))setTimeout(()=>openBook(true),400);},1500);
+  setTimeout(()=>{if(!alive)return;fx.hidden=true;$('#m3-tags').innerHTML=tagsHTML();bindTags();openCard(s.id);if(stampSpots().every(x=>stamps[x.id]))setTimeout(()=>openBook(true),400);},1500);
  }
  const sealName=s=>s.name.split(' · ')[0].replace(/\s/g,'').slice(0,4);
  function sealSVG(s,big=false){
@@ -176,20 +184,20 @@ export function mountMap3D(host,{hydrate,toast}){
   return `<svg viewBox="0 0 100 100" class="m3-seal ${big?'big':''}" aria-label="${e(n)} 印"><rect x="5" y="5" width="90" height="90" rx="9"/><rect x="11" y="11" width="78" height="78" rx="5" class="inner"/>${cells}</svg>`;
  }
  function openBook(done=false){
-  const b=$('#m3-book'),got=spots.filter(s=>stamps[s.id]).length;
-  b.innerHTML=`<button class="m3-close" id="m3-book-close" aria-label="关闭">${ic('x')}</button><small class="m3-eyebrow">游园印章 · ${got}/${spots.length}</small><h2>${got===spots.length?'西湖胜景，一一集齐':'走到景点，盖下一枚印'}</h2><p>${got===spots.length?'六处风景都已亲自走到。把这份游园册带进行程，出发时就知道先去哪里。':'小人走到景点旁，卡片里会出现「盖章打卡」。'}</p><div class="m3-seals">${spots.map(s=>`<div class="${stamps[s.id]?'got':''}">${sealSVG(s)}<span>${e(s.name.split(' · ')[0])}</span><small>${stamps[s.id]?new Date(stamps[s.id]).toLocaleDateString('zh-CN',{month:'numeric',day:'numeric'})+' 已打卡':'未打卡'}</small></div>`).join('')}</div>`;
-  b.hidden=false;b.classList.toggle('done',done||got===spots.length);hydrate();$('#m3-book-close').onclick=()=>{b.hidden=true;};
+  const b=$('#m3-book'),bookSpots=stampSpots(),got=bookSpots.filter(s=>stamps[s.id]).length;
+  b.innerHTML=`<button class="m3-close" id="m3-book-close" aria-label="关闭">${ic('x')}</button><small class="m3-eyebrow">游园印章 · ${got}/${bookSpots.length}</small><h2>${got===bookSpots.length?pkg.manifest.name+'胜景，一一集齐':'走到景点，盖下一枚印'}</h2><p>${got===bookSpots.length?'这一程的印章都已集齐。把这份游园册带进行程，出发时就知道先去哪里。':'小人走到景点旁，卡片里会出现「盖章打卡」。'}</p><div class="m3-seals">${bookSpots.map(s=>`<div class="${stamps[s.id]?'got':''}">${sealSVG(s)}<span>${e(s.name.split(' · ')[0])}</span><small>${stamps[s.id]?new Date(stamps[s.id]).toLocaleDateString('zh-CN',{month:'numeric',day:'numeric'})+' 已打卡':'未打卡'}</small></div>`).join('')}</div>`;
+  b.hidden=false;b.classList.toggle('done',done||got===bookSpots.length);hydrate();$('#m3-book-close').onclick=()=>{b.hidden=true;};
  }
  let audio;
  function thunk(){try{audio||=new AudioContext();const t=audio.currentTime,o=audio.createOscillator(),g=audio.createGain();o.type='triangle';o.frequency.setValueAtTime(140,t);o.frequency.exponentialRampToValueAtTime(48,t+.18);g.gain.setValueAtTime(.35,t);g.gain.exponentialRampToValueAtTime(.001,t+.3);o.connect(g).connect(audio.destination);o.start(t);o.stop(t+.32);}catch{}}
 
  let currentMood=saved?.mood&&MOODS[saved.mood]?saved.mood:rules.defaultMood;
  function setMood(id){currentMood=id;world.setMood(id);$$('[data-mood]').forEach(b=>b.classList.toggle('active',b.dataset.mood===id));$('#m3').classList.toggle('m3-dark',MOODS[id].night>.6);if(selected)openCard(selected);persist();}
- const persist=()=>sessionStorage.setItem(SESSION,JSON.stringify({hero:[me.x,me.z],mood:currentMood,style:style.id}));
+ const persist=()=>sessionStorage.setItem(sessionKey,JSON.stringify({hero:[me.x,me.z],mood:currentMood,style:style.id}));
 
  function setStyle(id){
   const next=styleFor(pkg,id);if(next.id===style.id)return;
-  world.dispose();style=next;world=createWorld(scene,{geo,layout,style});
+  world.dispose();style=next;MOODS=style.moods;world=createWorld(scene,{geo,layout,style});
   hero=world.createTraveler();hero.scale.setScalar(rules.avatar.scale);
   world.setMood(currentMood,true);renderer.toneMappingExposure=style.moods[currentMood].exposure;
   $('#m3-style-name').textContent=style.name;$('#m3-style-picker').open=false;
@@ -231,13 +239,26 @@ export function mountMap3D(host,{hydrate,toast}){
  const ripples=[];
  function ripple(x,z){const m=new T.Mesh(new T.RingGeometry(.1,.16,40),new T.MeshBasicMaterial({color:'#fffaf0',transparent:true,opacity:.9,depthWrite:false}));m.rotation.x=-Math.PI/2;m.position.set(x,Math.max(.03,terrainHeight(x,z))+.03,z);m.userData.t=0;scene.add(m);ripples.push(m);}
  const keyMap={w:'f',arrowup:'f',s:'b',arrowdown:'b',a:'l',arrowleft:'l',d:'r',arrowright:'r'};
- const kd=ev=>{if(ev.target.closest?.('input,textarea'))return;const k=keyMap[ev.key.toLowerCase()];if(k){keys.add(k);me.route=[];me.goal=null;drawRoute();follow=true;markSeen();ev.preventDefault();}
-  if(ev.key.toLowerCase()==='e'&&near){const s=spots.find(x=>x.id===near);if(s&&!stamps[s.id])stamp(s);else openCard(near);}};
+ const kd=ev=>{if(ev.target.closest?.('input,textarea'))return;const k=keyMap[ev.key.toLowerCase()];if(k){stopTour();keys.add(k);me.route=[];me.goal=null;drawRoute();follow=true;markSeen();ev.preventDefault();}
+  if(ev.key.toLowerCase()==='e'&&near){const s=spots.find(x=>x.id===near);if(s&&stampEligible(s.id)&&!stamps[s.id])stamp(s);else openCard(near);}};
  const ku=ev=>{const k=keyMap[ev.key.toLowerCase()];if(k)keys.delete(k);};
  addEventListener('keydown',kd);addEventListener('keyup',ku);
  $('#m3-compass').onclick=()=>{goal.theta=0;goal.phi=.9;};
  $$('[data-mood]').forEach(b=>b.onclick=()=>setMood(b.dataset.mood));
  $('#m3-passport').onclick=()=>openBook();
+ function updateTour(){
+  if(!presentation)return;const btn=$('#m3-tour-go'),progress=$('#m3-tour-progress');
+  $('#m3-tour-stop').hidden=tourIndex<0;
+  btn.disabled=tourWalking||!spots.length;
+  btn.querySelector('span').textContent=tourIndex<0?'沿中轴游览':tourWalking?'正在前往':tourIndex===tour.length-1?'完成游览':'继续下一处';
+  progress.textContent=tourIndex<0?'穿过层院 · 发现宫城':`${tourIndex+1} / ${tour.length} · ${spots.find(s=>s.id===tour[tourIndex])?.name||''}`;
+ }
+ function stopTour(){tourIndex=-1;tourWalking=false;updateTour();}
+ if(presentation){
+  $('#m3-tour-go').onclick=()=>{if(tourWalking)return;if(tourIndex===tour.length-1){stopTour();openBook();return;}tourIndex++;tourWalking=true;selectSpot(tour[tourIndex],true);if(!me.route.length)tourWalking=false;updateTour();};
+  $('#m3-tour-stop').onclick=()=>{stopTour();me.route=[];me.goal=null;drawRoute();};updateTour();
+ }
+
 
  // Frame loop
  const clock=new T.Clock(),tmp=new T.Vector3(),offset=new T.Vector3(),aim=new T.Vector3();let shown=false,frames=0;
@@ -247,11 +268,11 @@ export function mountMap3D(host,{hydrate,toast}){
    const f=new T.Vector2(-Math.sin(rig.theta),-Math.cos(rig.theta)),r=new T.Vector2(-f.y,f.x),v=new T.Vector2();
    if(keys.has('f'))v.add(f);if(keys.has('b'))v.sub(f);if(keys.has('r'))v.add(r);if(keys.has('l'))v.sub(r);
    if(v.lengthSq()){v.normalize().multiplyScalar(dt*rules.avatar.keyboardSpeed);const nx=me.x+v.x,nz=me.z+v.y;
-    if(walkable(nx,nz)){me.x=nx;me.z=nz;}else if(walkable(nx,me.z))me.x=nx;else if(walkable(me.x,nz))me.z=nz;
+    if(straight(me.x,me.z,nx,nz)){me.x=nx;me.z=nz;}else if(straight(me.x,me.z,nx,me.z))me.x=nx;else if(straight(me.x,me.z,me.x,nz))me.z=nz;
     me.heading=Math.atan2(v.x,v.y);me.moving=true;me.mode='walk';}
   }else if(me.route.length){
    const p=me.route[0],dx=p.x-me.x,dz=p.z-me.z,d=Math.hypot(dx,dz),sp=(p.mode==='boat'?rules.avatar.boatSpeed:rules.avatar.walkSpeed)*dt;me.mode=p.mode;
-   if(d<=sp){me.x=p.x;me.z=p.z;me.route.shift();drawRoute();if(!me.route.length&&me.goal){const g=me.goal;me.goal=null;near=g;openCard(g);goal.dist=Math.min(goal.dist,18);}}
+   if(d<=sp){me.x=p.x;me.z=p.z;me.route.shift();drawRoute();if(!me.route.length&&me.goal){const g=me.goal;me.goal=null;near=g;if(tourIndex>=0&&tour[tourIndex]===g){tourWalking=false;updateTour();}openCard(g);goal.dist=Math.min(goal.dist,18);}}
    else{me.x+=dx/d*sp;me.z+=dz/d*sp;me.heading=Math.atan2(dx,dz);}
    me.moving=true;
   }else me.moving=false;
@@ -283,13 +304,18 @@ export function mountMap3D(host,{hydrate,toast}){
  function positionTags(){
   const w=stage.clientWidth,h=stage.clientHeight,fade=Math.max(0,Math.min(1,(rig.dist-12)/10));
   placeEls.forEach((el,i)=>{const p=PLACE_LABELS[i],v=tmp.set(p.at[0],p.y,p.at[1]).project(camera),vis=v.z<1&&Math.abs(v.x)<1.05&&Math.abs(v.y)<1.05;el.style.opacity=vis?fade:0;el.style.transform=`translate(${(v.x*.5+.5)*w}px,${(-v.y*.5+.5)*h}px) translate(-50%,-50%)`;});
-  for(const t of $$('.m3-tag')){
-   const v=anchorOf(t.dataset.spot).project(camera),vis=v.z<1&&Math.abs(v.x)<1.1&&Math.abs(v.y)<1.1;t.style.opacity=vis?'':'0';t.style.pointerEvents=vis?'':'none';
+  const used=[];
+  const tags=$$('.m3-tag').sort((a,b)=>(b.dataset.spot===selected?1:0)-(a.dataset.spot===selected?1:0));
+  for(const t of tags){
+   const v=anchorOf(t.dataset.spot).project(camera),px=(v.x*.5+.5)*w,py=(-v.y*.5+.5)*h;
+   let vis=v.z<1&&Math.abs(v.x)<1.1&&Math.abs(v.y)<1.1;
+   if(presentation){vis=vis&&(rig.dist<46||presentation.overviewSpots.includes(t.dataset.spot)||selected===t.dataset.spot);if(vis&&t.dataset.spot!==selected&&used.some(p=>Math.abs(p[0]-px)<104&&Math.abs(p[1]-py)<48))vis=false;if(vis)used.push([px,py]);}
+t.style.opacity=vis?'':'0';t.style.pointerEvents=vis?'':'none';
    const sc=Math.max(.72,Math.min(1.12,30/rig.dist));t.style.transform=`translate(${(v.x*.5+.5)*w}px,${(-v.y*.5+.5)*h}px) translate(-50%,-100%) scale(${sc})`;
   }
-  const mp=hero.position.clone().add(new T.Vector3(0,1.05,0)).project(camera),meEl=$('#m3-me');meEl.style.transform=`translate(${(mp.x*.5+.5)*w}px,${(-mp.y*.5+.5)*h}px)`;meEl.classList.toggle('show',rig.dist>24&&mp.z<1);
+  const mp=hero.position.clone().add(new T.Vector3(0,1.05,0)).project(camera),meEl=$('#m3-me');meEl.style.transform=`translate(${(mp.x*.5+.5)*w}px,${(-mp.y*.5+.5)*h}px)`;meEl.classList.toggle('show',rig.dist>(presentation?12:24)&&mp.z<1);
   const b=$('#m3-bubble');
-  if(near&&!selected){const s=spots.find(x=>x.id===near),v=hero.position.clone().add(new T.Vector3(0,.9,0)).project(camera);b.hidden=false;b.innerHTML=`${stamps[near]?'已到 ':'到了 '}<b>${e(s.name.split(' · ')[0])}</b> <kbd>E</kbd> ${stamps[near]?'查看':'盖章'}`;b.style.transform=`translate(${(v.x*.5+.5)*w}px,${(-v.y*.5+.5)*h}px) translate(-50%,-100%)`;b.onclick=()=>openCard(near);}
+  if(near&&!selected){const s=spots.find(x=>x.id===near),v=hero.position.clone().add(new T.Vector3(0,.9,0)).project(camera);b.hidden=false;b.innerHTML=`${stamps[near]?'已到 ':'到了 '}<b>${e(s.name.split(' · ')[0])}</b> <kbd>E</kbd> ${stamps[near]||!stampEligible(near)?'查看':'盖章'}`;b.style.transform=`translate(${(v.x*.5+.5)*w}px,${(-v.y*.5+.5)*h}px) translate(-50%,-100%)`;b.onclick=()=>openCard(near);}
   else b.hidden=true;
  }
  function loop(){
@@ -303,10 +329,10 @@ export function mountMap3D(host,{hydrate,toast}){
  loadScenic().catch(()=>null).then(ws=>{
   if(!alive)return;
   const p=ws?.scenics.find(x=>x.id===sid)?.published;spots=p?.spots||[];
-  $('#m3-tags').innerHTML=tagsHTML();bindTags();updateCount();
+  $('#m3-tags').innerHTML=tagsHTML();bindTags();updateCount();updateTour();
   if(focusId&&spots.some(s=>s.id===focusId)){const [x,z]=posOf(spots.find(s=>s.id===focusId));goal.target.set(x,0,z);goal.dist=20;goal.phi=.95;near=focusId;setTimeout(()=>alive&&openCard(focusId),1600);}
  });
- if(params.get('debug'))window.__m3={camera,get world(){return world;},renderer,scene,composer,bloom,tilt,goal,rig,me,setMood,setStyle,get style(){return style.id;},walkTo,selectSpot,get near(){return near;},get spots(){return spots;}};
+ if(params.get('debug'))window.__m3={camera,get world(){return world;},renderer,scene,composer,bloom,tilt,goal,rig,me,setMood,setStyle,get style(){return style.id;},walkTo,selectSpot,get near(){return near;},get tourIndex(){return tourIndex;},get spots(){return spots;}};
  loop();
  return()=>{alive=false;stopSpeaking();cancelAnimationFrame(frame);ro.disconnect();removeEventListener('keydown',kd);removeEventListener('keyup',ku);persist();
   world.dispose();

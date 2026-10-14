@@ -1,4 +1,4 @@
-# 地图数据包 v1 与 Agent 制作流程
+# 地图数据包 v1 / v2 与 Agent 制作流程
 
 本文件定义地图制作的数据契约与验证流程。任务操作顺序见[三维景区与景点制作指南](三维景区与景点制作指南.md)，统一入口见[AGENTS.md](../AGENTS.md)。
 
@@ -43,7 +43,7 @@ flowchart LR
 3. **形成可走路网。** 为景点设置停靠点，连接步行/船行边；校验步行采样不落水、景点之间可达。桥面高度来自同一几何函数。
 4. **布景。** 使用模型库放置地标，设置名称、spotId、坐标、旋转、尺度及植被/船行规则。水上塔、湖边平台和桥是明确的例外类型，其余陆上模型不能放在水里。
 5. **生成风格。** 从现有风格复制一份配置，保持地理、路网、模型实例及精细度。纸艺版改变树冠几何、地表法线、纸张颗粒、纸层底座、建筑材质和水面表现；像素、积木、卡通分别调用不同的屋顶、树冠、城镇和角色造型策略。像素与积木用可校验的 `landform` 控制格宽、台阶高度与起始高度。没有重新生成景点世界模型，也不产生模型 API 费用。
-6. **程序验证。** `node scripts/validate-map.mjs src/map3d/data/<map-id>/manifest.json` 校验目标包的结构/引用、模型覆盖、可走节点、每 3 米一处的步行边采样、景点互达及编辑器 Schema。`npm run check:map` 默认只检查西湖，新增景区时不能省略目标包校验。一份包含输入 SHA-256 的报告写入 `artifacts/map-validation.json`。`npm run build` 当前自动执行西湖包校验，不会自动遍历所有注册包。
+6. **程序验证。** `node scripts/validate-map.mjs src/map3d/data/<map-id>/manifest.json` 校验目标包的结构/引用、模型覆盖、可走节点、每 3 米一处的步行边采样、景点互达及编辑器 Schema。`npm run check:map` 与 `npm run build` 默认遍历所有地图数据目录；仍建议先独立验证目标包。含输入 SHA-256 的报告分别写入 `artifacts/map-validation-<map-id>.json`。v2 检查入口到所有停靠点，以及每个停靠点到至少一个出口的有向可达性。
 7. **视觉与体验验收。** 桌面与窄屏审图；切换风格和时节；点击景点、自动步行/乘船、看近景、进入已有 SPZ。检查标签、模型位置、相机和材质。人工审核不能仅由“校验通过”替代。
 8. **保存与发布。** 审核过的配置、渲染器和素材一起提交到 Git。生产站点发布是独立步骤，不等于浏览器内容快照发布。五种风格已合入 `main` 并部署；后续变更仍须分别确认代码和部署状态。
 
@@ -65,7 +65,7 @@ flowchart LR
 
 ```sh
 node scripts/export-map-schemas.mjs # 仅修改 contract.js 后需要
-npm run check:map # 默认西湖
+npm run check:map # 所有地图包
 # 新景区另外执行（将 map-id 替换为真实 ID）：
 node scripts/validate-map.mjs src/map3d/data/map-id/manifest.json
 npm test
@@ -87,7 +87,7 @@ npm run check:map
 
 ## Agent 可复用任务提示词
 
-> 读取三维景区与景点制作指南、本工作流、现有地图包及 schemas。先确认地图来源、地理单位与人工假设，再生成 schemaVersion=1 的 geography、layout、interaction 和 style JSON。不得改变已审核景点事实；不得用风格重排真实地点；不得把无法核实的高度当测量值。复用已有模型目录及渲染器，保持 230 段地形、原有地标细节和游览操作。显式校验目标景区的 manifest，并运行相关测试，修复引用/空间错误，再做桌面、窄屏、近景、切换与漫游验收。提交文件、校验报告和待人工核对的事项。任何新增模型或格式能力必须先扩展模型库/契约并添加兼容验证。不要把完成渲染等同于已获人工审核或已部署。
+> 读取三维景区与景点制作指南、本工作流、现有地图包及 schemas。先确认地图来源、地理单位与人工假设，再生成匹配版本的 geography、layout、interaction，以及 schemaVersion=1 的 style JSON（湖泊园林可沿用包 v1；实体建筑与方向门洞使用包 v2）。不得改变已审核景点事实；不得用风格重排真实地点；不得把无法核实的高度当测量值。复用已有模型目录及渲染器，保持 230 段地形、原有地标细节和游览操作。显式校验目标景区的 manifest，并运行相关测试，修复引用/空间错误，再做桌面、窄屏、近景、切换与漫游验收。提交文件、校验报告和待人工核对的事项。任何新增模型或格式能力必须先扩展模型库/契约并添加兼容验证。不要把完成渲染等同于已获人工审核或已部署。
 
 ## 路演怎么讲
 
@@ -120,3 +120,24 @@ npm run check:map
 像素风采用三维体素造型语言，保留原湖岸与细窄道路的连续地形；并非将整个场景低分辨率拉伸。积木版的凸点属于装饰，不作为角色碰撞障碍。卡通冒险目前是画面与角色风格，沿用原有漫步、乘船、集章和景点探索，未额外加入战斗或任务系统。
 
 新增另一种风格时，若现有造型词汇能覆盖，只增加 style JSON 并注册；需要新的造型或地形规则时，再扩展策略模块、Schema、自动检查和浏览器验收。不得只填一个尚不存在的 geometry 名称。
+
+
+## v2：建筑密集型景区
+
+完整样例为 `src/map3d/data/forbidden-city/`。四个地图层使用 `schemaVersion: 2`，风格仍为 `schemaVersion: 1`；西湖保持 v1。不要在 v1 中加入 v2 字段。
+
+| 字段 | 约束与用途 |
+| --- | --- |
+| `geography.architecture.floor` | 平整地面高度；护城河与通桥单独处理 |
+| `architecture.walkBounds` | `[minX,maxX,minZ,maxZ]`，限制游客范围 |
+| `architecture.entities` | `id / at / size / kind / height`；building、wall、platform 阻挡，paving、garden 表示地面布景，passage 可跨水 |
+| `architecture.portals` | 门洞矩形，`axis: x/z`、`direction: both/positive/negative`、`open`；与基础路网共同定义通行 |
+| `layout.landmarks[].entityId` | 引用同一个地理实体；位置、宽深一致，当前只接受零旋转和单位尺度，屋檐可做视觉外挑 |
+| `layout.components` | city、lotus、pond、vegetation、clouds、paths 的启用开关；禁用组件与空集合必须安全处理 |
+| `interaction.presentation` | 标题、署名、氛围、总览标签、集章点、顺序导览、出口节点、开放提示与来源日期 |
+
+新增通用组件位于 `architecture.js`：`palace-hall`、`palace-gate`、`palace-wall`、`palace-platform`、`palace-tower`、`palace-paving`。参数包括 width、depth、height、base、tiers、roof、gap；位置只写在地图包。`catalogVersion` 仍为 1。
+
+直线捷径、键盘移动、寻路边共同调用 `canTravel`，不能分别维护碰撞逻辑。单向门从门线起步也受方向限制。每次改围墙、平台或门洞后，重新验证节点、路段采样、导览顺序和出口；不能只检查模型外观。装饰性花木、栏杆小部件不单独做精细碰撞，台基与殿堂作为实体阻挡，游客在殿前停靠。
+
+远景瓦面和石缝使用导数过滤与细节衰减，避免密集微几何及微阴影；屋顶面绕序必须向上。背景宫墙/配院按材质合批，地标保留独立组供点击。建筑场景在后期渲染目标上启用 4x MSAA；不能只打开画布抗锯齿后假定后期链也会抗锯齿。

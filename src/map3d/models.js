@@ -1,4 +1,5 @@
 import * as T from 'three';
+import {createArchitectureKit} from './architecture.js';
 import {createStyleGeometry,createPlayfulTraveler} from './style-geometry.js';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 
@@ -162,7 +163,9 @@ if(style.geometry==='folded-paper'){
  TREE_GEO.peach=()=>new T.OctahedronGeometry(.25,0).scale(1,.92,.8).translate(0,.43,0);
 }
 if(SHAPE.trees)Object.assign(TREE_GEO,SHAPE.trees);
+const architecture=createArchitectureKit({MAT,SHAPE,weatherize});
 function landmark(kind,p={}){
+ if(kind.startsWith('palace-'))return architecture(kind,p);
  if(kind==='pavilion')return pavilion(p);
  if(kind==='pagoda')return pagoda(p);
  if(kind==='arch-bridge'){const g=archBridge(p);g.userData.top=.55;return g;}

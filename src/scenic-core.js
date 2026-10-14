@@ -1,3 +1,4 @@
+import {createPalaceScenic,ensureBuiltinScenics} from './forbidden-city-content.js';
 import {PLACES,PILOT_ID,GUIDE_SEED,realPhoto,completionPhoto} from './scenic-places.js';
 // The creator's draft and the visitor's published snapshot are deliberately separate.
 export const ANGLES = [
@@ -25,15 +26,15 @@ export function createScenicState() {
 const LAKE_MAP={url:'/assets/scenic/westlake-map.jpg',name:'西湖游览绘卷 · AI 插画',custom:false};
 const WESTLAKE_INTRO='湖光、长堤与园林，从六处西湖十景开始；御碑亭可以 3D 漫游。';
 // The workspace holds any number of scenic areas; each keeps its own draft, published snapshot and version.
-export const createWorkspace=()=>({schema:8,scenics:[createScenicState()]});
+export const createWorkspace=()=>({schema:8,seededScenics:['forbidden-city'],scenics:[createScenicState(),createPalaceScenic()]});
 export function newScenic(title,map){return {schema:7,id:crypto.randomUUID().slice(0,8),draft:{title,intro:'',map,spots:[]},published:null,publishedAt:null,publishNumber:0};}
 export function upgradeWorkspace(value){
-  if(value?.schema===8&&Array.isArray(value.scenics)){value.scenics=value.scenics.map(upgradeScenicState).map(toLakeMap);return value;}
+  if(value?.schema===8&&Array.isArray(value.scenics)){value.scenics=value.scenics.map(upgradeScenicState).map(toLakeMap);return ensureBuiltinScenics(value);}
   if(![1,2,3,4,5,6,7].includes(value?.schema)||!value.draft?.spots||!value.published?.spots)return createWorkspace();
   // A single-scenic state from before schema 8 becomes the West Lake entry, untouched otherwise.
   const sc=upgradeScenicState(value);sc.id||='westlake';
   for(const k of ['draft','published'])if(typeof sc[k].intro!=='string')sc[k].intro=sc.id==='westlake'?WESTLAKE_INTRO:'';
-  return {schema:8,scenics:[toLakeMap(sc)]};
+  return ensureBuiltinScenics({schema:8,scenics:[toLakeMap(sc)]});
 }
 // The built-in garden illustration was replaced by a West Lake map; built-in pins move with it, uploaded maps stay.
 function toLakeMap(sc){

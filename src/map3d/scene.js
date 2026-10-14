@@ -1,4 +1,5 @@
 import * as T from 'three';
+import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 import {createModelKit} from './models.js';
 import {createSurface} from './surface.js';
 import {createTerraces} from './terraces.js';
@@ -9,6 +10,7 @@ export function createWorld(parent,{geo,layout,style}){
 const {GEO_FRAME,CAUSEWAYS,BRIDGES,BRIDGE,PLACES,NODES,EDGES,SPOT_GEO,landField,hillHeight,cityAmount,distToPolyline,pointOnPolyline}=geo;
 const surface=createSurface(geo,style),{terrainHeight,groundHeight}=surface;
 const {SHAPE,U,MAT,GLOW,weatherize,glowMat,boat,TREE_GEO,landmark,traveler}=createModelKit(style);
+const enabled=name=>layout.components?.[name]!==false;
 const MOODS=style.moods,scene=new T.Group();parent.add(scene);
 const B=GEO_FRAME.bounds,W=B.maxX-B.minX,D=B.maxZ-B.minZ,CX=(B.minX+B.maxX)/2,CZ=(B.minZ+B.maxZ)/2;
 const rng=(seed=7)=>()=>{seed=(seed*16807)%2147483647;return (seed-1)/2147483646;};
@@ -34,17 +36,34 @@ function terrain(){
    tmp.lerp(city,cityAmount(x,z)*.8);
    gr=Math.min(1,l/.22)*(1-Math.min(1,Math.max(0,slope-.18)*4));
   }
+  if(geo.architecture&&l>=0){
+   tmp.copy(city);gr=0;
+   const regions=geo.architecture.entities.filter(e=>['garden','paving'].includes(e.kind)&&Math.abs(x-e.at[0])<e.size[0]/2&&Math.abs(z-e.at[1])<e.size[1]/2);
+   for(const e of regions){if(e.kind==='garden'){tmp.copy(forest).lerp(meadow,.3);gr=1;}else{tmp.copy(C(style.materials.stoneDark)).lerp(C(style.materials.stone),.12);const dx=Math.abs(x-e.at[0]),dz=Math.abs(z-e.at[1]);if(dx<.38||dx>e.size[0]/2-.18||dz>e.size[1]/2-.18)tmp.copy(C(style.materials.stone));}}
+  }
   col.push(tmp.r,tmp.g,tmp.b);grass.push(gr);
  }
  g.setAttribute('color',new T.Float32BufferAttribute(col,3));g.setAttribute('aGrass',new T.Float32BufferAttribute(grass,1));
- const m=new T.Mesh(g,weatherize(new T.MeshStandardMaterial({vertexColors:true,roughness:.95,flatShading:style.surface.flatTerrain}),{tint:true,key:'terrain'}));m.receiveShadow=true;m.name='terrain';
+ const material=weatherize(new T.MeshStandardMaterial({vertexColors:true,roughness:.95,flatShading:style.surface.flatTerrain}),{tint:true,key:'terrain'});
+ if(geo.architecture){
+  const compile=material.onBeforeCompile;material.onBeforeCompile=shader=>{compile(shader);shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
+   vec2 tile=vPaper.xz/vec2(.48,.72);tile.x+=mod(floor(tile.y),2.)*.5;
+   vec2 fw=max(fwidth(tile),vec2(.001));
+   vec2 edge=min(fract(tile),1.-fract(tile));
+   vec2 line=1.-smoothstep(vec2(.012),vec2(.012)+fw,edge);
+   float fade=1.-smoothstep(.2,.65,max(fw.x,fw.y));
+   float joint=max(line.x,line.y)*fade*(1.-vGrass)*(1.-uSnow);
+   diffuseColor.rgb*=1.-joint*.14;
+  `);};material.customProgramCacheKey=()=> 'palace-paving-filtered-v1';
+ }
+ const m=new T.Mesh(g,material);m.receiveShadow=true;m.name='terrain';
  return surface.tiles.length?new T.Group().add(m,createTerraces(surface,geo,style,weatherize)):m;
 }
 // Strata skirt around the diorama slab.
 function skirt(){
  const ring=[],steps=120;
  for(let s=0;s<4;s++)for(let i=0;i<steps;i++){const t=i/steps;ring.push(s===0?[B.minX+t*W,B.minZ]:s===1?[B.maxX,B.minZ+t*D]:s===2?[B.maxX-t*W,B.maxZ]:[B.minX,B.maxZ-t*D]);}
- const bands=style.strata,rows=bands.length,pos=[],col=[],idx=[],bottom=-3.4;
+ const bands=style.strata,rows=bands.length,pos=[],col=[],idx=[],bottom=geo.architecture?-1.2:-3.4;
  ring.forEach(([x,z])=>{const top=Math.max(.06,terrainHeight(x,z));for(const [f,c] of bands){pos.push(x,top+(bottom-top)*f,z);const k=C(c);col.push(k.r,k.g,k.b);}});
  for(let i=0;i<ring.length;i++){const a=i*rows,b=((i+1)%ring.length)*rows;for(let r=0;r<rows-1;r++)idx.push(a+r,a+r+1,b+r,b+r,a+r+1,b+r+1);}
  const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(pos,3));g.setAttribute('color',new T.Float32BufferAttribute(col,3));g.setIndex(idx);g.computeVertexNormals();
@@ -70,7 +89,7 @@ void main(){
  vec3 H=normalize(normalize(uSunDir)+V);float spec=pow(max(dot(N,H),0.),mix(220.,700.,uNight));col+=uSunCol*spec*mix(1.6,.6,uNight)*${style.water.specular.toFixed(3)};
  float sparkle=step(.99,noise(vW.xz*18.+uTime*.8))*smoothstep(.2,.9,depth)*(1.-uNight)*.35;col+=sparkle*${style.water.specular.toFixed(3)};col+=(hash(floor(vW.xz*180.))-.5)*${style.water.grain.toFixed(3)};
  float shore=1.-smoothstep(0.,.32,-land);float band=.5+.5*sin(-land*34.-uTime*2.2+noise(vW.xz*2.)*5.);
- col=mix(col,mix(vec3(1.),vec3(.55,.66,.9),uNight),shore*(.35+.45*band)*(1.-uSnow*.3)*mix(1.,.45,uNight));
+ col=mix(col,mix(vec3(1.),vec3(.55,.66,.9),uNight),shore*(.35+.45*band)*${geo.architecture?'.22':'1.'}*(1.-uSnow*.3)*mix(1.,.45,uNight));
  gl_FragColor=vec4(col,mix(.78,.94,depth));
  #include <tonemapping_fragment>
  #include <colorspace_fragment>
@@ -95,9 +114,9 @@ function vegetation(spotPoints){
  const rand=rng(layout.vegetation.seed),out=[],kinds={round:[],conifer:[],willow:[],peach:[]};
  const clear=(x,z)=>spotPoints.some(([sx,sz])=>Math.hypot(sx-x,sz-z)<1.05);
  for(let i=0;i<layout.vegetation.attempts;i++){
-  const x=B.minX+.5+rand()*(W-1),z=B.minZ+.5+rand()*(D-1),l=landField(x,z);if(l<.3||(cityAmount(x,z)>.3&&rand()>.07)||clear(x,z)||nearPath(x,z,.3))continue;
-  const h=hillHeight(x,z),p=h>.6?.5:l>1.2?.11:.05;if(rand()>p)continue;
-  kinds[h>.9&&rand()<.55?'conifer':'round'].push([x,z,.75+rand()*.6,rand(),l<1.6]);
+  const x=B.minX+.5+rand()*(W-1),z=B.minZ+.5+rand()*(D-1),l=landField(x,z);if(geo.architecture&&!geo.architecture.entities.some(e=>e.kind==='garden'&&Math.abs(x-e.at[0])<e.size[0]/2&&Math.abs(z-e.at[1])<e.size[1]/2))continue;if((geo.architecture&&!geo.walkable(x,z))||l<.3||(!geo.architecture&&cityAmount(x,z)>.3&&rand()>.07)||clear(x,z)||(!geo.architecture&&nearPath(x,z,.3)))continue;
+  const h=hillHeight(x,z),p=geo.architecture?.7:h>.6?.5:l>1.2?.11:.05;if(rand()>p)continue;
+  kinds[geo.architecture?(rand()<.65?'conifer':'round'):h>.9&&rand()<.55?'conifer':'round'].push([x,z,.75+rand()*.6,rand(),l<1.6]);
  }
  // Su and Bai causeways: a row of willows and peaches on each side ("one willow, one peach"), none on the bridges.
  for(const c of CAUSEWAYS.filter(c=>!c.minor)){
@@ -137,7 +156,7 @@ function paintTrees(meshes,m){
    if(kind==='round'&&m.blossom&&r>.9&&mesh.userData.list[i][4]){b.set(pick(PALETTE.peach.blossom));c.lerp(b,m.blossom*.9);}
    mesh.setColorAt(i,c);
   });
-  mesh.instanceColor.needsUpdate=true;
+  if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;
  }
 }
 // Hubin and the north-east: low white-walled houses by the lake, mid-rise blocks behind, a few towers at the back.
@@ -184,22 +203,50 @@ function setLotus(l,amount,m){
  const d=new T.Object3D(),c=new T.Color('#5f9a48').lerp(new T.Color('#9a7a46'),Math.max(m.autumn*.6,m.snow*.9));
  l.pads.userData.list.forEach(([x,z,s,r],i)=>{d.position.set(x,.025,z);d.rotation.set(0,r*6,0);d.scale.setScalar(s*Math.max(.05,amount));d.updateMatrix();l.pads.setMatrixAt(i,d.matrix);l.pads.setColorAt(i,c);});
  l.flowers.userData.list.forEach(([x,z],i)=>{d.position.set(x,.02,z);d.rotation.set(0,0,0);d.scale.setScalar(Math.max(0,(amount-.5)*2));d.updateMatrix();l.flowers.setMatrixAt(i,d.matrix);});
- l.pads.instanceMatrix.needsUpdate=l.flowers.instanceMatrix.needsUpdate=true;l.pads.instanceColor.needsUpdate=true;
+ l.pads.instanceMatrix.needsUpdate=l.flowers.instanceMatrix.needsUpdate=true;if(l.pads.instanceColor)l.pads.instanceColor.needsUpdate=true;
 }
 const place=(o,x,z,rot=0,lift=0,s=1)=>{o.position.set(x,Math.max(.06,terrainHeight(x,z))+lift,z);o.rotation.y=rot;o.scale.setScalar(s);return o;};
 function landmarks(){
- const out={},g=new T.Group();
+ const out={},g=new T.Group(),decor=new T.Group();
  for(const entry of layout.landmarks){
   const o=place(landmark(entry.model,entry.parameters),...entry.at,entry.rotation,entry.lift,entry.scale);
   if(entry.absoluteY!==undefined)o.position.y=entry.absoluteY;
   o.name=entry.id;
   if(entry.spotId){o.traverse(c=>{c.userData.spot=entry.spotId;});out[entry.spotId]={object:o,top:o.userData.top*o.scale.x};}
-  g.add(o);
+  (geo.architecture&&!entry.spotId?decor:g).add(o);
+ }
+ if(geo.architecture){
+  // Keep the clickable landmark groups; batch repetitive walls and side courts.
+  decor.updateMatrixWorld(true);const buckets=new Map();decor.traverse(o=>{if(!o.isMesh)return;const a=buckets.get(o.material)||[];a.push(o.geometry.clone().applyMatrix4(o.matrixWorld));buckets.set(o.material,a);});
+  for(const [mat,gs] of buckets){const flat=gs.map(x=>x.index?x.toNonIndexed():x),m=new T.Mesh(mergeGeometries(flat),mat);m.castShadow=m.receiveShadow=true;g.add(m);for(const x of new Set([...gs,...flat]))x.dispose();}
+  decor.traverse(o=>o.geometry?.dispose());
  }
  const pond=new T.Mesh(new T.CircleGeometry(layout.pond.radius,32),new T.MeshStandardMaterial({color:style.water.pond,roughness:style.geometry==='folded-paper'?1:.2,metalness:.1}));
- place(pond,...layout.pond.at,0,.012);pond.rotation.x=-Math.PI/2;g.add(pond);
+ place(pond,...layout.pond.at,0,.012);pond.rotation.x=-Math.PI/2;if(enabled('pond'))g.add(pond);else{pond.geometry.dispose();pond.material.dispose();}
  const koi=[];for(let i=0;i<layout.pond.koi;i++){const k=new T.Mesh(new T.CapsuleGeometry(.022,.06,3,6).rotateZ(Math.PI/2),new T.MeshStandardMaterial({color:i%3?'#f26b2a':'#f7f1e6',roughness:.5}));k.position.y=pond.position.y+.01;k.userData={r:.12+i*.042,s:.4+i*.07,p:i};koi.push(k);g.add(k);}
  return {group:g,spots:out,koi,pond};
+}
+function gardenStones(){
+ const group=new T.Group();if(!geo.architecture)return group;
+ const stones=[],borders=[],rand=rng(layout.vegetation.seed+19),gardens=geo.architecture.entities.filter(e=>e.kind==='garden');
+ for(const e of gardens){
+  const [x,z]=e.at,[w,d]=e.size;
+  // Boundary kerbs visually separate the planting area from the stone courtyard.
+  for(const side of [-1,1]){
+   borders.push(new T.BoxGeometry(w,.055,.065).translate(x,terrainHeight(x,z)+.03,z+side*d/2));
+   borders.push(new T.BoxGeometry(.065,.055,d).translate(x+side*w/2,terrainHeight(x,z)+.03,z));
+  }
+  if(w<2||d<2)continue;
+  for(let i=0;i<Math.ceil(w*d/9);i++){
+   const px=x+(rand()-.5)*w*.8,pz=z+(rand()-.5)*d*.65;if(!geo.walkable(px,pz)||nearPath(px,pz,.12))continue;
+   const k=.22+rand()*.16;
+   stones.push(new T.DodecahedronGeometry(1,0).scale(k,k*(1.3+rand()),k*.8).rotateY(rand()*6.28).translate(px,terrainHeight(px,pz)+k*.6,pz));
+  }
+ }
+ for(const [gs,mat] of [[stones,MAT.stoneDark],[borders,MAT.stone]])if(gs.length){
+  const mesh=new T.Mesh(mergeGeometries(gs),mat);mesh.castShadow=mesh.receiveShadow=true;group.add(mesh);gs.forEach(g=>g.dispose());
+ }
+ return group;
 }
 function sky(){
  const m=new T.Mesh(new T.SphereGeometry(320,32,16),new T.ShaderMaterial({side:T.BackSide,depthWrite:false,depthTest:false,uniforms:{uTop:{value:C('#8fc0e6')},uHor:{value:C('#f6e7d8')},uBot:{value:C('#e9dccb')},uStars:{value:0}},
@@ -243,18 +290,19 @@ function lakeBoats(){
 
 function build(){
  const landTex=landTexture(),hemi=new T.HemisphereLight('#d6ecff','#8a9a6a',.9),sun=new T.DirectionalLight('#fff1dc',2.6);
- sun.castShadow=true;sun.shadow.mapSize.set(layout.quality.shadowMapSize,layout.quality.shadowMapSize);Object.assign(sun.shadow.camera,{left:-30,right:30,top:30,bottom:-30,near:1,far:140});sun.shadow.bias=-.0004;sun.shadow.normalBias=.02;
+ sun.castShadow=true;sun.shadow.mapSize.set(layout.quality.shadowMapSize,layout.quality.shadowMapSize);Object.assign(sun.shadow.camera,{left:-30,right:30,top:30,bottom:-30,near:1,far:140});sun.shadow.bias=-.0004;sun.shadow.normalBias=geo.architecture?.065:.02;sun.shadow.radius=2;
  sun.target.position.set(0,0,-1);scene.add(hemi,sun,sun.target);
- const skyM=sky(),ter=terrain(),wat=water(landTex),veg=vegetation(Object.values(SPOT_GEO).map(g=>g.label)),lot=lotusField(),lm=landmarks(),cl=clouds(),bd=birds(),bt=lakeBoats();
+ const skyM=sky(),ter=terrain(),wat=water(landTex),veg=enabled('vegetation')?vegetation(Object.values(SPOT_GEO).map(g=>g.label)):{group:new T.Group(),meshes:[]},lot=lotusField(),lm=landmarks(),cl=enabled('clouds')?clouds():[],bd=birds(),bt=lakeBoats();
  const petals=particles(900,'#f7b5c6',.16),flakes=particles(2200,'#ffffff',.12);
  const moon=new T.Sprite(new T.SpriteMaterial({map:glowTex(),color:'#fff6dc',transparent:true,depthWrite:false,fog:false,opacity:0}));moon.scale.setScalar(40);
- scene.add(skyM,ter,skirt(),wat,paths(),veg.group,lot.group,city(),lanterns(),lm.group,...cl,...bd,...bt,petals,flakes,moon);
+ scene.add(skyM,ter,skirt(),gardenStones(),wat,veg.group,lot.group,lm.group,...cl,...bd,...bt,petals,flakes,moon);
+ if(enabled('paths'))scene.add(paths());if(enabled('city'))scene.add(city(),lanterns());lot.group.visible=enabled('lotus');
  const halo=glowTex(),halos=[];
  const addHalo=(x,y,z,size,color,k=1)=>{const h=new T.Sprite(new T.SpriteMaterial({map:halo,color,transparent:true,depthWrite:false,blending:T.AdditiveBlending,opacity:0,fog:false}));h.position.set(x,y,z);h.scale.setScalar(size);h.userData.k=k;halos.push(h);scene.add(h);};
  const st=lm.spots[layout.landmarks.find(m=>m.model==='three-lanterns')?.spotId]?.object;if(st){st.updateMatrixWorld(true);st.children.forEach(l=>{const p=l.getWorldPosition(new T.Vector3());addHalo(p.x,p.y+.62,p.z,1.6,'#ffb860',.9);addHalo(p.x,.03,p.z+.5,1.1,'#ff9c40',.45);});}
  const lf=lm.spots[layout.landmarks.find(m=>m.model==='pagoda')?.spotId]?.object;if(lf){const p=lf.position;for(let i=0;i<5;i++)addHalo(p.x,p.y+.55+i*.42,p.z,1.3-i*.12,'#ffbf6a',.5);}
  const moonGlow=new T.Mesh(new T.CircleGeometry(2.6,40),new T.MeshBasicMaterial({map:halo,color:'#dfe8ff',transparent:true,depthWrite:false,blending:T.AdditiveBlending,opacity:0}));moonGlow.rotation.x=-Math.PI/2;moonGlow.position.set(3.5,.03,-3);moonGlow.renderOrder=3;scene.add(moonGlow);
- parent.fog=new T.Fog('#efe3d6',70,175);
+ parent.fog=new T.Fog('#efe3d6',geo.architecture?250:70,geo.architecture?500:175);
  let mood=structuredClone(MOODS.spring),from=null,to=null,blend=1;
  const lerpMood=(a,b,t)=>{const o={};for(const k of Object.keys(b)){const x=a[k],y=b[k];if(typeof y==='number')o[k]=x+(y-x)*t;else if(typeof y==='string'&&y.startsWith('#'))o[k]='#'+C(x).lerp(C(y),t).getHexString();else if(Array.isArray(y))o[k]=y.map((v,i)=>typeof v==='number'?x[i]+(v-x[i])*t:'#'+C(x[i]).lerp(C(v),t).getHexString());else if(y&&typeof y==='object')o[k]=lerpMood(x,y,t);else o[k]=y;}return o;};
  function apply(m,renderer){
