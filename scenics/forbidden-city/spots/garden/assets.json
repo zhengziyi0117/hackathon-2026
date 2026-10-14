@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "assets": [
+    {
+      "id": "front",
+      "file": "photos/garden.jpg",
+      "url": "/assets/forbidden-city/real/garden.jpg",
+      "sha256": "0fbe449c80d72eb446f40773a4ea5592fcb2aa41901b49fca83b4862c22f2346",
+      "publish": true,
+      "photo": {
+        "name": "御花园局部实景",
+        "kind": "real",
+        "credit": {
+          "id": "garden",
+          "name": "御花园",
+          "caption": "御花园局部实景",
+          "path": "/assets/forbidden-city/real/garden.jpg",
+          "author": "そらみみ",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Imperial_garden_of_the_Forbidden_City_20160826.jpg",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/7/7b/Imperial_garden_of_the_Forbidden_City_20160826.jpg",
+          "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7b/Imperial_garden_of_the_Forbidden_City_20160826.jpg/1280px-Imperial_garden_of_the_Forbidden_City_20160826.jpg",
+          "commonsPageId": 52503298,
+          "captureDate": "2016-08-26 14:19:31",
+          "transformations": [
+            "等比缩放至最长边不超过 1200px",
+            "JPEG 重新编码与压缩",
+            "移除原文件 EXIF 元数据；来源与许可保存在本清单"
+          ],
+          "croppedByProject": false,
+          "resized": true,
+          "width": 1200,
+          "height": 900,
+          "bytes": 263142,
+          "sha256": "0fbe449c80d72eb446f40773a4ea5592fcb2aa41901b49fca83b4862c22f2346",
+          "depicts": "御花园局部实景",
+          "match": "对应景点实拍",
+          "isGenericFallback": false,
+          "officialSummary": "御花园位于坤宁宫北侧，以钦安殿为中心，亭阁、古树、山石与彩石甬路构成宫城中的园林空间。",
+          "officialSource": "https://www.dpm.org.cn/explore/building/236519.html",
+          "artist": "そらみみ",
+          "source": "https://commons.wikimedia.org/wiki/File:Imperial_garden_of_the_Forbidden_City_20160826.jpg",
+          "date": "2016-08-26 14:19:31",
+          "changes": "等比缩放至最长边不超过 1200px；JPEG 重新编码与压缩；移除原文件 EXIF 元数据；来源与许可保存在本清单"
+        }
+      }
+    }
+  ]
+}

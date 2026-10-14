@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "assets": [
+    {
+      "id": "scroll",
+      "file": "assets/westlake-map.jpg",
+      "url": "/assets/scenic/westlake-map.jpg",
+      "sha256": "9e17f887f4137ec6c553cdd509b81b86ff27acd020629022379939b63e133cab",
+      "publish": true
+    },
+    {
+      "id": "legacy-map",
+      "file": "assets/garden-map.png",
+      "url": "/assets/scenic/garden-map.png",
+      "sha256": "6c61754abfc188c5d94f742e2e644b72ddd3a4be22c5f2712934bacc923063cb",
+      "publish": false,
+      "delivery": {
+        "file": "web/scenic-garden-map.jpg",
+        "url": "/assets/web/scenic-garden-map.jpg",
+        "sha256": "ad9bd397aa4a73be41c672a73cfb82ecfa6956afc58166d4e148e6222b1ef0da",
+        "maxDimension": 1920,
+        "quality": 85,
+        "changes": "Web delivery copies: resized when larger than 1920 px and JPEG-compressed; no scene or content edits."
+      }
+    },
+    {
+      "id": "concept",
+      "file": "assets/westlake-concept.png",
+      "url": "/assets/westlake-concept.png",
+      "sha256": "4a3bda2a0e950f370cae0778c706551783fa1431492fa65b5c45e00cce5ee776",
+      "publish": false
+    },
+    {
+      "id": "photo-sources",
+      "file": "provenance/photo-sources.json",
+      "url": "/assets/real/sources.json",
+      "sha256": "fe538da43c360a3bf399f0b6c270587e226dff8c03261db5b3833a27aa6093ce",
+      "publish": true
+    },
+    {
+      "id": "legacy-delivery-record",
+      "file": "provenance/web-images-v1.json",
+      "url": "/assets/web/manifest.json",
+      "sha256": "c9e6ce3a2e07eb144ba2df81e29f51f676924dcdd85545ca14b92983f519af74",
+      "publish": true
+    }
+  ]
+}

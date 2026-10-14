@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 2,
+  "id": "forbidden-city-interaction",
+  "mapId": "forbidden-city",
+  "startNode": "entry",
+  "defaultMood": "spring",
+  "avatar": {
+    "scale": 1.2,
+    "keyboardSpeed": 3.4,
+    "walkSpeed": 4.3,
+    "boatSpeed": 1,
+    "arrivalRadius": 0.65
+  },
+  "routing": {
+    "boatCostMultiplier": 1,
+    "walkMetersPerMinute": 65,
+    "boatMetersPerMinute": 100,
+    "straightSampleStep": 0.05
+  },
+  "movement": {
+    "boundsPadding": 0.2,
+    "minLand": 0.015,
+    "maxTerrainHeight": 5
+  },
+  "camera": {
+    "fov": 34,
+    "intro": {
+      "target": [
+        0,
+        0,
+        1
+      ],
+      "distance": 116,
+      "theta": 0.4,
+      "phi": 0.5
+    },
+    "home": {
+      "target": [
+        0,
+        0,
+        1
+      ],
+      "distance": 108,
+      "theta": 0.4,
+      "phi": 0.82
+    },
+    "minDistance": 6,
+    "maxDistance": 120,
+    "minPhi": 0.22,
+    "maxPhi": 1.25
+  },
+  "presentation": {
+    "title": "宫阙之间",
+    "loading": "正在展开紫禁城…",
+    "attribution": "建筑布局参考：故宫博物院 · 游览示意",
+    "attributionUrl": "https://www.dpm.org.cn/",
+    "moods": [
+      "spring",
+      "dusk",
+      "winter"
+    ],
+    "overviewSpots": [
+      "wumen",
+      "taihedian",
+      "qianqinggong",
+      "garden",
+      "ningshou",
+      "cining"
+    ],
+    "stampSpots": [
+      "wumen",
+      "taihedian",
+      "qianqinggong",
+      "garden"
+    ],
+    "tour": [
+      "wumen",
+      "taihemen",
+      "taihedian",
+      "zhonghedian",
+      "baohedian",
+      "qianqinggong",
+      "jiaotaidian",
+      "kunninggong",
+      "garden",
+      "shenwumen"
+    ],
+    "exitNodes": [
+      "north-exit",
+      "east-exit"
+    ],
+    "availabilityNote": "太和门主通道按施工公告关闭；地图采用侧向绕行示意，实际开放与通行以现场为准。",
+    "sourceUrl": "https://www.dpm.org.cn/announce_detail/379422.html",
+    "checkedAt": "2026-10-14"
+  }
+}

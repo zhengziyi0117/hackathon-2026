@@ -5,11 +5,11 @@ import {createScenicState,createWorkspace,upgradeWorkspace,newScenic,newSpot,put
 test('a single-scenic state becomes the West Lake entry of a workspace',()=>{
   const old=createScenicState();delete old.id;delete old.draft.intro;delete old.published.intro;old.draft.spots[1].name='改过的断桥';
   const ws=upgradeWorkspace(old);
-  assert.equal(ws.schema,8);assert.equal(ws.scenics.length,1);
+  assert.equal(ws.schema,8);assert.equal(ws.scenics.length,2);
   const [sc]=ws.scenics;assert.equal(sc.id,'westlake');assert.equal(sc.draft.spots[1].name,'改过的断桥');
   assert.equal(sc.draft.intro,sc.published.intro);
   assert.deepEqual(upgradeWorkspace(ws),ws);
-  assert.equal(upgradeWorkspace(null).scenics.length,1);
+  assert.equal(upgradeWorkspace(null).scenics.length,2);
 });
 test('the old garden illustration becomes the West Lake map with its pins, uploaded maps are untouched',()=>{
   const ws=createWorkspace(),[sc]=ws.scenics,fresh=structuredClone(sc.draft.spots.map(s=>[s.x,s.y]));

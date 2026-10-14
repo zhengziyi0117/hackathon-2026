@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "assets": [
+    {
+      "id": "front",
+      "file": "photos/duanqiao.jpg",
+      "url": "/assets/real/duanqiao.jpg",
+      "sha256": "3fa7a6403a47b329a1328d804a5e3753d89b3c422c0aeeadf57faaabbfb9b5f7",
+      "publish": false,
+      "photo": {
+        "name": "雨中的断桥 · 2025 年实拍",
+        "kind": "real",
+        "credit": {
+          "title": "File:Broken Bridge (Hangzhou) 20250505.jpg",
+          "source": "https://commons.wikimedia.org/wiki/File:Broken_Bridge_(Hangzhou)_20250505.jpg",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/c/c7/Broken_Bridge_%28Hangzhou%29_20250505.jpg",
+          "path": "/assets/real/duanqiao.jpg",
+          "artist": "Suicasmo",
+          "license": "CC0",
+          "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+          "date": "2025-05-05",
+          "retrieved": "2026-10-12",
+          "changes": "原照片；页面缩略图按容器裁切，大图可查看完整画面。"
+        }
+      },
+      "delivery": {
+        "file": "web/real-duanqiao.jpg",
+        "url": "/assets/web/real-duanqiao.jpg",
+        "sha256": "1db560d937629961fd84c257d5d74a2e834bd13054f68788cb3f409ceb64dac4",
+        "maxDimension": 1920,
+        "quality": 85,
+        "changes": "Web delivery copies: resized when larger than 1920 px and JPEG-compressed; no scene or content edits."
+      }
+    }
+  ]
+}

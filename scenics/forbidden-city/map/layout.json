@@ -1,0 +1,3409 @@
+{
+  "schemaVersion": 2,
+  "id": "forbidden-city-layout",
+  "mapId": "forbidden-city",
+  "catalogVersion": 1,
+  "landmarks": [
+    {
+      "id": "outer-side-n1",
+      "model": "palace-wall",
+      "at": [
+        -17.8,
+        0
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "outer-side-n1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 48.8,
+        "height": 1.1
+      }
+    },
+    {
+      "id": "outer-n1-n10",
+      "model": "palace-wall",
+      "at": [
+        -10,
+        -24.3
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "outer-n1-n10",
+      "parameters": {
+        "width": 15.6,
+        "depth": 0.5,
+        "height": 1.1
+      }
+    },
+    {
+      "id": "outer-n1-10",
+      "model": "palace-wall",
+      "at": [
+        10,
+        -24.3
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "outer-n1-10",
+      "parameters": {
+        "width": 15.6,
+        "depth": 0.5,
+        "height": 1.1
+      }
+    },
+    {
+      "id": "tower-n1-n243",
+      "model": "palace-tower",
+      "at": [
+        -17.8,
+        -24.3
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "tower-n1-n243",
+      "parameters": {
+        "width": 1.5,
+        "depth": 1.5,
+        "height": 1.2,
+        "tiers": 3,
+        "roof": 2
+      }
+    },
+    {
+      "id": "tower-n1-243",
+      "model": "palace-tower",
+      "at": [
+        -17.8,
+        24.3
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "tower-n1-243",
+      "parameters": {
+        "width": 1.5,
+        "depth": 1.5,
+        "height": 1.2,
+        "tiers": 3,
+        "roof": 2
+      }
+    },
+    {
+      "id": "outer-1-n10",
+      "model": "palace-wall",
+      "at": [
+        -10,
+        24.3
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "outer-1-n10",
+      "parameters": {
+        "width": 15.6,
+        "depth": 0.5,
+        "height": 1.1
+      }
+    },
+    {
+      "id": "outer-1-10",
+      "model": "palace-wall",
+      "at": [
+        10,
+        24.3
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "outer-1-10",
+      "parameters": {
+        "width": 15.6,
+        "depth": 0.5,
+        "height": 1.1
+      }
+    },
+    {
+      "id": "tower-1-n243",
+      "model": "palace-tower",
+      "at": [
+        17.8,
+        -24.3
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "tower-1-n243",
+      "parameters": {
+        "width": 1.5,
+        "depth": 1.5,
+        "height": 1.2,
+        "tiers": 3,
+        "roof": 2
+      }
+    },
+    {
+      "id": "tower-1-243",
+      "model": "palace-tower",
+      "at": [
+        17.8,
+        24.3
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "tower-1-243",
+      "parameters": {
+        "width": 1.5,
+        "depth": 1.5,
+        "height": 1.2,
+        "tiers": 3,
+        "roof": 2
+      }
+    },
+    {
+      "id": "wumen",
+      "model": "palace-gate",
+      "at": [
+        0,
+        24.3
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": "wumen",
+      "entityId": "wumen",
+      "parameters": {
+        "width": 8.6,
+        "depth": 1.5,
+        "height": 1.35,
+        "gap": 1
+      }
+    },
+    {
+      "id": "wumen-wing-wall-n49",
+      "model": "palace-wall",
+      "at": [
+        -4.9,
+        25.4
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "wumen-wing-wall-n49",
+      "parameters": {
+        "width": 0.65,
+        "depth": 3.3,
+        "height": 1.35
+      }
+    },
+    {
+      "id": "wumen-wing-n49",
+      "model": "palace-hall",
+      "at": [
+        -4.9,
+        25.5
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "wumen-wing-n49",
+      "parameters": {
+        "width": 1.1,
+        "depth": 3,
+        "height": 0.65,
+        "base": 1.35
+      }
+    },
+    {
+      "id": "wumen-wing-wall-49",
+      "model": "palace-wall",
+      "at": [
+        4.9,
+        25.4
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "wumen-wing-wall-49",
+      "parameters": {
+        "width": 0.65,
+        "depth": 3.3,
+        "height": 1.35
+      }
+    },
+    {
+      "id": "wumen-wing-49",
+      "model": "palace-hall",
+      "at": [
+        4.9,
+        25.5
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "wumen-wing-49",
+      "parameters": {
+        "width": 1.1,
+        "depth": 3,
+        "height": 0.65,
+        "base": 1.35
+      }
+    },
+    {
+      "id": "shenwumen",
+      "model": "palace-gate",
+      "at": [
+        0,
+        -24.3
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": "shenwumen",
+      "entityId": "shenwumen",
+      "parameters": {
+        "width": 4.6,
+        "depth": 1.2,
+        "height": 1.1,
+        "gap": 1
+      }
+    },
+    {
+      "id": "east-wall-north",
+      "model": "palace-wall",
+      "at": [
+        17.8,
+        -9.5
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "east-wall-north",
+      "parameters": {
+        "width": 0.45,
+        "depth": 29.6,
+        "height": 1.1
+      }
+    },
+    {
+      "id": "east-wall-south",
+      "model": "palace-wall",
+      "at": [
+        17.8,
+        15.1
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "east-wall-south",
+      "parameters": {
+        "width": 0.45,
+        "depth": 18.4,
+        "height": 1.1
+      }
+    },
+    {
+      "id": "taihemen",
+      "model": "palace-gate",
+      "at": [
+        0,
+        14.3
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": "taihemen",
+      "entityId": "taihemen",
+      "parameters": {
+        "width": 7.6,
+        "depth": 1.3,
+        "height": 0.88,
+        "gap": 1
+      }
+    },
+    {
+      "id": "taihe-front-n1",
+      "model": "palace-wall",
+      "at": [
+        -6.4,
+        14.3
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "taihe-front-n1",
+      "parameters": {
+        "width": 4.4,
+        "depth": 0.3,
+        "height": 0.62
+      }
+    },
+    {
+      "id": "taihe-wing-end-n1",
+      "model": "palace-wall",
+      "at": [
+        -13.6,
+        14.3
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "taihe-wing-end-n1",
+      "parameters": {
+        "width": 6.4,
+        "depth": 0.3,
+        "height": 0.62
+      }
+    },
+    {
+      "id": "taihe-side-n1",
+      "model": "palace-gate",
+      "at": [
+        -9.5,
+        14.3
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "taihe-side-n1",
+      "parameters": {
+        "width": 1.8,
+        "depth": 0.3,
+        "height": 0.42,
+        "gap": 1
+      }
+    },
+    {
+      "id": "taihe-front-1",
+      "model": "palace-wall",
+      "at": [
+        6.4,
+        14.3
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "taihe-front-1",
+      "parameters": {
+        "width": 4.4,
+        "depth": 0.3,
+        "height": 0.62
+      }
+    },
+    {
+      "id": "taihe-wing-end-1",
+      "model": "palace-wall",
+      "at": [
+        13.6,
+        14.3
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "taihe-wing-end-1",
+      "parameters": {
+        "width": 6.4,
+        "depth": 0.3,
+        "height": 0.62
+      }
+    },
+    {
+      "id": "taihe-side-1",
+      "model": "palace-gate",
+      "at": [
+        9.5,
+        14.3
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "taihe-side-1",
+      "parameters": {
+        "width": 1.8,
+        "depth": 0.3,
+        "height": 0.42,
+        "gap": 1
+      }
+    },
+    {
+      "id": "jinshui-bridge-0",
+      "model": "palace-paving",
+      "at": [
+        -6,
+        18.398
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "jinshui-bridge-0",
+      "parameters": {
+        "width": 0.85,
+        "depth": 1.7,
+        "height": 0.08
+      }
+    },
+    {
+      "id": "bridge-rail-0-n1",
+      "model": "palace-wall",
+      "at": [
+        -6.46,
+        18.398
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "bridge-rail-0-n1",
+      "parameters": {
+        "width": 0.06,
+        "depth": 1.7,
+        "height": 0.18
+      }
+    },
+    {
+      "id": "bridge-rail-0-1",
+      "model": "palace-wall",
+      "at": [
+        -5.54,
+        18.398
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "bridge-rail-0-1",
+      "parameters": {
+        "width": 0.06,
+        "depth": 1.7,
+        "height": 0.18
+      }
+    },
+    {
+      "id": "jinshui-bridge-1",
+      "model": "palace-paving",
+      "at": [
+        -3,
+        18.148999999999997
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "jinshui-bridge-1",
+      "parameters": {
+        "width": 0.85,
+        "depth": 1.7,
+        "height": 0.08
+      }
+    },
+    {
+      "id": "bridge-rail-1-n1",
+      "model": "palace-wall",
+      "at": [
+        -3.46,
+        18.148999999999997
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "bridge-rail-1-n1",
+      "parameters": {
+        "width": 0.06,
+        "depth": 1.7,
+        "height": 0.18
+      }
+    },
+    {
+      "id": "bridge-rail-1-1",
+      "model": "palace-wall",
+      "at": [
+        -2.54,
+        18.148999999999997
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "bridge-rail-1-1",
+      "parameters": {
+        "width": 0.06,
+        "depth": 1.7,
+        "height": 0.18
+      }
+    },
+    {
+      "id": "jinshui-bridge-2",
+      "model": "palace-paving",
+      "at": [
+        0,
+        17.9
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "jinshui-bridge-2",
+      "parameters": {
+        "width": 0.85,
+        "depth": 1.7,
+        "height": 0.08
+      }
+    },
+    {
+      "id": "bridge-rail-2-n1",
+      "model": "palace-wall",
+      "at": [
+        -0.46,
+        17.9
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "bridge-rail-2-n1",
+      "parameters": {
+        "width": 0.06,
+        "depth": 1.7,
+        "height": 0.18
+      }
+    },
+    {
+      "id": "bridge-rail-2-1",
+      "model": "palace-wall",
+      "at": [
+        0.46,
+        17.9
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "bridge-rail-2-1",
+      "parameters": {
+        "width": 0.06,
+        "depth": 1.7,
+        "height": 0.18
+      }
+    },
+    {
+      "id": "jinshui-bridge-3",
+      "model": "palace-paving",
+      "at": [
+        3,
+        18.148999999999997
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "jinshui-bridge-3",
+      "parameters": {
+        "width": 0.85,
+        "depth": 1.7,
+        "height": 0.08
+      }
+    },
+    {
+      "id": "bridge-rail-3-n1",
+      "model": "palace-wall",
+      "at": [
+        2.54,
+        18.148999999999997
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "bridge-rail-3-n1",
+      "parameters": {
+        "width": 0.06,
+        "depth": 1.7,
+        "height": 0.18
+      }
+    },
+    {
+      "id": "bridge-rail-3-1",
+      "model": "palace-wall",
+      "at": [
+        3.46,
+        18.148999999999997
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "bridge-rail-3-1",
+      "parameters": {
+        "width": 0.06,
+        "depth": 1.7,
+        "height": 0.18
+      }
+    },
+    {
+      "id": "jinshui-bridge-4",
+      "model": "palace-paving",
+      "at": [
+        6,
+        18.398
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "jinshui-bridge-4",
+      "parameters": {
+        "width": 0.85,
+        "depth": 1.7,
+        "height": 0.08
+      }
+    },
+    {
+      "id": "bridge-rail-4-n1",
+      "model": "palace-wall",
+      "at": [
+        5.54,
+        18.398
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "bridge-rail-4-n1",
+      "parameters": {
+        "width": 0.06,
+        "depth": 1.7,
+        "height": 0.18
+      }
+    },
+    {
+      "id": "bridge-rail-4-1",
+      "model": "palace-wall",
+      "at": [
+        6.46,
+        18.398
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "bridge-rail-4-1",
+      "parameters": {
+        "width": 0.06,
+        "depth": 1.7,
+        "height": 0.18
+      }
+    },
+    {
+      "id": "taihedian-platform",
+      "model": "palace-platform",
+      "at": [
+        0,
+        7.4
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "taihedian-platform",
+      "parameters": {
+        "width": 6.6,
+        "depth": 4.0,
+        "height": 0.35
+      }
+    },
+    {
+      "id": "taihedian",
+      "model": "palace-hall",
+      "at": [
+        0,
+        7.4
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": "taihedian",
+      "entityId": "taihedian",
+      "parameters": {
+        "width": 5.5,
+        "depth": 3.1,
+        "height": 1.22,
+        "base": 0.4,
+        "tiers": 2,
+        "roof": 1
+      }
+    },
+    {
+      "id": "zhonghedian-platform",
+      "model": "palace-platform",
+      "at": [
+        0,
+        2.5
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "zhonghedian-platform",
+      "parameters": {
+        "width": 3.1,
+        "depth": 2.9,
+        "height": 0.35
+      }
+    },
+    {
+      "id": "zhonghedian",
+      "model": "palace-hall",
+      "at": [
+        0,
+        2.5
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": "zhonghedian",
+      "entityId": "zhonghedian",
+      "parameters": {
+        "width": 2,
+        "depth": 2,
+        "height": 0.92,
+        "base": 0.4,
+        "tiers": 1,
+        "roof": 2
+      }
+    },
+    {
+      "id": "baohedian-platform",
+      "model": "palace-platform",
+      "at": [
+        0,
+        -1.7
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "baohedian-platform",
+      "parameters": {
+        "width": 5.800000000000001,
+        "depth": 3.4,
+        "height": 0.35
+      }
+    },
+    {
+      "id": "baohedian",
+      "model": "palace-hall",
+      "at": [
+        0,
+        -1.7
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": "baohedian",
+      "entityId": "baohedian",
+      "parameters": {
+        "width": 4.7,
+        "depth": 2.5,
+        "height": 1,
+        "base": 0.4,
+        "tiers": 2,
+        "roof": 1
+      }
+    },
+    {
+      "id": "qianqinggong",
+      "model": "palace-hall",
+      "at": [
+        0,
+        -9.5
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": "qianqinggong",
+      "entityId": "qianqinggong",
+      "parameters": {
+        "width": 4.3,
+        "depth": 2,
+        "height": 1.05,
+        "base": 0.16,
+        "tiers": 2,
+        "roof": 1
+      }
+    },
+    {
+      "id": "jiaotaidian",
+      "model": "palace-hall",
+      "at": [
+        0,
+        -13.1
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": "jiaotaidian",
+      "entityId": "jiaotaidian",
+      "parameters": {
+        "width": 1.85,
+        "depth": 1.85,
+        "height": 0.8,
+        "base": 0.16,
+        "tiers": 1,
+        "roof": 2
+      }
+    },
+    {
+      "id": "kunninggong",
+      "model": "palace-hall",
+      "at": [
+        0,
+        -16.5
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": "kunninggong",
+      "entityId": "kunninggong",
+      "parameters": {
+        "width": 4,
+        "depth": 1.8,
+        "height": 0.83,
+        "base": 0.16,
+        "tiers": 1,
+        "roof": 1
+      }
+    },
+    {
+      "id": "qianqingmen",
+      "model": "palace-gate",
+      "at": [
+        0,
+        -5.6
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "qianqingmen",
+      "parameters": {
+        "width": 4.8,
+        "depth": 0.9,
+        "height": 0.62,
+        "gap": 1
+      }
+    },
+    {
+      "id": "qianqing-wing-n1",
+      "model": "palace-wall",
+      "at": [
+        -5.4,
+        -5.6
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "qianqing-wing-n1",
+      "parameters": {
+        "width": 4.8,
+        "depth": 0.25,
+        "height": 0.62
+      }
+    },
+    {
+      "id": "central-gallery-n1-0",
+      "model": "palace-hall",
+      "at": [
+        -7.8,
+        7
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "central-gallery-n1-0",
+      "parameters": {
+        "width": 0.8,
+        "depth": 13.8,
+        "height": 0.45
+      }
+    },
+    {
+      "id": "central-gallery-n1-1",
+      "model": "palace-hall",
+      "at": [
+        -7.8,
+        -0.9
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "central-gallery-n1-1",
+      "parameters": {
+        "width": 0.8,
+        "depth": 2,
+        "height": 0.45
+      }
+    },
+    {
+      "id": "central-gallery-n1-2",
+      "model": "palace-hall",
+      "at": [
+        -7.8,
+        -11
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "central-gallery-n1-2",
+      "parameters": {
+        "width": 0.8,
+        "depth": 10,
+        "height": 0.45
+      }
+    },
+    {
+      "id": "court-hall-n1-0-0",
+      "model": "palace-hall",
+      "at": [
+        -10.8,
+        -17.8
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-hall-n1-0-0",
+      "parameters": {
+        "width": 2.5,
+        "depth": 1.15,
+        "height": 0.54
+      }
+    },
+    {
+      "id": "court-side-n1-0-0-n1",
+      "model": "palace-hall",
+      "at": [
+        -12.15,
+        -16.7
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-n1-0-0-n1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-side-n1-0-0-1",
+      "model": "palace-hall",
+      "at": [
+        -9.450000000000001,
+        -16.7
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-n1-0-0-1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-back-n1-0-0",
+      "model": "palace-wall",
+      "at": [
+        -10.8,
+        -18.650000000000002
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-back-n1-0-0",
+      "parameters": {
+        "width": 3,
+        "depth": 0.16,
+        "height": 0.4
+      }
+    },
+    {
+      "id": "court-hall-n1-0-1",
+      "model": "palace-hall",
+      "at": [
+        -14.5,
+        -17.8
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-hall-n1-0-1",
+      "parameters": {
+        "width": 2.5,
+        "depth": 1.15,
+        "height": 0.54
+      }
+    },
+    {
+      "id": "court-side-n1-0-1-n1",
+      "model": "palace-hall",
+      "at": [
+        -15.85,
+        -16.7
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-n1-0-1-n1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-side-n1-0-1-1",
+      "model": "palace-hall",
+      "at": [
+        -13.15,
+        -16.7
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-n1-0-1-1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-back-n1-0-1",
+      "model": "palace-wall",
+      "at": [
+        -14.5,
+        -18.650000000000002
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-back-n1-0-1",
+      "parameters": {
+        "width": 3,
+        "depth": 0.16,
+        "height": 0.4
+      }
+    },
+    {
+      "id": "court-hall-n1-1-0",
+      "model": "palace-hall",
+      "at": [
+        -10.8,
+        -12.8
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-hall-n1-1-0",
+      "parameters": {
+        "width": 2.5,
+        "depth": 1.15,
+        "height": 0.54
+      }
+    },
+    {
+      "id": "court-side-n1-1-0-n1",
+      "model": "palace-hall",
+      "at": [
+        -12.15,
+        -11.700000000000001
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-n1-1-0-n1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-side-n1-1-0-1",
+      "model": "palace-hall",
+      "at": [
+        -9.450000000000001,
+        -11.700000000000001
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-n1-1-0-1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-back-n1-1-0",
+      "model": "palace-wall",
+      "at": [
+        -10.8,
+        -13.65
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-back-n1-1-0",
+      "parameters": {
+        "width": 3,
+        "depth": 0.16,
+        "height": 0.4
+      }
+    },
+    {
+      "id": "court-hall-n1-1-1",
+      "model": "palace-hall",
+      "at": [
+        -14.5,
+        -12.8
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-hall-n1-1-1",
+      "parameters": {
+        "width": 2.5,
+        "depth": 1.15,
+        "height": 0.54
+      }
+    },
+    {
+      "id": "court-side-n1-1-1-n1",
+      "model": "palace-hall",
+      "at": [
+        -15.85,
+        -11.700000000000001
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-n1-1-1-n1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-side-n1-1-1-1",
+      "model": "palace-hall",
+      "at": [
+        -13.15,
+        -11.700000000000001
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-n1-1-1-1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-back-n1-1-1",
+      "model": "palace-wall",
+      "at": [
+        -14.5,
+        -13.65
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-back-n1-1-1",
+      "parameters": {
+        "width": 3,
+        "depth": 0.16,
+        "height": 0.4
+      }
+    },
+    {
+      "id": "court-hall-n1-2-1",
+      "model": "palace-hall",
+      "at": [
+        -14.5,
+        -7.8
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-hall-n1-2-1",
+      "parameters": {
+        "width": 2.5,
+        "depth": 1.15,
+        "height": 0.54
+      }
+    },
+    {
+      "id": "court-side-n1-2-1-n1",
+      "model": "palace-hall",
+      "at": [
+        -15.85,
+        -6.699999999999999
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-n1-2-1-n1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-side-n1-2-1-1",
+      "model": "palace-hall",
+      "at": [
+        -13.15,
+        -6.699999999999999
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-n1-2-1-1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-back-n1-2-1",
+      "model": "palace-wall",
+      "at": [
+        -14.5,
+        -8.65
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-back-n1-2-1",
+      "parameters": {
+        "width": 3,
+        "depth": 0.16,
+        "height": 0.4
+      }
+    },
+    {
+      "id": "court-hall-n1-3-1",
+      "model": "palace-hall",
+      "at": [
+        -14.5,
+        -2.8
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-hall-n1-3-1",
+      "parameters": {
+        "width": 2.5,
+        "depth": 1.15,
+        "height": 0.54
+      }
+    },
+    {
+      "id": "court-side-n1-3-1-n1",
+      "model": "palace-hall",
+      "at": [
+        -15.85,
+        -1.6999999999999997
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-n1-3-1-n1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-side-n1-3-1-1",
+      "model": "palace-hall",
+      "at": [
+        -13.15,
+        -1.6999999999999997
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-n1-3-1-1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-back-n1-3-1",
+      "model": "palace-wall",
+      "at": [
+        -14.5,
+        -3.65
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-back-n1-3-1",
+      "parameters": {
+        "width": 3,
+        "depth": 0.16,
+        "height": 0.4
+      }
+    },
+    {
+      "id": "court-hall-n1-4-0",
+      "model": "palace-hall",
+      "at": [
+        -10.8,
+        3
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-hall-n1-4-0",
+      "parameters": {
+        "width": 2.5,
+        "depth": 1.15,
+        "height": 0.54
+      }
+    },
+    {
+      "id": "court-side-n1-4-0-n1",
+      "model": "palace-hall",
+      "at": [
+        -12.15,
+        4.1
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-n1-4-0-n1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-side-n1-4-0-1",
+      "model": "palace-hall",
+      "at": [
+        -9.450000000000001,
+        4.1
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-n1-4-0-1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-back-n1-4-0",
+      "model": "palace-wall",
+      "at": [
+        -10.8,
+        2.15
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-back-n1-4-0",
+      "parameters": {
+        "width": 3,
+        "depth": 0.16,
+        "height": 0.4
+      }
+    },
+    {
+      "id": "court-hall-n1-4-1",
+      "model": "palace-hall",
+      "at": [
+        -14.5,
+        3
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-hall-n1-4-1",
+      "parameters": {
+        "width": 2.5,
+        "depth": 1.15,
+        "height": 0.54
+      }
+    },
+    {
+      "id": "court-side-n1-4-1-n1",
+      "model": "palace-hall",
+      "at": [
+        -15.85,
+        4.1
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-n1-4-1-n1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-side-n1-4-1-1",
+      "model": "palace-hall",
+      "at": [
+        -13.15,
+        4.1
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-n1-4-1-1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-back-n1-4-1",
+      "model": "palace-wall",
+      "at": [
+        -14.5,
+        2.15
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-back-n1-4-1",
+      "parameters": {
+        "width": 3,
+        "depth": 0.16,
+        "height": 0.4
+      }
+    },
+    {
+      "id": "court-hall-n1-5-0",
+      "model": "palace-hall",
+      "at": [
+        -10.8,
+        9
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-hall-n1-5-0",
+      "parameters": {
+        "width": 2.5,
+        "depth": 1.15,
+        "height": 0.54
+      }
+    },
+    {
+      "id": "court-side-n1-5-0-n1",
+      "model": "palace-hall",
+      "at": [
+        -12.15,
+        10.1
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-n1-5-0-n1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-side-n1-5-0-1",
+      "model": "palace-hall",
+      "at": [
+        -9.450000000000001,
+        10.1
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-n1-5-0-1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-back-n1-5-0",
+      "model": "palace-wall",
+      "at": [
+        -10.8,
+        8.15
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-back-n1-5-0",
+      "parameters": {
+        "width": 3,
+        "depth": 0.16,
+        "height": 0.4
+      }
+    },
+    {
+      "id": "court-hall-n1-5-1",
+      "model": "palace-hall",
+      "at": [
+        -14.5,
+        9
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-hall-n1-5-1",
+      "parameters": {
+        "width": 2.5,
+        "depth": 1.15,
+        "height": 0.54
+      }
+    },
+    {
+      "id": "court-side-n1-5-1-n1",
+      "model": "palace-hall",
+      "at": [
+        -15.85,
+        10.1
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-n1-5-1-n1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-side-n1-5-1-1",
+      "model": "palace-hall",
+      "at": [
+        -13.15,
+        10.1
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-n1-5-1-1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-back-n1-5-1",
+      "model": "palace-wall",
+      "at": [
+        -14.5,
+        8.15
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-back-n1-5-1",
+      "parameters": {
+        "width": 3,
+        "depth": 0.16,
+        "height": 0.4
+      }
+    },
+    {
+      "id": "qianqing-wing-1",
+      "model": "palace-wall",
+      "at": [
+        5.4,
+        -5.6
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "qianqing-wing-1",
+      "parameters": {
+        "width": 4.8,
+        "depth": 0.25,
+        "height": 0.62
+      }
+    },
+    {
+      "id": "central-gallery-1-0",
+      "model": "palace-hall",
+      "at": [
+        7.8,
+        7
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "central-gallery-1-0",
+      "parameters": {
+        "width": 0.8,
+        "depth": 13.8,
+        "height": 0.45
+      }
+    },
+    {
+      "id": "central-gallery-1-1",
+      "model": "palace-hall",
+      "at": [
+        7.8,
+        -0.9
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "central-gallery-1-1",
+      "parameters": {
+        "width": 0.8,
+        "depth": 2,
+        "height": 0.45
+      }
+    },
+    {
+      "id": "central-gallery-1-2",
+      "model": "palace-hall",
+      "at": [
+        7.8,
+        -11
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "central-gallery-1-2",
+      "parameters": {
+        "width": 0.8,
+        "depth": 10,
+        "height": 0.45
+      }
+    },
+    {
+      "id": "court-hall-1-0-1",
+      "model": "palace-hall",
+      "at": [
+        14.5,
+        -17.8
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-hall-1-0-1",
+      "parameters": {
+        "width": 2.5,
+        "depth": 1.15,
+        "height": 0.54
+      }
+    },
+    {
+      "id": "court-side-1-0-1-n1",
+      "model": "palace-hall",
+      "at": [
+        13.15,
+        -16.7
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-1-0-1-n1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-side-1-0-1-1",
+      "model": "palace-hall",
+      "at": [
+        15.85,
+        -16.7
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-1-0-1-1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-back-1-0-1",
+      "model": "palace-wall",
+      "at": [
+        14.5,
+        -18.650000000000002
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-back-1-0-1",
+      "parameters": {
+        "width": 3,
+        "depth": 0.16,
+        "height": 0.4
+      }
+    },
+    {
+      "id": "court-hall-1-1-1",
+      "model": "palace-hall",
+      "at": [
+        14.5,
+        -12.8
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-hall-1-1-1",
+      "parameters": {
+        "width": 2.5,
+        "depth": 1.15,
+        "height": 0.54
+      }
+    },
+    {
+      "id": "court-side-1-1-1-n1",
+      "model": "palace-hall",
+      "at": [
+        13.15,
+        -11.700000000000001
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-1-1-1-n1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-side-1-1-1-1",
+      "model": "palace-hall",
+      "at": [
+        15.85,
+        -11.700000000000001
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-1-1-1-1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-back-1-1-1",
+      "model": "palace-wall",
+      "at": [
+        14.5,
+        -13.65
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-back-1-1-1",
+      "parameters": {
+        "width": 3,
+        "depth": 0.16,
+        "height": 0.4
+      }
+    },
+    {
+      "id": "court-hall-1-2-0",
+      "model": "palace-hall",
+      "at": [
+        10.8,
+        -7.8
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-hall-1-2-0",
+      "parameters": {
+        "width": 2.5,
+        "depth": 1.15,
+        "height": 0.54
+      }
+    },
+    {
+      "id": "court-side-1-2-0-n1",
+      "model": "palace-hall",
+      "at": [
+        9.450000000000001,
+        -6.699999999999999
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-1-2-0-n1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-side-1-2-0-1",
+      "model": "palace-hall",
+      "at": [
+        12.15,
+        -6.699999999999999
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-1-2-0-1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-back-1-2-0",
+      "model": "palace-wall",
+      "at": [
+        10.8,
+        -8.65
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-back-1-2-0",
+      "parameters": {
+        "width": 3,
+        "depth": 0.16,
+        "height": 0.4
+      }
+    },
+    {
+      "id": "court-hall-1-2-1",
+      "model": "palace-hall",
+      "at": [
+        14.5,
+        -7.8
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-hall-1-2-1",
+      "parameters": {
+        "width": 2.5,
+        "depth": 1.15,
+        "height": 0.54
+      }
+    },
+    {
+      "id": "court-side-1-2-1-n1",
+      "model": "palace-hall",
+      "at": [
+        13.15,
+        -6.699999999999999
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-1-2-1-n1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-side-1-2-1-1",
+      "model": "palace-hall",
+      "at": [
+        15.85,
+        -6.699999999999999
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-1-2-1-1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-back-1-2-1",
+      "model": "palace-wall",
+      "at": [
+        14.5,
+        -8.65
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-back-1-2-1",
+      "parameters": {
+        "width": 3,
+        "depth": 0.16,
+        "height": 0.4
+      }
+    },
+    {
+      "id": "court-hall-1-3-0",
+      "model": "palace-hall",
+      "at": [
+        10.8,
+        -2.8
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-hall-1-3-0",
+      "parameters": {
+        "width": 2.5,
+        "depth": 1.15,
+        "height": 0.54
+      }
+    },
+    {
+      "id": "court-side-1-3-0-n1",
+      "model": "palace-hall",
+      "at": [
+        9.450000000000001,
+        -1.6999999999999997
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-1-3-0-n1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-side-1-3-0-1",
+      "model": "palace-hall",
+      "at": [
+        12.15,
+        -1.6999999999999997
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-1-3-0-1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-back-1-3-0",
+      "model": "palace-wall",
+      "at": [
+        10.8,
+        -3.65
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-back-1-3-0",
+      "parameters": {
+        "width": 3,
+        "depth": 0.16,
+        "height": 0.4
+      }
+    },
+    {
+      "id": "court-hall-1-3-1",
+      "model": "palace-hall",
+      "at": [
+        14.5,
+        -2.8
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-hall-1-3-1",
+      "parameters": {
+        "width": 2.5,
+        "depth": 1.15,
+        "height": 0.54
+      }
+    },
+    {
+      "id": "court-side-1-3-1-n1",
+      "model": "palace-hall",
+      "at": [
+        13.15,
+        -1.6999999999999997
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-1-3-1-n1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-side-1-3-1-1",
+      "model": "palace-hall",
+      "at": [
+        15.85,
+        -1.6999999999999997
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-1-3-1-1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-back-1-3-1",
+      "model": "palace-wall",
+      "at": [
+        14.5,
+        -3.65
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-back-1-3-1",
+      "parameters": {
+        "width": 3,
+        "depth": 0.16,
+        "height": 0.4
+      }
+    },
+    {
+      "id": "court-hall-1-4-0",
+      "model": "palace-hall",
+      "at": [
+        10.8,
+        3
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-hall-1-4-0",
+      "parameters": {
+        "width": 2.5,
+        "depth": 1.15,
+        "height": 0.54
+      }
+    },
+    {
+      "id": "court-side-1-4-0-n1",
+      "model": "palace-hall",
+      "at": [
+        9.450000000000001,
+        4.1
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-1-4-0-n1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-side-1-4-0-1",
+      "model": "palace-hall",
+      "at": [
+        12.15,
+        4.1
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-1-4-0-1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-back-1-4-0",
+      "model": "palace-wall",
+      "at": [
+        10.8,
+        2.15
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-back-1-4-0",
+      "parameters": {
+        "width": 3,
+        "depth": 0.16,
+        "height": 0.4
+      }
+    },
+    {
+      "id": "court-hall-1-4-1",
+      "model": "palace-hall",
+      "at": [
+        14.5,
+        3
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-hall-1-4-1",
+      "parameters": {
+        "width": 2.5,
+        "depth": 1.15,
+        "height": 0.54
+      }
+    },
+    {
+      "id": "court-side-1-4-1-n1",
+      "model": "palace-hall",
+      "at": [
+        13.15,
+        4.1
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-1-4-1-n1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-side-1-4-1-1",
+      "model": "palace-hall",
+      "at": [
+        15.85,
+        4.1
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-1-4-1-1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-back-1-4-1",
+      "model": "palace-wall",
+      "at": [
+        14.5,
+        2.15
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-back-1-4-1",
+      "parameters": {
+        "width": 3,
+        "depth": 0.16,
+        "height": 0.4
+      }
+    },
+    {
+      "id": "court-hall-1-5-0",
+      "model": "palace-hall",
+      "at": [
+        10.8,
+        9
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-hall-1-5-0",
+      "parameters": {
+        "width": 2.5,
+        "depth": 1.15,
+        "height": 0.54
+      }
+    },
+    {
+      "id": "court-side-1-5-0-n1",
+      "model": "palace-hall",
+      "at": [
+        9.450000000000001,
+        10.1
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-1-5-0-n1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-side-1-5-0-1",
+      "model": "palace-hall",
+      "at": [
+        12.15,
+        10.1
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-1-5-0-1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-back-1-5-0",
+      "model": "palace-wall",
+      "at": [
+        10.8,
+        8.15
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-back-1-5-0",
+      "parameters": {
+        "width": 3,
+        "depth": 0.16,
+        "height": 0.4
+      }
+    },
+    {
+      "id": "court-hall-1-5-1",
+      "model": "palace-hall",
+      "at": [
+        14.5,
+        9
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-hall-1-5-1",
+      "parameters": {
+        "width": 2.5,
+        "depth": 1.15,
+        "height": 0.54
+      }
+    },
+    {
+      "id": "court-side-1-5-1-n1",
+      "model": "palace-hall",
+      "at": [
+        13.15,
+        10.1
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-1-5-1-n1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-side-1-5-1-1",
+      "model": "palace-hall",
+      "at": [
+        15.85,
+        10.1
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-side-1-5-1-1",
+      "parameters": {
+        "width": 0.45,
+        "depth": 2.1,
+        "height": 0.38
+      }
+    },
+    {
+      "id": "court-back-1-5-1",
+      "model": "palace-wall",
+      "at": [
+        14.5,
+        8.15
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-back-1-5-1",
+      "parameters": {
+        "width": 3,
+        "depth": 0.16,
+        "height": 0.4
+      }
+    },
+    {
+      "id": "ningshou",
+      "model": "palace-hall",
+      "at": [
+        10.8,
+        -13
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": "ningshou",
+      "entityId": "ningshou",
+      "parameters": {
+        "width": 3.2,
+        "depth": 1.6,
+        "height": 0.86,
+        "tiers": 2
+      }
+    },
+    {
+      "id": "cining",
+      "model": "palace-hall",
+      "at": [
+        -10.8,
+        -5.2
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": "cining",
+      "entityId": "cining",
+      "parameters": {
+        "width": 3.1,
+        "depth": 1.7,
+        "height": 0.85,
+        "tiers": 2
+      }
+    },
+    {
+      "id": "garden",
+      "model": "palace-hall",
+      "at": [
+        0,
+        -21.8
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": "garden",
+      "entityId": "garden",
+      "parameters": {
+        "width": 1.7,
+        "depth": 1.4,
+        "height": 0.7,
+        "roof": 2
+      }
+    },
+    {
+      "id": "garden-pavilion-0",
+      "model": "palace-hall",
+      "at": [
+        -4.5,
+        -21.7
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "garden-pavilion-0",
+      "parameters": {
+        "width": 1.1,
+        "depth": 1.1,
+        "height": 0.55,
+        "roof": 2
+      }
+    },
+    {
+      "id": "garden-pavilion-1",
+      "model": "palace-hall",
+      "at": [
+        4.5,
+        -21.7
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "garden-pavilion-1",
+      "parameters": {
+        "width": 1.1,
+        "depth": 1.1,
+        "height": 0.55,
+        "roof": 2
+      }
+    },
+    {
+      "id": "south-moat-crossing",
+      "model": "palace-paving",
+      "at": [
+        0,
+        25.8
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "south-moat-crossing",
+      "parameters": {
+        "width": 1.1,
+        "depth": 3.5,
+        "height": 0.05
+      }
+    },
+    {
+      "id": "north-moat-crossing",
+      "model": "palace-paving",
+      "at": [
+        0,
+        -25.2
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "north-moat-crossing",
+      "parameters": {
+        "width": 1.1,
+        "depth": 2.6,
+        "height": 0.05
+      }
+    },
+    {
+      "id": "court-front-n1-0-0-l",
+      "model": "palace-wall",
+      "at": [
+        -11.780000000000001,
+        -15.620000000000001
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-n1-0-0-l",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-n1-0-0-r",
+      "model": "palace-wall",
+      "at": [
+        -9.82,
+        -15.620000000000001
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-n1-0-0-r",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-n1-0-1-l",
+      "model": "palace-wall",
+      "at": [
+        -15.48,
+        -15.620000000000001
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-n1-0-1-l",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-n1-0-1-r",
+      "model": "palace-wall",
+      "at": [
+        -13.52,
+        -15.620000000000001
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-n1-0-1-r",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-n1-1-0-l",
+      "model": "palace-wall",
+      "at": [
+        -11.780000000000001,
+        -10.620000000000001
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-n1-1-0-l",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-n1-1-0-r",
+      "model": "palace-wall",
+      "at": [
+        -9.82,
+        -10.620000000000001
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-n1-1-0-r",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-n1-1-1-l",
+      "model": "palace-wall",
+      "at": [
+        -15.48,
+        -10.620000000000001
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-n1-1-1-l",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-n1-1-1-r",
+      "model": "palace-wall",
+      "at": [
+        -13.52,
+        -10.620000000000001
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-n1-1-1-r",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-n1-2-1-l",
+      "model": "palace-wall",
+      "at": [
+        -15.48,
+        -5.619999999999999
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-n1-2-1-l",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-n1-2-1-r",
+      "model": "palace-wall",
+      "at": [
+        -13.52,
+        -5.619999999999999
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-n1-2-1-r",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-n1-3-1-l",
+      "model": "palace-wall",
+      "at": [
+        -15.48,
+        -0.6199999999999997
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-n1-3-1-l",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-n1-3-1-r",
+      "model": "palace-wall",
+      "at": [
+        -13.52,
+        -0.6199999999999997
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-n1-3-1-r",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-n1-4-0-l",
+      "model": "palace-wall",
+      "at": [
+        -11.780000000000001,
+        5.18
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-n1-4-0-l",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-n1-4-0-r",
+      "model": "palace-wall",
+      "at": [
+        -9.82,
+        5.18
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-n1-4-0-r",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-n1-4-1-l",
+      "model": "palace-wall",
+      "at": [
+        -15.48,
+        5.18
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-n1-4-1-l",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-n1-4-1-r",
+      "model": "palace-wall",
+      "at": [
+        -13.52,
+        5.18
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-n1-4-1-r",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-n1-5-0-l",
+      "model": "palace-wall",
+      "at": [
+        -11.780000000000001,
+        11.18
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-n1-5-0-l",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-n1-5-0-r",
+      "model": "palace-wall",
+      "at": [
+        -9.82,
+        11.18
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-n1-5-0-r",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-n1-5-1-l",
+      "model": "palace-wall",
+      "at": [
+        -15.48,
+        11.18
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-n1-5-1-l",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-n1-5-1-r",
+      "model": "palace-wall",
+      "at": [
+        -13.52,
+        11.18
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-n1-5-1-r",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-1-0-1-l",
+      "model": "palace-wall",
+      "at": [
+        13.52,
+        -15.620000000000001
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-1-0-1-l",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-1-0-1-r",
+      "model": "palace-wall",
+      "at": [
+        15.48,
+        -15.620000000000001
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-1-0-1-r",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-1-1-1-l",
+      "model": "palace-wall",
+      "at": [
+        13.52,
+        -10.620000000000001
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-1-1-1-l",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-1-1-1-r",
+      "model": "palace-wall",
+      "at": [
+        15.48,
+        -10.620000000000001
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-1-1-1-r",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-1-2-0-l",
+      "model": "palace-wall",
+      "at": [
+        9.82,
+        -5.619999999999999
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-1-2-0-l",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-1-2-0-r",
+      "model": "palace-wall",
+      "at": [
+        11.780000000000001,
+        -5.619999999999999
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-1-2-0-r",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-1-2-1-l",
+      "model": "palace-wall",
+      "at": [
+        13.52,
+        -5.619999999999999
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-1-2-1-l",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-1-2-1-r",
+      "model": "palace-wall",
+      "at": [
+        15.48,
+        -5.619999999999999
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-1-2-1-r",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-1-3-0-l",
+      "model": "palace-wall",
+      "at": [
+        9.82,
+        -0.6199999999999997
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-1-3-0-l",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-1-3-0-r",
+      "model": "palace-wall",
+      "at": [
+        11.780000000000001,
+        -0.6199999999999997
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-1-3-0-r",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-1-3-1-l",
+      "model": "palace-wall",
+      "at": [
+        13.52,
+        -0.6199999999999997
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-1-3-1-l",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-1-3-1-r",
+      "model": "palace-wall",
+      "at": [
+        15.48,
+        -0.6199999999999997
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-1-3-1-r",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-1-4-0-l",
+      "model": "palace-wall",
+      "at": [
+        9.82,
+        5.18
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-1-4-0-l",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-1-4-0-r",
+      "model": "palace-wall",
+      "at": [
+        11.780000000000001,
+        5.18
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-1-4-0-r",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-1-4-1-l",
+      "model": "palace-wall",
+      "at": [
+        13.52,
+        5.18
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-1-4-1-l",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-1-4-1-r",
+      "model": "palace-wall",
+      "at": [
+        15.48,
+        5.18
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-1-4-1-r",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-1-5-0-l",
+      "model": "palace-wall",
+      "at": [
+        9.82,
+        11.18
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-1-5-0-l",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-1-5-0-r",
+      "model": "palace-wall",
+      "at": [
+        11.780000000000001,
+        11.18
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-1-5-0-r",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-1-5-1-l",
+      "model": "palace-wall",
+      "at": [
+        13.52,
+        11.18
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-1-5-1-l",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    },
+    {
+      "id": "court-front-1-5-1-r",
+      "model": "palace-wall",
+      "at": [
+        15.48,
+        11.18
+      ],
+      "rotation": 0,
+      "scale": 1,
+      "lift": 0,
+      "spotId": null,
+      "entityId": "court-front-1-5-1-r",
+      "parameters": {
+        "width": 1.06,
+        "depth": 0.16,
+        "height": 0.42
+      }
+    }
+  ],
+  "labels": [
+    {
+      "text": "紫 禁 城",
+      "at": [
+        0,
+        11
+      ],
+      "kind": "city",
+      "lift": 0.05
+    }
+  ],
+  "vegetation": {
+    "seed": 47,
+    "attempts": 11000,
+    "islands": []
+  },
+  "city": {
+    "seed": 1
+  },
+  "lotus": {
+    "at": [
+      0,
+      0
+    ],
+    "seed": 1,
+    "attempts": 1,
+    "maxPads": 1
+  },
+  "pond": {
+    "at": [
+      0,
+      0
+    ],
+    "radius": 0.1,
+    "koi": 0
+  },
+  "boatLoops": [],
+  "quality": {
+    "terrainSegments": 256,
+    "landTextureResolution": 1024,
+    "shadowMapSize": 2048
+  },
+  "components": {
+    "city": false,
+    "lotus": false,
+    "pond": false,
+    "vegetation": true,
+    "clouds": false,
+    "paths": false
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 2,
+  "id": "forbidden-city",
+  "name": "故宫",
+  "geography": "./geography.json",
+  "layout": "./layout.json",
+  "interaction": "./interaction.json",
+  "styles": [
+    "imperial",
+    "imperial-bricks"
+  ],
+  "defaultStyle": "imperial"
+}

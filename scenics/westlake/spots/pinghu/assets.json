@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "assets": [
+    {
+      "id": "front",
+      "file": "photos/pinghu-verified.jpg",
+      "url": "/assets/real/pinghu-verified.jpg",
+      "sha256": "ff0e8bc2ab14b33d3a1da560629551c7aa68fc29b7e08d1a56c0e320d4c0555a",
+      "publish": true,
+      "photo": {
+        "name": "平湖秋月园景 · 2010 年实拍",
+        "kind": "real",
+        "credit": {
+          "title": "File:Autumn Moon Over the Calm Lake DSC 6187 (10595954084).jpg",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/3/38/Autumn_Moon_Over_the_Calm_Lake_DSC_6187_%2810595954084%29.jpg",
+          "source": "https://commons.wikimedia.org/wiki/File:Autumn_Moon_Over_the_Calm_Lake_DSC_6187_(10595954084).jpg",
+          "license": "CC BY-SA 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+          "artist": "Ludger Heide",
+          "date": "2010-12-25 04:24",
+          "path": "/assets/real/pinghu-verified.jpg",
+          "retrieved": "2026-10-12",
+          "changes": "原照片；页面缩略图按容器裁切，大图可查看完整画面。"
+        }
+      }
+    }
+  ]
+}

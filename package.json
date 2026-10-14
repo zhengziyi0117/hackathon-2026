@@ -8,8 +8,10 @@
         "dev": "node scripts/start.mjs --dev",
         "build": "node scripts/build.mjs",
         "serve": "node server.mjs",
-        "test": "node --test tests/*.test.mjs",
-        "check:map": "node scripts/validate-map.mjs"
+        "test": "node scripts/sync-scenics.mjs --check && node --test tests/*.test.mjs",
+        "check:map": "node scripts/validate-map.mjs",
+        "sync:scenics": "node scripts/sync-scenics.mjs",
+        "check:scenics": "node scripts/validate-scenics.mjs"
     },
     "dependencies": {
         "@sparkjsdev/spark": "0.1.10",

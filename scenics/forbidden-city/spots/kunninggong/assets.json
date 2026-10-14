@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "assets": [
+    {
+      "id": "front",
+      "file": "photos/kunninggong.jpg",
+      "url": "/assets/forbidden-city/real/kunninggong.jpg",
+      "sha256": "a915fff53aed7594eb1a6d28440f315314b2c7b10d0a672cc89f47ab02918de1",
+      "publish": true,
+      "photo": {
+        "name": "坤宁宫外观",
+        "kind": "real",
+        "credit": {
+          "id": "kunninggong",
+          "name": "坤宁宫",
+          "caption": "坤宁宫外观",
+          "path": "/assets/forbidden-city/real/kunninggong.jpg",
+          "author": "N509FZ",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Palace_of_Earthly_Tranquility_(20220218133044).jpg",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5c/Palace_of_Earthly_Tranquility_%2820220218133044%29.jpg",
+          "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5c/Palace_of_Earthly_Tranquility_%2820220218133044%29.jpg/1280px-Palace_of_Earthly_Tranquility_%2820220218133044%29.jpg",
+          "commonsPageId": 115354840,
+          "captureDate": "2022-02-18 13:30:44",
+          "transformations": [
+            "等比缩放至最长边不超过 1200px",
+            "JPEG 重新编码与压缩",
+            "移除原文件 EXIF 元数据；来源与许可保存在本清单"
+          ],
+          "croppedByProject": false,
+          "resized": true,
+          "width": 1200,
+          "height": 799,
+          "bytes": 223155,
+          "sha256": "a915fff53aed7594eb1a6d28440f315314b2c7b10d0a672cc89f47ab02918de1",
+          "depicts": "坤宁宫外观",
+          "match": "对应景点实拍",
+          "isGenericFallback": false,
+          "officialSummary": "坤宁宫在明代曾为皇后寝宫，清代改建后主要用于萨满祭祀，并保留皇帝大婚的相关空间。",
+          "officialSource": "https://www.dpm.org.cn/explore/building/236487.html",
+          "artist": "N509FZ",
+          "source": "https://commons.wikimedia.org/wiki/File:Palace_of_Earthly_Tranquility_(20220218133044).jpg",
+          "date": "2022-02-18 13:30:44",
+          "changes": "等比缩放至最长边不超过 1200px；JPEG 重新编码与压缩；移除原文件 EXIF 元数据；来源与许可保存在本清单"
+        }
+      }
+    }
+  ]
+}

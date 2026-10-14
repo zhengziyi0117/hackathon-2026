@@ -7,7 +7,9 @@ import {MAP_PACKAGES} from './data/catalog.js';
 import {validatePackage,spatialErrors} from './contract.js';
 import {createGeography} from './geography.js';
 export {MAP_PACKAGES,mapPackageFor} from './data/catalog.js';
-export const STYLES={miniature,papercraft,voxel,bricks,adventure};
+import imperial from './styles/imperial.json' with {type:'json'};
+import imperialBricks from './styles/imperial-bricks.json' with {type:'json'};
+export const STYLES={miniature,papercraft,voxel,bricks,adventure,imperial,'imperial-bricks':imperialBricks};
 export function styleFor(pkg,id){return STYLES[pkg.manifest.styles.includes(id)?id:pkg.manifest.defaultStyle];}
 
 const BUILT_IN={...MAP_PACKAGES};

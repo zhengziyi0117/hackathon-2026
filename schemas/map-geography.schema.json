@@ -4,7 +4,10 @@
   "type": "object",
   "properties": {
     "schemaVersion": {
-      "const": 1
+      "enum": [
+        1,
+        2
+      ]
     },
     "id": {
       "type": "string",
@@ -497,6 +500,174 @@
         "additionalProperties": false
       },
       "minProperties": 1
+    },
+    "architecture": {
+      "type": "object",
+      "properties": {
+        "floor": {
+          "type": "number"
+        },
+        "walkBounds": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "entities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]*$"
+              },
+              "at": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "minItems": 2,
+                "maxItems": 2
+              },
+              "size": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  }
+                ],
+                "minItems": 2,
+                "maxItems": 2
+              },
+              "kind": {
+                "enum": [
+                  "building",
+                  "wall",
+                  "platform",
+                  "paving",
+                  "garden",
+                  "passage"
+                ]
+              },
+              "height": {
+                "type": "number",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "id",
+              "at",
+              "size",
+              "kind",
+              "height"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1
+        },
+        "portals": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]*$"
+              },
+              "at": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "minItems": 2,
+                "maxItems": 2
+              },
+              "size": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  }
+                ],
+                "minItems": 2,
+                "maxItems": 2
+              },
+              "axis": {
+                "enum": [
+                  "x",
+                  "z"
+                ]
+              },
+              "direction": {
+                "enum": [
+                  "both",
+                  "positive",
+                  "negative"
+                ]
+              },
+              "open": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "id",
+              "at",
+              "size",
+              "axis",
+              "direction",
+              "open"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0
+        },
+        "sourceNote": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "floor",
+        "walkBounds",
+        "entities",
+        "portals",
+        "sourceNote"
+      ],
+      "additionalProperties": false
     }
   },
   "required": [

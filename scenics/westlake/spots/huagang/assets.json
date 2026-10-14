@@ -1,0 +1,281 @@
+{
+  "schemaVersion": 1,
+  "assets": [
+    {
+      "id": "front",
+      "file": "photos/huagang.jpg",
+      "url": "/assets/real/huagang.jpg",
+      "sha256": "80f987b71cd2dc92648d7b5a969291fe79131f92bb37066c199834805a51c02e",
+      "publish": true,
+      "photo": {
+        "name": "花港观鱼御碑亭 · 正面实拍",
+        "kind": "real",
+        "credit": {
+          "title": "File:杭州西湖花港观鱼, 2021-01-17 01.jpg",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/5/5f/%E6%9D%AD%E5%B7%9E%E8%A5%BF%E6%B9%96%E8%8A%B1%E6%B8%AF%E8%A7%82%E9%B1%BC%2C_2021-01-17_01.jpg",
+          "source": "https://commons.wikimedia.org/wiki/File:%E6%9D%AD%E5%B7%9E%E8%A5%BF%E6%B9%96%E8%8A%B1%E6%B8%AF%E8%A7%82%E9%B1%BC,_2021-01-17_01.jpg",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "artist": "Siyuwj",
+          "date": "2021-01-17 15:39:24",
+          "description": "​杭州西湖花港观鱼",
+          "path": "/assets/real/huagang.jpg",
+          "retrieved": "2026-10-12",
+          "changes": "原照片；页面缩略图按容器裁切，大图可查看完整画面。"
+        }
+      },
+      "delivery": {
+        "file": "web/real-huagang.jpg",
+        "url": "/assets/web/real-huagang.jpg",
+        "sha256": "39cdd9bcc771fe4226aa984127f504a30f5ddeaf391eeb3d487658bcdddb8a4b",
+        "maxDimension": 1920,
+        "quality": 85,
+        "changes": "Web delivery copies: resized when larger than 1920 px and JPEG-compressed; no scene or content edits."
+      }
+    },
+    {
+      "id": "left",
+      "file": "generated/huagang-left.png",
+      "url": "/assets/completion/huagang-left.png",
+      "sha256": "097cbe9ab68f6c0bdd5ca57d2afa942beb9f9eec82b3849ce1ebaaeacb5b5d5e",
+      "publish": false,
+      "photo": {
+        "name": "御碑亭 · 左侧视角",
+        "kind": "ai-demo",
+        "credit": {
+          "title": "File:杭州西湖花港观鱼, 2021-01-17 01.jpg",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/5/5f/%E6%9D%AD%E5%B7%9E%E8%A5%BF%E6%B9%96%E8%8A%B1%E6%B8%AF%E8%A7%82%E9%B1%BC%2C_2021-01-17_01.jpg",
+          "source": "https://commons.wikimedia.org/wiki/File:%E6%9D%AD%E5%B7%9E%E8%A5%BF%E6%B9%96%E8%8A%B1%E6%B8%AF%E8%A7%82%E9%B1%BC,_2021-01-17_01.jpg",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "artist": "景见 · imagegen 衍生制作；原摄影 Siyuwj",
+          "date": "2026-10-12",
+          "description": "​杭州西湖花港观鱼",
+          "path": "/assets/real/huagang.jpg",
+          "retrieved": "2026-10-12",
+          "changes": "以实拍为参考，AI 推测补充视角；环境、文字与细节发生变化，非真实补拍。"
+        }
+      },
+      "delivery": {
+        "file": "web/completion-huagang-left.jpg",
+        "url": "/assets/web/completion-huagang-left.jpg",
+        "sha256": "e260463d11336afea318e8998ab4b413087e75310d4aa4902fcb162c073cf6cf",
+        "maxDimension": 1920,
+        "quality": 85,
+        "changes": "Web delivery copies: resized when larger than 1920 px and JPEG-compressed; no scene or content edits."
+      }
+    },
+    {
+      "id": "rear",
+      "file": "generated/huagang-rear.png",
+      "url": "/assets/completion/huagang-rear.png",
+      "sha256": "2a851dcf2265ca10ee4c0a8f6657c7260d2ceef00ccaa923df0f193e9e3f2981",
+      "publish": false,
+      "photo": {
+        "name": "御碑亭 · 右侧视角",
+        "kind": "ai-demo",
+        "credit": {
+          "title": "File:杭州西湖花港观鱼, 2021-01-17 01.jpg",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/5/5f/%E6%9D%AD%E5%B7%9E%E8%A5%BF%E6%B9%96%E8%8A%B1%E6%B8%AF%E8%A7%82%E9%B1%BC%2C_2021-01-17_01.jpg",
+          "source": "https://commons.wikimedia.org/wiki/File:%E6%9D%AD%E5%B7%9E%E8%A5%BF%E6%B9%96%E8%8A%B1%E6%B8%AF%E8%A7%82%E9%B1%BC,_2021-01-17_01.jpg",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "artist": "景见 · imagegen 衍生制作；原摄影 Siyuwj",
+          "date": "2026-10-12",
+          "description": "​杭州西湖花港观鱼",
+          "path": "/assets/real/huagang.jpg",
+          "retrieved": "2026-10-12",
+          "changes": "以实拍为参考，AI 推测补充视角；环境、文字与细节发生变化，非真实补拍。"
+        }
+      },
+      "delivery": {
+        "file": "web/completion-huagang-rear.jpg",
+        "url": "/assets/web/completion-huagang-rear.jpg",
+        "sha256": "f06e8c80dbc75faff5321a2f1e7ead4ee6c552380b027e3965fc0acaeae27873",
+        "maxDimension": 1920,
+        "quality": 85,
+        "changes": "Web delivery copies: resized when larger than 1920 px and JPEG-compressed; no scene or content edits."
+      }
+    },
+    {
+      "id": "back",
+      "file": "generated/huagang-back.png",
+      "url": "/assets/completion/huagang-back.png",
+      "sha256": "8183fa353d6721d46a9065e33eccfed5505e53d3e29cc77266e9c2122b684acb",
+      "publish": false,
+      "photo": {
+        "name": "御碑亭 · 背面视角",
+        "kind": "ai-demo",
+        "credit": {
+          "title": "File:杭州西湖花港观鱼, 2021-01-17 01.jpg",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/5/5f/%E6%9D%AD%E5%B7%9E%E8%A5%BF%E6%B9%96%E8%8A%B1%E6%B8%AF%E8%A7%82%E9%B1%BC%2C_2021-01-17_01.jpg",
+          "source": "https://commons.wikimedia.org/wiki/File:%E6%9D%AD%E5%B7%9E%E8%A5%BF%E6%B9%96%E8%8A%B1%E6%B8%AF%E8%A7%82%E9%B1%BC,_2021-01-17_01.jpg",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "artist": "景见 · imagegen 衍生制作；原摄影 Siyuwj",
+          "date": "2026-10-12",
+          "description": "​杭州西湖花港观鱼",
+          "path": "/assets/real/huagang.jpg",
+          "retrieved": "2026-10-12",
+          "changes": "以实拍为参考，AI 推测补充视角；环境、文字与细节发生变化，非真实补拍。"
+        }
+      },
+      "delivery": {
+        "file": "web/completion-huagang-back.jpg",
+        "url": "/assets/web/completion-huagang-back.jpg",
+        "sha256": "605f891a91cbd8f53d41f1d4288109c316bd3ecb8dd845cb0b785b5819fb15e9",
+        "maxDimension": 1920,
+        "quality": 85,
+        "changes": "Web delivery copies: resized when larger than 1920 px and JPEG-compressed; no scene or content edits."
+      }
+    },
+    {
+      "id": "top",
+      "file": "generated/huagang-top.png",
+      "url": "/assets/completion/huagang-top.png",
+      "sha256": "fb6244319a08c1dab3a04817060c3707d22a4d66d35d810f61275267195b47df",
+      "publish": false,
+      "photo": {
+        "name": "御碑亭 · 俯视全景",
+        "kind": "ai-demo",
+        "credit": {
+          "title": "File:杭州西湖花港观鱼, 2021-01-17 01.jpg",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/5/5f/%E6%9D%AD%E5%B7%9E%E8%A5%BF%E6%B9%96%E8%8A%B1%E6%B8%AF%E8%A7%82%E9%B1%BC%2C_2021-01-17_01.jpg",
+          "source": "https://commons.wikimedia.org/wiki/File:%E6%9D%AD%E5%B7%9E%E8%A5%BF%E6%B9%96%E8%8A%B1%E6%B8%AF%E8%A7%82%E9%B1%BC,_2021-01-17_01.jpg",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "artist": "景见 · imagegen 衍生制作；原摄影 Siyuwj",
+          "date": "2026-10-12",
+          "description": "​杭州西湖花港观鱼",
+          "path": "/assets/real/huagang.jpg",
+          "retrieved": "2026-10-12",
+          "changes": "以实拍为参考，AI 推测补充视角；环境、文字与细节发生变化，非真实补拍。"
+        }
+      },
+      "delivery": {
+        "file": "web/completion-huagang-top.jpg",
+        "url": "/assets/web/completion-huagang-top.jpg",
+        "sha256": "9d52c2cea44da420918043744083173d885803f8ddc8d2723c51453964d83627",
+        "maxDimension": 1920,
+        "quality": 85,
+        "changes": "Web delivery copies: resized when larger than 1920 px and JPEG-compressed; no scene or content edits."
+      }
+    },
+    {
+      "id": "inside",
+      "file": "generated/huagang-detail.png",
+      "url": "/assets/completion/huagang-detail.png",
+      "sha256": "6d026add076b8c32127e8f016f7b487a38f4411e11aafe89ffac7eb3ae4895e9",
+      "publish": false,
+      "photo": {
+        "name": "御碑亭 · 内部 / 近景",
+        "kind": "ai-demo",
+        "credit": {
+          "title": "File:杭州西湖花港观鱼, 2021-01-17 01.jpg",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/5/5f/%E6%9D%AD%E5%B7%9E%E8%A5%BF%E6%B9%96%E8%8A%B1%E6%B8%AF%E8%A7%82%E9%B1%BC%2C_2021-01-17_01.jpg",
+          "source": "https://commons.wikimedia.org/wiki/File:%E6%9D%AD%E5%B7%9E%E8%A5%BF%E6%B9%96%E8%8A%B1%E6%B8%AF%E8%A7%82%E9%B1%BC,_2021-01-17_01.jpg",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "artist": "景见 · imagegen 衍生制作；原摄影 Siyuwj",
+          "date": "2026-10-12",
+          "description": "​杭州西湖花港观鱼",
+          "path": "/assets/real/huagang.jpg",
+          "retrieved": "2026-10-12",
+          "changes": "以实拍为参考，AI 推测补充视角；环境、文字与细节发生变化，非真实补拍。"
+        }
+      },
+      "delivery": {
+        "file": "web/completion-huagang-detail.jpg",
+        "url": "/assets/web/completion-huagang-detail.jpg",
+        "sha256": "d8793f6e6cfdaf4f72cdf6ba58de49b8587640b858ad608599df39403260ad5f",
+        "maxDimension": 1920,
+        "quality": 85,
+        "changes": "Web delivery copies: resized when larger than 1920 px and JPEG-compressed; no scene or content edits."
+      }
+    },
+    {
+      "id": "single-world",
+      "file": "worlds/huagang-500k.spz",
+      "url": "/assets/world/huagang-500k.spz",
+      "sha256": "3d4159d2829e48aef39e05c6c673c03553bf9eadef6cf3c45899b2b1afe766f9",
+      "publish": true
+    },
+    {
+      "id": "single-receipt",
+      "file": "worlds/huagang-generation.json",
+      "url": "/assets/world/huagang-generation.json",
+      "sha256": "6ac18c3dc3c81a7f8b3ef30fca060500d02556c37a42d35d2f49b30c2d129201",
+      "publish": true
+    },
+    {
+      "id": "multi-world",
+      "file": "worlds/huagang-multi-500k.spz",
+      "url": "/assets/world/huagang-multi-500k.spz",
+      "sha256": "fde0fc1ab97a34f3aa95a589a024518b993c4391247815e6513cae5f45a0086b",
+      "publish": true
+    },
+    {
+      "id": "multi-receipt",
+      "file": "worlds/huagang-multi-generation.json",
+      "url": "/assets/world/huagang-multi-generation.json",
+      "sha256": "a05fa801b54c0edef53db3e45a9e2f8566a73921c543a0c9f9633ec75a2c795f",
+      "publish": true
+    },
+    {
+      "id": "archive-huagang-multi-inputs-back-jpg",
+      "file": "worlds/huagang-multi-inputs/back.jpg",
+      "url": "/assets/world/huagang-multi-inputs/back.jpg",
+      "sha256": "9f8ee649aeff2dfd8e86cb093aef1fd5befc9a8800ac21a027c3431fdbde02dd",
+      "publish": false
+    },
+    {
+      "id": "archive-huagang-multi-inputs-detail-jpg",
+      "file": "worlds/huagang-multi-inputs/detail.jpg",
+      "url": "/assets/world/huagang-multi-inputs/detail.jpg",
+      "sha256": "9f0d4ed7e0b62dec5ec1bf4587cf2a000e850f47ad6cdd635a4e314b051ed8b9",
+      "publish": false
+    },
+    {
+      "id": "archive-huagang-multi-inputs-front-jpg",
+      "file": "worlds/huagang-multi-inputs/front.jpg",
+      "url": "/assets/world/huagang-multi-inputs/front.jpg",
+      "sha256": "5b311d7fa9ffe3995b20d687b1971474d8fd4528541d80e7f27e10eccf3d9236",
+      "publish": false
+    },
+    {
+      "id": "archive-huagang-multi-inputs-left-jpg",
+      "file": "worlds/huagang-multi-inputs/left.jpg",
+      "url": "/assets/world/huagang-multi-inputs/left.jpg",
+      "sha256": "66044411e63fef1e9f859c01c829655e69024688c488a623520edf82a2b401c0",
+      "publish": false
+    },
+    {
+      "id": "archive-huagang-multi-inputs-right-oblique-jpg",
+      "file": "worlds/huagang-multi-inputs/right-oblique.jpg",
+      "url": "/assets/world/huagang-multi-inputs/right-oblique.jpg",
+      "sha256": "791f2604f2eb5bca9a4e7f6fb7bcc5766ea3fe34dfbbe2c5f8a5b44a7beafad2",
+      "publish": false
+    },
+    {
+      "id": "archive-huagang-multi-inputs-top-jpg",
+      "file": "worlds/huagang-multi-inputs/top.jpg",
+      "url": "/assets/world/huagang-multi-inputs/top.jpg",
+      "sha256": "653ec0541fb0e28f2d666672f3cbf38c1aedfd727a6af941afa44280e6be729f",
+      "publish": false
+    },
+    {
+      "id": "archive-huagang-multi-pano-png",
+      "file": "worlds/huagang-multi-pano.png",
+      "url": "/assets/world/huagang-multi-pano.png",
+      "sha256": "9dd2e6a93734f0a7f9699849b43f7cc42736db947d79922d51cbcc726ffb9737",
+      "publish": false
+    },
+    {
+      "id": "archive-huagang-pano-png",
+      "file": "worlds/huagang-pano.png",
+      "url": "/assets/world/huagang-pano.png",
+      "sha256": "a46d558e1469b67cabdb7199f089560a4c27c32896eb42e1f9f3bad397011c57",
+      "publish": false
+    }
+  ]
+}

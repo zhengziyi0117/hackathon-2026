@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "assets": [
+    {
+      "id": "front",
+      "file": "photos/quyuan.jpg",
+      "url": "/assets/real/quyuan.jpg",
+      "sha256": "ed8be478f41a0b2f20fba4020bddca862ce26396f8940d8c9b1132263b836d24",
+      "publish": false,
+      "photo": {
+        "name": "曲院风荷一带与玉带桥 · 实拍",
+        "kind": "real",
+        "credit": {
+          "title": "File:West Lake, August 2012 06.JPG",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/c/c5/West_Lake%2C_August_2012_06.JPG",
+          "source": "https://commons.wikimedia.org/wiki/File:West_Lake,_August_2012_06.JPG",
+          "license": "CC BY-SA 3.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+          "artist": "Nicor",
+          "date": "2012（原文件的月份记录不一致）",
+          "description": "West Lake",
+          "path": "/assets/real/quyuan.jpg",
+          "retrieved": "2026-10-12",
+          "changes": "原照片；页面缩略图按容器裁切，大图可查看完整画面。"
+        }
+      },
+      "delivery": {
+        "file": "web/real-quyuan.jpg",
+        "url": "/assets/web/real-quyuan.jpg",
+        "sha256": "7a7790bdd0c666c9a3fdc01d6168c6b94f205a6ca177c82b9c51a94461379c2b",
+        "maxDimension": 1920,
+        "quality": 85,
+        "changes": "Web delivery copies: resized when larger than 1920 px and JPEG-compressed; no scene or content edits."
+      }
+    }
+  ]
+}

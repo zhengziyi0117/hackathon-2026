@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Scenic package assets",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "assets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$"
+          },
+          "file": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_./-]+$"
+          },
+          "url": {
+            "type": "string",
+            "pattern": "^/assets/[a-zA-Z0-9_./-]+$"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "publish": {
+            "type": "boolean"
+          },
+          "photo": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "kind": {
+                "enum": [
+                  "real",
+                  "ai-demo"
+                ]
+              },
+              "credit": {
+                "type": "object",
+                "required": [
+                  "artist",
+                  "source",
+                  "license",
+                  "changes"
+                ],
+                "properties": {
+                  "artist": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "source": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "license": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "changes": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "additionalProperties": true
+              }
+            },
+            "required": [
+              "name",
+              "kind",
+              "credit"
+            ],
+            "additionalProperties": false
+          },
+          "delivery": {
+            "type": "object",
+            "properties": {
+              "file": {
+                "type": "string",
+                "pattern": "^[a-zA-Z0-9_./-]+$"
+              },
+              "url": {
+                "type": "string",
+                "pattern": "^/assets/[a-zA-Z0-9_./-]+$"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "maxDimension": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "quality": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100
+              },
+              "changes": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "file",
+              "url",
+              "sha256",
+              "maxDimension",
+              "quality",
+              "changes"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "id",
+          "file",
+          "url",
+          "sha256",
+          "publish"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "assets"
+  ],
+  "additionalProperties": false
+}

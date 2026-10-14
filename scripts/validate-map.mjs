@@ -1,11 +1,17 @@
-import {readFile,mkdir,writeFile} from 'node:fs/promises';
+import {readFile,mkdir,writeFile,readdir} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {resolve,dirname,relative} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {CONTRACTS,validatePackage,spatialErrors} from '../src/map3d/contract.js';
 import {createGeography} from '../src/map3d/geography.js';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
-const manifestFile=resolve(root,process.argv[2]||'src/map3d/data/westlake/manifest.json');
+const manifestFile=resolve(root,process.argv[2]||'scenics/westlake/map/manifest.json');
+if(!process.argv[2]){
+ const {execFileSync}=await import('node:child_process');
+ const catalog=JSON.parse(await readFile(resolve(root,'scenics/catalog.json'),'utf8'));
+ for(const id of catalog.scenics)execFileSync(process.execPath,[fileURLToPath(import.meta.url),resolve(root,'scenics',id,'map/manifest.json')],{stdio:'inherit'});
+ process.exit(0);
+}
 const hashes={};
 async function load(file){const bytes=await readFile(file);hashes[relative(root,file)]=createHash('sha256').update(bytes).digest('hex');return JSON.parse(bytes);}
 const manifest=await load(manifestFile),base=dirname(manifestFile),pkg={manifest};
@@ -23,6 +29,6 @@ if(!errors.length){
 }
 const report={schemaVersion:1,mapId:manifest.id,checkedAt:new Date().toISOString(),passed:errors.length===0,errors,inputs:hashes,
  counts:{waterRings:pkg.geography.water.length,nodes:Object.keys(pkg.geography.network.nodes).length,edges:pkg.geography.network.edges.length,models:pkg.layout.landmarks.length,styles:manifest.styles.length},
- manualReview:['Inspect both styles at overview and landmark scale.','Verify mouse/keyboard travel, season changes and world entry.','A geometry check is not a field survey.']};
-await mkdir(resolve(root,'artifacts'),{recursive:true});await writeFile(resolve(root,'artifacts/map-validation.json'),JSON.stringify(report,null,2)+'\n');
-if(errors.length){console.error(errors.join('\n'));process.exitCode=1;}else console.log('Map package v1 passed:',JSON.stringify(report.counts));
+ manualReview:['Inspect every declared style at overview and landmark scale.','Verify mouse/keyboard travel, season changes and world entry.','A geometry check is not a field survey.']};
+await mkdir(resolve(root,'artifacts'),{recursive:true});await writeFile(resolve(root,'artifacts/map-validation-'+manifest.id+'.json'),JSON.stringify(report,null,2)+'\n');
+if(errors.length){console.error(errors.join('\n'));process.exitCode=1;}else console.log(`Map package v${manifest.schemaVersion} ${manifest.id} passed:`,JSON.stringify(report.counts));

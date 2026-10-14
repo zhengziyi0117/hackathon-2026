@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Scenic package manifest",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "intro": {
+      "type": "string"
+    },
+    "map": {
+      "type": "object",
+      "properties": {
+        "package": {
+          "const": "map/manifest.json"
+        },
+        "asset": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "custom": {
+          "const": false
+        },
+        "legend": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "package",
+        "asset",
+        "name",
+        "custom"
+      ],
+      "additionalProperties": false
+    },
+    "spots": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]*$"
+      },
+      "minItems": 1
+    },
+    "seedOnUpgrade": {
+      "type": "boolean"
+    },
+    "legacy": {
+      "type": "object",
+      "properties": {
+        "replacedMapUrls": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^/assets/[a-zA-Z0-9_./-]+$"
+          },
+          "minItems": 0
+        },
+        "previousSpotIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$"
+          },
+          "minItems": 0
+        }
+      },
+      "required": [
+        "replacedMapUrls",
+        "previousSpotIds"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "id",
+    "title",
+    "intro",
+    "map",
+    "spots",
+    "seedOnUpgrade"
+  ],
+  "additionalProperties": false
+}

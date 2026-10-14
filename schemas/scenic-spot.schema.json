@@ -1,0 +1,220 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Scenic package spot",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string"
+    },
+    "guide": {
+      "type": "string"
+    },
+    "notice": {
+      "type": "string"
+    },
+    "x": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "y": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "photos": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]*$"
+      }
+    },
+    "publishedPhotos": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]*$"
+      }
+    },
+    "photoName": {
+      "type": "string"
+    },
+    "factSource": {
+      "type": "string"
+    },
+    "heading": {
+      "type": "number",
+      "minimum": 0,
+      "exclusiveMaximum": 360
+    },
+    "scene": {
+      "type": "string",
+      "minLength": 1
+    },
+    "narration": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "additionalProperties": false
+    },
+    "sample": {
+      "type": "object",
+      "properties": {
+        "reference": {
+          "type": "object",
+          "properties": {
+            "angle": {
+              "enum": [
+                "front",
+                "left",
+                "rear",
+                "back",
+                "top",
+                "inside"
+              ]
+            },
+            "asset": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]*$"
+            },
+            "kind": {
+              "const": "real"
+            }
+          },
+          "required": [
+            "angle",
+            "asset",
+            "kind"
+          ],
+          "additionalProperties": false
+        },
+        "binding": {
+          "type": "object",
+          "properties": {
+            "worldId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "referenceUrl": {
+              "type": "string",
+              "pattern": "^/assets/[a-zA-Z0-9_./-]+$"
+            }
+          },
+          "required": [
+            "worldId",
+            "referenceUrl"
+          ],
+          "additionalProperties": false
+        },
+        "initialWorld": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "pilot"
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1
+            },
+            "revision": {
+              "const": 0
+            }
+          },
+          "required": [
+            "kind",
+            "label",
+            "revision"
+          ],
+          "additionalProperties": false
+        },
+        "completion": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$"
+          }
+        },
+        "worlds": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]*$"
+              },
+              "asset": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]*$"
+              },
+              "receipt": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]*$"
+              },
+              "model": {
+                "type": "string",
+                "minLength": 1
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1
+              },
+              "short": {
+                "type": "string",
+                "minLength": 1
+              },
+              "note": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "id",
+              "asset",
+              "receipt",
+              "model",
+              "label",
+              "short",
+              "note"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "reference",
+        "binding",
+        "initialWorld",
+        "completion",
+        "worlds"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "description",
+    "guide",
+    "notice",
+    "x",
+    "y",
+    "photos"
+  ],
+  "additionalProperties": false
+}

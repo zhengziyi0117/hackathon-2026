@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "assets": [
+    {
+      "id": "front",
+      "file": "photos/taihemen.jpg",
+      "url": "/assets/forbidden-city/real/taihemen.jpg",
+      "sha256": "07b7e4e9f021d796d43430a6f7421d58c94b3118abe79b36d5a89e9441a0dcf3",
+      "publish": true,
+      "photo": {
+        "name": "太和门与铜狮",
+        "kind": "real",
+        "credit": {
+          "id": "taihemen",
+          "name": "太和门",
+          "caption": "太和门与铜狮",
+          "path": "/assets/forbidden-city/real/taihemen.jpg",
+          "author": "xiquinhosilva",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Gate_of_Supreme_Harmony_at_the_Forbidden_City.jpg",
+          "license": "CC BY 2.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+          "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5a/Gate_of_Supreme_Harmony_at_the_Forbidden_City.jpg",
+          "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5a/Gate_of_Supreme_Harmony_at_the_Forbidden_City.jpg/1280px-Gate_of_Supreme_Harmony_at_the_Forbidden_City.jpg",
+          "commonsPageId": 163901022,
+          "captureDate": "2024-05-15 13:15:36",
+          "transformations": [
+            "等比缩放至最长边不超过 1200px",
+            "JPEG 重新编码与压缩",
+            "移除原文件 EXIF 元数据；来源与许可保存在本清单"
+          ],
+          "croppedByProject": false,
+          "resized": true,
+          "width": 1200,
+          "height": 799,
+          "bytes": 227001,
+          "sha256": "07b7e4e9f021d796d43430a6f7421d58c94b3118abe79b36d5a89e9441a0dcf3",
+          "depicts": "太和门与铜狮",
+          "match": "对应景点实拍",
+          "isGenericFallback": false,
+          "officialSummary": "太和门是紫禁城外朝的正门，门前内金水河上的五座石桥与两侧廊庑共同组织入口广场。",
+          "officialSource": "https://www.dpm.org.cn/explore/building/236439.html",
+          "artist": "xiquinhosilva",
+          "source": "https://commons.wikimedia.org/wiki/File:Gate_of_Supreme_Harmony_at_the_Forbidden_City.jpg",
+          "date": "2024-05-15 13:15:36",
+          "changes": "等比缩放至最长边不超过 1200px；JPEG 重新编码与压缩；移除原文件 EXIF 元数据；来源与许可保存在本清单"
+        }
+      }
+    }
+  ]
+}

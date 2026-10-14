@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "forbidden-city",
+  "title": "故宫 · 宫阙之间",
+  "intro": "沿着中轴穿过层层院落，在朱墙金瓦间探索十二处宫城风景。",
+  "map": {
+    "package": "map/manifest.json",
+    "asset": "scroll",
+    "name": "故宫游览绘卷 · AI 插画",
+    "legend": "故宫建筑布局意象 · AI 绘卷与点位示意",
+    "custom": false
+  },
+  "spots": [
+    "wumen",
+    "taihemen",
+    "taihedian",
+    "zhonghedian",
+    "baohedian",
+    "qianqinggong",
+    "jiaotaidian",
+    "kunninggong",
+    "garden",
+    "shenwumen",
+    "ningshou",
+    "cining"
+  ],
+  "seedOnUpgrade": true
+}

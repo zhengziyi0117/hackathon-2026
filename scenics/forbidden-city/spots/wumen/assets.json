@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "assets": [
+    {
+      "id": "front",
+      "file": "photos/wumen.jpg",
+      "url": "/assets/forbidden-city/real/wumen.jpg",
+      "sha256": "8f774cea2ea5a75068f30088ad87cc896b696079e8e56189459b38e3ee9420fc",
+      "publish": true,
+      "photo": {
+        "name": "午门外观",
+        "kind": "real",
+        "credit": {
+          "id": "wumen",
+          "name": "午门",
+          "caption": "午门外观",
+          "path": "/assets/forbidden-city/real/wumen.jpg",
+          "author": "Morio",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Meridian_Gate_(Forbidden_City)_2015_December.jpg",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/c/ce/Meridian_Gate_%28Forbidden_City%29_2015_December.jpg",
+          "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/ce/Meridian_Gate_%28Forbidden_City%29_2015_December.jpg/1280px-Meridian_Gate_%28Forbidden_City%29_2015_December.jpg",
+          "commonsPageId": 54826436,
+          "captureDate": "13 December 2015, Beijing, China",
+          "transformations": [
+            "等比缩放至最长边不超过 1200px",
+            "JPEG 重新编码与压缩",
+            "移除原文件 EXIF 元数据；来源与许可保存在本清单"
+          ],
+          "croppedByProject": false,
+          "resized": true,
+          "width": 1200,
+          "height": 600,
+          "bytes": 111846,
+          "sha256": "8f774cea2ea5a75068f30088ad87cc896b696079e8e56189459b38e3ee9420fc",
+          "depicts": "午门外观",
+          "match": "对应景点实拍",
+          "isGenericFallback": false,
+          "officialSummary": "午门是紫禁城南端的正门，凹字形城台与五座门楼构成了层次分明的宫城入口。",
+          "officialSource": "https://www.dpm.org.cn/explore/building/236454.html",
+          "artist": "Morio",
+          "source": "https://commons.wikimedia.org/wiki/File:Meridian_Gate_(Forbidden_City)_2015_December.jpg",
+          "date": "13 December 2015, Beijing, China",
+          "changes": "等比缩放至最长边不超过 1200px；JPEG 重新编码与压缩；移除原文件 EXIF 元数据；来源与许可保存在本清单"
+        }
+      }
+    }
+  ]
+}

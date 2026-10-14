@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "assets": [
+    {
+      "id": "front",
+      "file": "photos/santan-towers.jpg",
+      "url": "/assets/real/santan-towers.jpg",
+      "sha256": "7fa3d8a29d835edd6af3f96708f192494b7e27665d3e51a953a2d517d27e9748",
+      "publish": true,
+      "photo": {
+        "name": "三潭印月石塔与湖面 · 实拍",
+        "kind": "real",
+        "credit": {
+          "title": "File:Three Pools Mirroring the Moon.jpg",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/0/04/Three_Pools_Mirroring_the_Moon.jpg",
+          "source": "https://commons.wikimedia.org/wiki/File:Three_Pools_Mirroring_the_Moon.jpg",
+          "license": "CC BY 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+          "artist": "Hangzhou West Lake, Ten Thousand Strangers",
+          "date": "2008-05-03 17:40:10",
+          "path": "/assets/real/santan-towers.jpg",
+          "retrieved": "2026-10-12",
+          "changes": "原照片；页面缩略图按容器裁切，大图可查看完整画面。"
+        }
+      }
+    }
+  ]
+}
