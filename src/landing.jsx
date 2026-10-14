@@ -5,17 +5,20 @@ import {ReactLenis,useLenis} from 'lenis/react';
 import 'lenis/dist/lenis.css';
 import {ArrowRight,ArrowUpRight,Map as MapIcon,Box,Images,MessageSquareText,Upload,ScanEye,Send,Compass,LayoutDashboard,Sparkles,MapPinned,Move3d,Camera} from 'lucide-react';
 import {webImageUrl as img} from './web-images.js';
-import {PLACES,GUIDE_SEED} from './scenic-places.js';
+import {createBuiltinScenic,defaultScenicId,settings} from './content/catalog.js';
 import {stepRange,activeStep} from './landing-motion.js';
-import sources from '../public/assets/real/sources.json' with {type:'json'};
+const landingScenic=createBuiltinScenic();
+const PLACES=landingScenic.published.spots,featured=PLACES.find(s=>s.id===settings.featuredSpot);
+const sources=Object.fromEntries(PLACES.map(s=>[s.id,s.photos.front.credit]));
+const featuredImage=angle=>featured.photos[angle].url;
 import './landing.css';
 
 // Product landing page (#home, also the default). React + Motion for scroll-linked animation, Lenis for smooth scrolling.
 // The rest of the app stays vanilla; this module owns its own React root and tears it down on route change.
-const VISIT='#scenics',STUDIO='#studio',PILOT='#pilot?s=westlake&id=huagang';
+const VISIT='#scenics',STUDIO='#studio',PILOT='#pilot?s='+defaultScenicId+'&id='+settings.featuredSpot;
 const EASE=[.2,.7,.1,1];
-const spotHref=id=>id==='huagang'?PILOT:'#spot?s=westlake&id='+encodeURIComponent(id);
-const VIEWS=[['正面 · 实拍','/assets/real/huagang.jpg'],['左侧','/assets/completion/huagang-left.png'],['右后','/assets/completion/huagang-rear.png'],['背面','/assets/completion/huagang-back.png'],['俯视','/assets/completion/huagang-top.png'],['近景','/assets/completion/huagang-detail.png']];
+const spotHref=id=>id===settings.featuredSpot?PILOT:'#spot?s='+defaultScenicId+'&id='+encodeURIComponent(id);
+const VIEWS=[['正面 · 实拍',featuredImage('front')],['左侧',featuredImage('left')],['右后',featuredImage('rear')],['背面',featuredImage('back')],['俯视',featuredImage('top')],['近景',featuredImage('inside')]];
 const STEPS=[
   [Camera,'01 · 采集','一张实拍，就是起点','景区在维护端上传景点照片，标明来源与许可。正面、两侧、背面、俯视、近景，六个视角逐一审核。'],
   [Sparkles,'02 · 补全','缺的视角，先补出来','AI 参照实拍推测补图，明确标注为“AI 补全”。接受或移除，由景区说了算。'],
@@ -23,7 +26,7 @@ const STEPS=[
   [MessageSquareText,'04 · 讲解','每一句讲解，都有来处','AI 导游只按景区填写的资料逐句检索作答，查不到就如实说明，不编造。'],
 ];
 const N=STEPS.length;
-const GUIDE_ANSWER=GUIDE_SEED.huagang.split('。')[2]+'。';
+const GUIDE_ANSWER=featured.guide.split('。')[2]+'。';
 const reveal=(delay=0)=>({initial:{opacity:0,y:48},whileInView:{opacity:1,y:0},viewport:{once:true,amount:.2},transition:{duration:1.1,ease:EASE,delay}});
 const rise=delay=>({initial:{opacity:0,y:24},animate:{opacity:1,y:0},transition:{duration:1,ease:EASE,delay}});
 
@@ -53,7 +56,7 @@ function Hero({still}){
   const move=e=>{if(still)return;const r=e.currentTarget.getBoundingClientRect();mx.set((e.clientX-r.left)/r.width-.5);my.set((e.clientY-r.top)/r.height-.5);};
   return <section className="lp-hero" ref={ref} onPointerMove={move}>
     <motion.div className="lp-hero-bg" style={{y:bgY}}>
-      <motion.img src={img('/assets/real/huagang.jpg')} alt="" fetchPriority="high" style={{x:imgX,y:imgY}} initial={{scale:1.28,filter:'brightness(.55) saturate(.7)'}} animate={{scale:1.1,filter:'brightness(1) saturate(1)'}} transition={{duration:3.2,ease:EASE}}/>
+      <motion.img src={img(featuredImage('front'))} alt="" fetchPriority="high" style={{x:imgX,y:imgY}} initial={{scale:1.28,filter:'brightness(.55) saturate(.7)'}} animate={{scale:1.1,filter:'brightness(1) saturate(1)'}} transition={{duration:3.2,ease:EASE}}/>
     </motion.div>
     <div className="lp-hero-shade"/>
     <motion.div className="lp-hero-vertical" aria-hidden="true" initial={{opacity:0}} animate={{opacity:1}} transition={{duration:2,delay:1.6}}>西湖十景 · 花港观鱼</motion.div>
@@ -64,7 +67,7 @@ function Hero({still}){
       <motion.div className="lp-cta" {...rise(1.1)}><a className="lp-btn solid lg" href={VISIT}><Compass/>我是游客 · 去看看</a><a className="lp-btn glass lg" href={STUDIO}><LayoutDashboard/>我是景区 · 进维护端</a></motion.div>
     </motion.div>
     <motion.a className="lp-hero-card" href={PILOT} style={{x:cardX,y:cardY,opacity:fade}} initial={{opacity:0,y:40}} animate={{opacity:1,y:0}} transition={{duration:1.2,ease:EASE,delay:1.35}} whileHover={{scale:1.03}}>
-      <img src={img('/assets/completion/huagang-top.png')} alt=""/><div><small>真实三维试点</small><b>御碑亭 · 3D 漫游</b><span>进入<ArrowUpRight/></span></div>
+      <img src={img(featuredImage('top'))} alt=""/><div><small>真实三维试点</small><b>御碑亭 · 3D 漫游</b><span>进入<ArrowUpRight/></span></div>
     </motion.a>
     <button className="lp-scroll" onClick={()=>lenis?.scrollTo('#lp-story',{duration:1.6})} aria-label="向下浏览"><span/></button>
   </section>;
@@ -108,10 +111,10 @@ function Story({still}){
   return <section className="lp-story" id="lp-story" ref={ref}>
     <div className="lp-story-pin">
       <div className="lp-stage" aria-hidden="true">
-        <Frame p={p} i={0}><motion.img src={img('/assets/real/huagang.jpg')} alt="" style={{scale:photoScale}}/><div className="lp-chip-row"><span className="lp-chip"><Upload/>正面实拍</span><span className="lp-chip gold">待审核</span></div><div className="lp-scanline"/></Frame>
+        <Frame p={p} i={0}><motion.img src={img(featuredImage('front'))} alt="" style={{scale:photoScale}}/><div className="lp-chip-row"><span className="lp-chip"><Upload/>正面实拍</span><span className="lp-chip gold">待审核</span></div><div className="lp-scanline"/></Frame>
         <Frame p={p} i={1}><div className="lp-views">{VIEWS.map(([n,u],i)=><Tile key={i} p={p} i={i} name={n} url={u}/>)}</div></Frame>
-        <Frame p={p} i={2} className="lp-world"><motion.img src={img('/assets/completion/huagang-left.png')} alt="" style={{x:panX,rotateY:panR}}/><div className="lp-hud">{['W','A','S','D'].map(k=><span key={k}>{k}</span>)}<small>环顾 · 移动 · 升降</small></div><span className="lp-chip lp-demo">界面示意</span></Frame>
-        <Frame p={p} i={3} className="lp-chat-frame"><img src={img('/assets/real/huagang.jpg')} alt=""/><div className="lp-chat"><motion.p className="me" style={{opacity:me,y:meY}}>御碑亭上的字是谁写的？</motion.p><motion.p className="ai" style={{opacity:ai,y:aiY}}>{GUIDE_ANSWER}<small>出自景区讲解资料</small></motion.p></div></Frame>
+        <Frame p={p} i={2} className="lp-world"><motion.img src={img(featuredImage('left'))} alt="" style={{x:panX,rotateY:panR}}/><div className="lp-hud">{['W','A','S','D'].map(k=><span key={k}>{k}</span>)}<small>环顾 · 移动 · 升降</small></div><span className="lp-chip lp-demo">界面示意</span></Frame>
+        <Frame p={p} i={3} className="lp-chat-frame"><img src={img(featuredImage('front'))} alt=""/><div className="lp-chat"><motion.p className="me" style={{opacity:me,y:meY}}>御碑亭上的字是谁写的？</motion.p><motion.p className="ai" style={{opacity:ai,y:aiY}}>{GUIDE_ANSWER}<small>出自景区讲解资料</small></motion.p></div></Frame>
       </div>
       <div className="lp-story-text">
         <div className="lp-rail" aria-hidden="true"><motion.span style={{scaleY:p}}/></div>
@@ -151,8 +154,8 @@ function Portals({still}){
   return <section className="lp-section lp-portals" id="lp-portals">
     <motion.div className="lp-head" {...reveal()}><p className="lp-eyebrow">两端，一份内容</p><h2>景区编辑一次，<br/>游客处处可见</h2></motion.div>
     <div className="lp-portal-grid">
-      <Portal still={still} delay={0} href={VISIT} kind="visitor" bg="/assets/scenic/westlake-map.jpg" label="游客端" Icon={Compass} title={['挑一处风景，','按自己的节奏看']} go="开始游览" items={[[MapIcon,'插画地图选景点，就地预览'],[Images,'实景照片，附来源与许可'],[Box,'实拍生成的 3D 空间漫游'],[MessageSquareText,'只依据景区资料作答的 AI 导游']]}/>
-      <Portal still={still} delay={.12} href={STUDIO} kind="studio" bg="/assets/completion/huagang-detail.png" label="景区维护端" Icon={LayoutDashboard} title={['地图、照片、讲解，','一处管理']} go="进入维护端" items={[[MapPinned,'上传地图，拖放景点位置'],[ScanEye,'六视角审核，接受或移除 AI 补图'],[Move3d,'逐方向调整 3D 漫游范围'],[Send,'草稿与发布分离，一键发布']]}/>
+      <Portal still={still} delay={0} href={VISIT} kind="visitor" bg={landingScenic.published.map.url} label="游客端" Icon={Compass} title={['挑一处风景，','按自己的节奏看']} go="开始游览" items={[[MapIcon,'插画地图选景点，就地预览'],[Images,'实景照片，附来源与许可'],[Box,'实拍生成的 3D 空间漫游'],[MessageSquareText,'只依据景区资料作答的 AI 导游']]}/>
+      <Portal still={still} delay={.12} href={STUDIO} kind="studio" bg={featuredImage('inside')} label="景区维护端" Icon={LayoutDashboard} title={['地图、照片、讲解，','一处管理']} go="进入维护端" items={[[MapPinned,'上传地图，拖放景点位置'],[ScanEye,'六视角审核，接受或移除 AI 补图'],[Move3d,'逐方向调整 3D 漫游范围'],[Send,'草稿与发布分离，一键发布']]}/>
     </div>
   </section>;
 }
@@ -171,7 +174,7 @@ function Final({still}){
   const ref=useRef(null),{scrollYProgress:p}=useScroll({target:ref,offset:['start end','end start']});
   const y=useTransform(p,[0,1],still?['0%','0%']:['-12%','12%']),scale=useTransform(p,[0,.5],[.9,1]);
   return <section className="lp-final" ref={ref}>
-    <motion.div className="lp-final-bg" style={{y}}><img src={img('/assets/real/duanqiao.jpg')} alt="" loading="lazy"/></motion.div>
+    <motion.div className="lp-final-bg" style={{y}}><img src={img(PLACES.find(s=>s.id===settings.closingSpot).photos.front.url)} alt="" loading="lazy"/></motion.div>
     <motion.div className="lp-final-inner" style={{scale}}><h2>出发之前，<br/>先见一面。</h2><div className="lp-cta"><a className="lp-btn solid lg" href={VISIT}><Compass/>开始游览</a><a className="lp-btn glass lg" href={STUDIO}><LayoutDashboard/>景区维护端</a></div></motion.div>
   </section>;
 }

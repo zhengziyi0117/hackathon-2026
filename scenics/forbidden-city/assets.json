@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "assets": [
+    {
+      "id": "scroll",
+      "file": "assets/palace-scroll.jpg",
+      "url": "/assets/forbidden-city/palace-scroll.jpg",
+      "sha256": "9517f637870d1a681cf233dd83bfec18502d20f88c82daacbfcffcc8427d338b",
+      "publish": true
+    },
+    {
+      "id": "photo-sources",
+      "file": "provenance/photo-sources.json",
+      "url": "/assets/forbidden-city/real/sources.json",
+      "sha256": "a6a4186d43e5bcf1ff641634c0ce984919412f747dbd3322213076c0ba575a36",
+      "publish": true
+    }
+  ]
+}

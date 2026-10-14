@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "assets": [
+    {
+      "id": "front",
+      "file": "photos/zhonghedian.jpg",
+      "url": "/assets/forbidden-city/real/zhonghedian.jpg",
+      "sha256": "1c485be7ec17ee6a850f1d2ddff13abb4944e1ac6085522fe9a7b401ec7b5bfb",
+      "publish": true,
+      "photo": {
+        "name": "中和殿外观",
+        "kind": "real",
+        "credit": {
+          "id": "zhonghedian",
+          "name": "中和殿",
+          "caption": "中和殿外观",
+          "path": "/assets/forbidden-city/real/zhonghedian.jpg",
+          "author": "Balon Greyjoy",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:20200110_Hall_of_Central_Harmony-1.jpg",
+          "license": "CC0",
+          "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+          "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/7/78/20200110_Hall_of_Central_Harmony-1.jpg",
+          "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/78/20200110_Hall_of_Central_Harmony-1.jpg/1280px-20200110_Hall_of_Central_Harmony-1.jpg",
+          "commonsPageId": 128284923,
+          "captureDate": "10 January 2020, 13:01",
+          "transformations": [
+            "等比缩放至最长边不超过 1200px",
+            "JPEG 重新编码与压缩",
+            "移除原文件 EXIF 元数据；来源与许可保存在本清单"
+          ],
+          "croppedByProject": false,
+          "resized": true,
+          "width": 1200,
+          "height": 800,
+          "bytes": 165448,
+          "sha256": "1c485be7ec17ee6a850f1d2ddff13abb4944e1ac6085522fe9a7b401ec7b5bfb",
+          "depicts": "中和殿外观",
+          "match": "对应景点实拍",
+          "isGenericFallback": false,
+          "officialSummary": "中和殿位于太和殿与保和殿之间，采用单檐四角攒尖顶，皇帝参加大典前曾在此休息和接受执事官员朝拜。",
+          "officialSource": "https://www.dpm.org.cn/explore/building/236464.html",
+          "artist": "Balon Greyjoy",
+          "source": "https://commons.wikimedia.org/wiki/File:20200110_Hall_of_Central_Harmony-1.jpg",
+          "date": "10 January 2020, 13:01",
+          "changes": "等比缩放至最长边不超过 1200px；JPEG 重新编码与压缩；移除原文件 EXIF 元数据；来源与许可保存在本清单"
+        }
+      }
+    }
+  ]
+}

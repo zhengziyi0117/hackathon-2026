@@ -8,7 +8,7 @@
 
 | 文件 | 职责 | 修改时必须保持的约束 |
 | --- | --- | --- |
-| `src/map3d/data/westlake/manifest.json` | 包版本、地图 ID、四层关联、可用风格 | `schemaVersion: 1`；关联同一个 mapId |
+| `scenics/westlake/map/manifest.json` | 包版本、地图 ID、四层关联、可用风格 | `schemaVersion: 1`；关联同一个 mapId |
 | `geography.json` | 原点、坐标比例、湖岸、岛屿、堤桥、山体参数、路网、景点位置与世界朝向 | 1 单位为 100 米；x 向东、z 向南；水面 y=0；保留来源及人工修订说明 |
 | `layout.json` | 18 个模型实例、位置/朝向/尺度、地图文字、植被规则、荷花、鱼池和游船 | `catalogVersion: 1`；每个景点对应唯一模型实例；不改地理路网来迎合风格 |
 | `interaction.json` | 起点、相机、步行/游船速度、到达范围、路线权重、时间估算 | 用已有节点 ID；相机范围有效；行走与地形一致 |
@@ -43,14 +43,14 @@ flowchart LR
 3. **形成可走路网。** 为景点设置停靠点，连接步行/船行边；校验步行采样不落水、景点之间可达。桥面高度来自同一几何函数。
 4. **布景。** 使用模型库放置地标，设置名称、spotId、坐标、旋转、尺度及植被/船行规则。水上塔、湖边平台和桥是明确的例外类型，其余陆上模型不能放在水里。
 5. **生成风格。** 从现有风格复制一份配置，保持地理、路网、模型实例及精细度。纸艺版改变树冠几何、地表法线、纸张颗粒、纸层底座、建筑材质和水面表现；像素、积木、卡通分别调用不同的屋顶、树冠、城镇和角色造型策略。像素与积木用可校验的 `landform` 控制格宽、台阶高度与起始高度。没有重新生成景点世界模型，也不产生模型 API 费用。
-6. **程序验证。** `node scripts/validate-map.mjs src/map3d/data/<map-id>/manifest.json` 校验目标包的结构/引用、模型覆盖、可走节点、每 3 米一处的步行边采样、景点互达及编辑器 Schema。`npm run check:map` 与 `npm run build` 默认遍历所有地图数据目录；仍建议先独立验证目标包。含输入 SHA-256 的报告分别写入 `artifacts/map-validation-<map-id>.json`。v2 检查入口到所有停靠点，以及每个停靠点到至少一个出口的有向可达性。
+6. **程序验证。** `node scripts/validate-map.mjs scenics/<map-id>/map/manifest.json` 校验目标包的结构/引用、模型覆盖、可走节点、每 3 米一处的步行边采样、景点互达及编辑器 Schema。`npm run check:map` 与 `npm run build` 默认遍历所有地图数据目录；仍建议先独立验证目标包。含输入 SHA-256 的报告分别写入 `artifacts/map-validation-<map-id>.json`。v2 检查入口到所有停靠点，以及每个停靠点到至少一个出口的有向可达性。
 7. **视觉与体验验收。** 桌面与窄屏审图；切换风格和时节；点击景点、自动步行/乘船、看近景、进入已有 SPZ。检查标签、模型位置、相机和材质。人工审核不能仅由“校验通过”替代。
 8. **保存与发布。** 审核过的配置、渲染器和素材一起提交到 Git。生产站点发布是独立步骤，不等于浏览器内容快照发布。五种风格已合入 `main` 并部署；后续变更仍须分别确认代码和部署状态。
 
 ## 当前代码边界
 
 - `src/map3d/geography.js`：纯地理编译器，输入 geography + interaction，输出 SDF、地形、桥面、寻路等函数。
-- `src/map3d/data/catalog.js`：地图包注册入口。导游、行程、单景点路标和地图通过同一个注册表读取地理实例。
+- `scenics/catalog.json`：景区唯一注册入口；`npm run sync:scenics` 生成导入表，`src/map3d/data/catalog.js` 只是共用地图适配器。导游、行程、单景点路标和地图通过同一个注册表读取地理实例。
 - `src/westlake-geo.js`：旧调用方的兼容入口，坐标已从这里移走。
 - `src/map3d/models.js`：通用模型库，按风格创建独立材质/几何/季节变量。风格互不污染。
 - `src/map3d/style-geometry.js`：受控造型策略，按风格提供基本体、屋顶、树冠、城镇与角色；没有景区坐标。
@@ -59,7 +59,7 @@ flowchart LR
 - `src/map3d/scene.js`：按布景文件生成完整场景，不再内置西湖景点坐标。
 - `src/map3d/index.js`：界面、控制器、视角、路线和印章；风格重建场景时保留当前游览状态。
 - `src/map3d/contract.js`：数据契约和引用/语义校验；`scripts/validate-map.mjs` 进一步检查空间关系。
-- `src/westlake-osm.js`：改造前的来源快照，保留用于追溯，运行时不再读取。
+- `scenics/westlake/provenance/westlake-osm.js`：改造前的来源快照，保留用于追溯，运行时不再读取。
 
 ## 常用命令
 
@@ -67,7 +67,7 @@ flowchart LR
 node scripts/export-map-schemas.mjs # 仅修改 contract.js 后需要
 npm run check:map # 所有地图包
 # 新景区另外执行（将 map-id 替换为真实 ID）：
-node scripts/validate-map.mjs src/map3d/data/map-id/manifest.json
+node scripts/validate-map.mjs scenics/map-id/map/manifest.json
 npm test
 npm run build
 PORT=4176 npm run serve # 可替换为可用端口
@@ -76,14 +76,14 @@ PORT=4176 npm run serve # 可替换为可用端口
 更新地理来源时，先生成候选，检查后再采用：
 
 ```sh
-python3 scripts/westlake-osm.py
-node scripts/import-westlake-osm.mjs artifacts/westlake-osm-candidate.json
+python3 scenics/westlake/tools/westlake-osm.py
+node scenics/westlake/tools/import-westlake-osm.mjs artifacts/westlake-osm-candidate.json
 # 审核 artifacts/westlake-geography.candidate.json 后替换 geography.json
-node scripts/westlake-paths.mjs | python3 scripts/splice-paths.py
+node scenics/westlake/tools/westlake-paths.mjs | python3 scenics/westlake/tools/splice-paths.py
 npm run check:map
 ```
 
-路网脚本目前仍是西湖的采样规则，新景区应编写自己的来源整理和路线生成步骤。新增景区需要同步内容快照与地图包的 ID、生成四层文件、注册包、视觉验收；新增风格需要生成配置、注册风格并加入 manifest.styles。仅在维护端添加景点不会自动生成三维模型和地理底图。
+路网脚本目前仍是西湖的采样规则，新景区应编写自己的来源整理和路线生成步骤。新增景区按[内容包规范](景区内容包规范.md)组织目录，需要同步内容快照与地图包的 ID、生成四层文件、注册包、视觉验收；新增风格需要生成配置、注册风格并加入 manifest.styles。仅在维护端添加景点不会自动生成三维模型和地理底图。
 
 ## Agent 可复用任务提示词
 
@@ -124,7 +124,7 @@ npm run check:map
 
 ## v2：建筑密集型景区
 
-完整样例为 `src/map3d/data/forbidden-city/`。四个地图层使用 `schemaVersion: 2`，风格仍为 `schemaVersion: 1`；西湖保持 v1。不要在 v1 中加入 v2 字段。
+完整样例为 `scenics/forbidden-city/map/`。四个地图层使用 `schemaVersion: 2`，风格仍为 `schemaVersion: 1`；西湖保持 v1。不要在 v1 中加入 v2 字段。
 
 | 字段 | 约束与用途 |
 | --- | --- |

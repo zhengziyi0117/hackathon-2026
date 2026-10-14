@@ -1,5 +1,5 @@
-import {createPalaceScenic,ensureBuiltinScenics} from './forbidden-city-content.js';
-import {PLACES,PILOT_ID,GUIDE_SEED,realPhoto,completionPhoto} from './scenic-places.js';
+import {createBuiltinScenic,builtinScenics,seededScenicIds,ensureBuiltinScenics,sampleOwner,boundSample,samplePhoto,sampleWorlds} from './content/catalog.js';
+import {upgradeBuiltinMap,upgradeLegacyScenic,legacyDefaultIntro,legacyScenicId} from './content/legacy-migrations.js';
 // The creator's draft and the visitor's published snapshot are deliberately separate.
 export const ANGLES = [
   {id:'front', name:'正面全景', hint:'能看清主体与周边环境'},
@@ -10,84 +10,23 @@ export const ANGLES = [
   {id:'inside', name:'内部 / 近景', hint:'入口、内部或关键细节'},
 ];
 export const copy = value => structuredClone(value);
-const PILOT_ASSET = Object.freeze({worldId:'55dcc5ef-342c-4548-b937-6ffe6fb330ed',referenceUrl:'/assets/real/huagang.jpg'});
 export function newSpot(id, x=.5, y=.5) {
   return {id,name:'新的景点',description:'',guide:'',notice:'',x,y,photos:{},revision:0,confirmedRevision:null,world:null};
 }
-export function createScenicState() {
-  const spots=PLACES.map(p=>({...newSpot(p.id,p.x,p.y),...p,photos:{front:realPhoto(p.id,p.photoName)}}));
-  spots[0].world={kind:'pilot',label:'御碑亭实拍试点',revision:0};
-  spots[0].pilotAsset=copy(PILOT_ASSET);
-  const draft={title:'西湖 · 六处风景',intro:WESTLAKE_INTRO,map:{...LAKE_MAP},spots};
-  const published=copy(draft);
-  for(const {id,name} of ANGLES.filter(a=>a.id!=='front'))published.spots[0].photos[id]={...completionPhoto(id,name),accepted:true};
-  return {schema:7,id:'westlake',draft,published,publishedAt:null,publishNumber:1};
-}
-const LAKE_MAP={url:'/assets/scenic/westlake-map.jpg',name:'西湖游览绘卷 · AI 插画',custom:false};
-const WESTLAKE_INTRO='湖光、长堤与园林，从六处西湖十景开始；御碑亭可以 3D 漫游。';
-// The workspace holds any number of scenic areas; each keeps its own draft, published snapshot and version.
-export const createWorkspace=()=>({schema:8,seededScenics:['forbidden-city'],scenics:[createScenicState(),createPalaceScenic()]});
+// Compatibility export for callers that create the default built-in scenic.
+export const createScenicState=()=>createBuiltinScenic();
+export const createWorkspace=()=>({schema:8,seededScenics:seededScenicIds(),scenics:builtinScenics()});
 export function newScenic(title,map){return {schema:7,id:crypto.randomUUID().slice(0,8),draft:{title,intro:'',map,spots:[]},published:null,publishedAt:null,publishNumber:0};}
 export function upgradeWorkspace(value){
-  if(value?.schema===8&&Array.isArray(value.scenics)){value.scenics=value.scenics.map(upgradeScenicState).map(toLakeMap);return ensureBuiltinScenics(value);}
+  if(value?.schema===8&&Array.isArray(value.scenics)){value.scenics=value.scenics.map(upgradeScenicState).map(upgradeBuiltinMap);return ensureBuiltinScenics(value);}
   if(![1,2,3,4,5,6,7].includes(value?.schema)||!value.draft?.spots||!value.published?.spots)return createWorkspace();
   // A single-scenic state from before schema 8 becomes the West Lake entry, untouched otherwise.
-  const sc=upgradeScenicState(value);sc.id||='westlake';
-  for(const k of ['draft','published'])if(typeof sc[k].intro!=='string')sc[k].intro=sc.id==='westlake'?WESTLAKE_INTRO:'';
-  return ensureBuiltinScenics({schema:8,scenics:[toLakeMap(sc)]});
+  const sc=upgradeScenicState(value);sc.id||=legacyScenicId;
+  for(const k of ['draft','published'])if(typeof sc[k].intro!=='string')sc[k].intro=sc.id===legacyScenicId?legacyDefaultIntro:'';
+  return ensureBuiltinScenics({schema:8,scenics:[upgradeBuiltinMap(sc)]});
 }
-// The built-in garden illustration was replaced by a West Lake map; built-in pins move with it, uploaded maps stay.
-function toLakeMap(sc){
-  for(const key of ['draft','published']){
-    const p=sc[key];if(!p||p.map?.custom||p.map?.url!=='/assets/scenic/garden-map.png')continue;
-    p.map={...LAKE_MAP};
-    for(const s of p.spots){const seed=PLACES.find(x=>x.id===s.id);if(seed){s.x=seed.x;s.y=seed.y;}}
-  }
-  return sc;
-}
-export function upgradeScenicState(state){
-  if(state.schema===7)return state;
-  upgradeToSix(state);
-  // Schema 7 adds guide material; built-in spots get the seed text, nothing is overwritten.
-  for(const key of ['draft','published'])for(const s of state[key].spots){if(typeof s.guide!=='string')s.guide=GUIDE_SEED[s.id]||'';if(typeof s.notice!=='string')s.notice='';}
-  state.schema=7;return state;
-}
-function upgradeToSix(state){
-  if(state.schema===6)return state;
-  const seed=createScenicState();
-  // The existing real asset is bound to its source photo, independently of mock jobs.
-  const bindPilot=()=>{
-    for(const key of ['draft','published']){
-      const s=state[key].spots.find(s=>s.id===PILOT_ID);
-      if(s&&canCompleteDemo(s))s.pilotAsset=copy(PILOT_ASSET);
-    }
-    state.schema=6;return state;
-  };
-  if(state.schema===5)return bindPilot();
-  if(state.schema===3||state.schema===4){
-    for(const key of ['draft','published']){
-      const s=state[key].spots.find(s=>s.id===PILOT_ID);
-      if(s&&s.revision===0&&canCompleteDemo(s))s.world=copy(seed[key].spots[0].world);
-    }
-    for(const s of state.draft.spots){
-      if(s.confirmedRevision!==null&&pendingAngles(s).length)touchSpot(s);
-    }
-    // Only extend the built-in visitor sample; keep user-published snapshots intact.
-    if(!state.publishedAt){
-      const s=state.published.spots.find(s=>s.id===PILOT_ID);
-      if(s&&canCompleteDemo(s))for(const id of ['back','top'])if(!s.photos[id])s.photos[id]=copy(seed.published.spots[0].photos[id]);
-    }
-    return bindPilot();
-  }
-  // Keep earlier work accessible as a backup, and never overwrite uploaded material or custom pins.
-  const ids=new Set(['pavilion','willow','bridge','lotus','corridor','landing']);
-  const untouched=project=>!project.map.custom&&project.spots.every(s=>ids.has(s.id)&&!Object.values(s.photos).some(p=>p.kind==='upload'));
-  if(untouched(state.draft)&&untouched(state.published)){
-    seed.previousDemo=copy(state);return seed;
-  }
-  return bindPilot();
-}
-export function canCompleteDemo(spot){return spot.id===PILOT_ID&&spot.photos.front?.url==='/assets/real/huagang.jpg';}
+export const upgradeScenicState=state=>upgradeLegacyScenic(state,{pendingAngles,touchSpot});
+export const canCompleteDemo=spot=>Boolean(sampleOwner(spot)?.content.sample.completion);
 export function touchSpot(spot) {
   // A paid, generated world survives photo edits; worldStale() tells the studio its inputs changed.
   spot.revision++; spot.confirmedRevision=null; if(spot.world?.kind!=='generated')spot.world=null;
@@ -106,10 +45,10 @@ export function removePhoto(spot, angle) {delete spot.photos[angle];return touch
 export function pendingAngles(spot) {return ANGLES.filter(a=>!spot.photos[a.id]);}
 export function completeDemo(spot) {
   if(!Object.values(spot.photos).some(p=>p.kind!=='ai-demo'))throw Error('请先上传至少一张参考图片');
-  if(!canCompleteDemo(spot))throw Error('本版仅提供花港观鱼原始实拍的补全样例；其他景点请上传实拍视角');
+  if(!canCompleteDemo(spot))throw Error('本版仅提供已配置原始实拍的补全样例；其他景点请上传实拍视角');
   const missing=pendingAngles(spot);
   if(!missing.length)throw Error('全部视角均已准备好');
-  for(const {id} of missing)spot.photos[id]=completionPhoto(id,ANGLES.find(a=>a.id===id).name);
+  for(const {id} of missing)spot.photos[id]=samplePhoto(spot,id);
   touchSpot(spot); return spot;
 }
 // Real world generation (World Labs Marble). Only compass directions can be placed by azimuth; top and close-up stay photo-only.
@@ -140,9 +79,6 @@ export function publishScenic(state) {
   if(problem)throw Error(problem.text);
   state.published=copy(draft);state.publishNumber++;state.publishedAt=new Date().toISOString();return state;
 }
-const pilotBound=spot=>spot.id===PILOT_ID&&spot.pilotAsset?.worldId===PILOT_ASSET.worldId&&
-    spot.pilotAsset.referenceUrl===PILOT_ASSET.referenceUrl&&
-    spot.photos.front?.kind==='real'&&spot.photos.front.url===PILOT_ASSET.referenceUrl;
 // The 3D scene a spot shows: its own generated world first, else the bundled single-photo pilot.
 // Replacing or removing the pilot's input photo severs that association.
 export function worldAsset(spot){
@@ -150,8 +86,8 @@ export function worldAsset(spot){
   if(w?.kind==='generated'&&/^\/generated\/[a-zA-Z0-9-]{8,64}\/world\.spz$/.test(w.spz))
     return {spz:w.spz,receipt:w.receipt,model:w.model,generated:true,
       note:`由 ${modelOf(w.model)?.label||w.model} 以 ${w.inputs.length} 张照片生成${w.inputs.some(i=>i.kind==='ai-demo')?'（含经审核的 AI 补图）':''}，未拍到的区域由模型推测。`};
-  if(pilotBound(spot))return {spz:'/assets/world/huagang-500k.spz',receipt:'/assets/world/huagang-generation.json',model:'marble-1.1',generated:false,
-    note:'由 Marble 1.1 以一张正面实拍生成，未拍到的区域由模型推测。'};
+  const sample=boundSample(spot);
+  if(sample){const {id,label,short,...asset}=sampleWorlds(sample)[0];return asset;}
   return null;
 }
 export const visitorExperience=spot=>worldAsset(spot)?'world':'gallery';
@@ -160,9 +96,8 @@ export const visitorExperience=spot=>worldAsset(spot)?'world':'gallery';
 export function worldVariants(spot){
   const base=worldAsset(spot);if(!base)return [];
   const single={...base,id:'single',label:'单张实拍',short:'单图'};
-  if(base.generated||!pilotBound(spot))return [single];
-  return [single,{...base,id:'multi',label:'实拍 + 5 张 AI 补图',short:'六图试验',spz:'/assets/world/huagang-multi-500k.spz',receipt:'/assets/world/huagang-multi-generation.json',
-    note:'由 Marble 1.1 以 1 张正面实拍和 5 张经审核的 AI 补图生成，布局交给模型；补图是推测，背面与屋顶不代表实地样貌。'}];
+  const sample=boundSample(spot);
+  return base.generated||!sample?[single]:sampleWorlds(sample);
 }
 
 // Retrieval-only guide: every answer is a sentence the scenic staff wrote, or an honest "not in the material".

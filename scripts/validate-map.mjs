@@ -5,10 +5,11 @@ import {fileURLToPath} from 'node:url';
 import {CONTRACTS,validatePackage} from '../src/map3d/contract.js';
 import {createGeography} from '../src/map3d/geography.js';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
-const manifestFile=resolve(root,process.argv[2]||'src/map3d/data/westlake/manifest.json');
+const manifestFile=resolve(root,process.argv[2]||'scenics/westlake/map/manifest.json');
 if(!process.argv[2]){
  const {execFileSync}=await import('node:child_process');
- for(const folder of await readdir(resolve(root,'src/map3d/data'),{withFileTypes:true}))if(folder.isDirectory())execFileSync(process.execPath,[fileURLToPath(import.meta.url),resolve(root,'src/map3d/data',folder.name,'manifest.json')],{stdio:'inherit'});
+ const catalog=JSON.parse(await readFile(resolve(root,'scenics/catalog.json'),'utf8'));
+ for(const id of catalog.scenics)execFileSync(process.execPath,[fileURLToPath(import.meta.url),resolve(root,'scenics',id,'map/manifest.json')],{stdio:'inherit'});
  process.exit(0);
 }
 const hashes={};

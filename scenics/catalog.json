@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "scenics": [
+    "westlake",
+    "forbidden-city"
+  ],
+  "defaultScenic": "westlake",
+  "featuredSpot": "huagang",
+  "closingSpot": "duanqiao"
+}

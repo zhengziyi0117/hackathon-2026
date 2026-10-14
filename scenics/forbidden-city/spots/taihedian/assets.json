@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "assets": [
+    {
+      "id": "front",
+      "file": "photos/taihedian.jpg",
+      "url": "/assets/forbidden-city/real/taihedian.jpg",
+      "sha256": "6af5fad59a5fb7157333d65ec0388d976287ce80cb95af53ca309f90ddff1906",
+      "publish": true,
+      "photo": {
+        "name": "太和殿前广场",
+        "kind": "real",
+        "credit": {
+          "id": "taihedian",
+          "name": "太和殿",
+          "caption": "太和殿前广场",
+          "path": "/assets/forbidden-city/real/taihedian.jpg",
+          "author": "Gisling",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Hall_of_Supreme_Harmony.JPG",
+          "license": "CC BY 3.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+          "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/6/67/Hall_of_Supreme_Harmony.JPG",
+          "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/67/Hall_of_Supreme_Harmony.JPG/1280px-Hall_of_Supreme_Harmony.JPG",
+          "commonsPageId": 5154336,
+          "captureDate": "2008-10",
+          "transformations": [
+            "等比缩放至最长边不超过 1200px",
+            "JPEG 重新编码与压缩",
+            "移除原文件 EXIF 元数据；来源与许可保存在本清单"
+          ],
+          "croppedByProject": false,
+          "resized": true,
+          "width": 1200,
+          "height": 760,
+          "bytes": 227720,
+          "sha256": "6af5fad59a5fb7157333d65ec0388d976287ce80cb95af53ca309f90ddff1906",
+          "depicts": "太和殿前广场",
+          "match": "对应景点实拍",
+          "isGenericFallback": false,
+          "officialSummary": "太和殿是外朝三大殿之首，明清皇帝在这里举行登极、大婚等重要典礼。",
+          "officialSource": "https://www.dpm.org.cn/explore/building/236465.html",
+          "artist": "Gisling",
+          "source": "https://commons.wikimedia.org/wiki/File:Hall_of_Supreme_Harmony.JPG",
+          "date": "2008-10",
+          "changes": "等比缩放至最长边不超过 1200px；JPEG 重新编码与压缩；移除原文件 EXIF 元数据；来源与许可保存在本清单"
+        }
+      }
+    }
+  ]
+}

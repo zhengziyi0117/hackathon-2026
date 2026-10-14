@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "assets": [
+    {
+      "id": "front",
+      "file": "photos/leifeng-close.jpg",
+      "url": "/assets/real/leifeng-close.jpg",
+      "sha256": "b6a15957172a2055f9ad8dce920621f6bc6276dc50917a549497c437fcd1c0b5",
+      "publish": true,
+      "photo": {
+        "name": "湖对岸的雷峰塔 · 2025 年实拍",
+        "kind": "real",
+        "credit": {
+          "title": "File:Leifeng Pagoda 20250505.jpg",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/0/04/Leifeng_Pagoda_20250505.jpg",
+          "source": "https://commons.wikimedia.org/wiki/File:Leifeng_Pagoda_20250505.jpg",
+          "license": "CC0",
+          "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+          "artist": "Suicasmo",
+          "date": "2025-05-05 09:48:24",
+          "path": "/assets/real/leifeng-close.jpg",
+          "retrieved": "2026-10-12",
+          "changes": "原照片；页面缩略图按容器裁切，大图可查看完整画面。"
+        }
+      }
+    }
+  ]
+}

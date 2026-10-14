@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "assets": [
+    {
+      "id": "front",
+      "file": "photos/baohedian.jpg",
+      "url": "/assets/forbidden-city/real/baohedian.jpg",
+      "sha256": "49f02085ed45f15364b144f9adfce27aafa9a18a2cb4d74e4a5269414fa32c60",
+      "publish": true,
+      "photo": {
+        "name": "保和殿外观",
+        "kind": "real",
+        "credit": {
+          "id": "baohedian",
+          "name": "保和殿",
+          "caption": "保和殿外观",
+          "path": "/assets/forbidden-city/real/baohedian.jpg",
+          "author": "G41rn8",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Beijing_2006_2-24.jpg",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f7/Beijing_2006_2-24.jpg",
+          "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f7/Beijing_2006_2-24.jpg/1280px-Beijing_2006_2-24.jpg",
+          "commonsPageId": 45652269,
+          "captureDate": "2006",
+          "transformations": [
+            "等比缩放至最长边不超过 1200px",
+            "JPEG 重新编码与压缩",
+            "移除原文件 EXIF 元数据；来源与许可保存在本清单"
+          ],
+          "croppedByProject": false,
+          "resized": true,
+          "width": 1200,
+          "height": 871,
+          "bytes": 215612,
+          "sha256": "49f02085ed45f15364b144f9adfce27aafa9a18a2cb4d74e4a5269414fa32c60",
+          "depicts": "保和殿外观",
+          "match": "对应景点实拍",
+          "isGenericFallback": false,
+          "officialSummary": "保和殿位于外朝三大殿的北端，清代既用于宫廷宴会，也曾用作殿试场所。",
+          "officialSource": "https://www.dpm.org.cn/explore/building/236434.html",
+          "artist": "G41rn8",
+          "source": "https://commons.wikimedia.org/wiki/File:Beijing_2006_2-24.jpg",
+          "date": "2006",
+          "changes": "等比缩放至最长边不超过 1200px；JPEG 重新编码与压缩；移除原文件 EXIF 元数据；来源与许可保存在本清单"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "assets": [
+    {
+      "id": "front",
+      "file": "photos/jiaotaidian.jpg",
+      "url": "/assets/forbidden-city/real/jiaotaidian.jpg",
+      "sha256": "85ee1fe16b365bcd654afef4bd20ddbdfa3d11894634d8860da3961f22759820",
+      "publish": true,
+      "photo": {
+        "name": "交泰殿外观",
+        "kind": "real",
+        "credit": {
+          "id": "jiaotaidian",
+          "name": "交泰殿",
+          "caption": "交泰殿外观",
+          "path": "/assets/forbidden-city/real/jiaotaidian.jpg",
+          "author": "そらみみ",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Hall_of_Union_and_Peace_20160826.jpg",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/a/a6/Hall_of_Union_and_Peace_20160826.jpg",
+          "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a6/Hall_of_Union_and_Peace_20160826.jpg/1280px-Hall_of_Union_and_Peace_20160826.jpg",
+          "commonsPageId": 52253114,
+          "captureDate": "2016-08-26 13:46:28",
+          "transformations": [
+            "等比缩放至最长边不超过 1200px",
+            "JPEG 重新编码与压缩",
+            "移除原文件 EXIF 元数据；来源与许可保存在本清单"
+          ],
+          "croppedByProject": false,
+          "resized": true,
+          "width": 1200,
+          "height": 900,
+          "bytes": 225071,
+          "sha256": "85ee1fe16b365bcd654afef4bd20ddbdfa3d11894634d8860da3961f22759820",
+          "depicts": "交泰殿外观",
+          "match": "对应景点实拍",
+          "isGenericFallback": false,
+          "officialSummary": "交泰殿位于乾清宫与坤宁宫之间，清代曾存放二十五方宝玺，也是皇后生日接受庆贺的地方。",
+          "officialSource": "https://www.dpm.org.cn/explore/building/236467.html",
+          "artist": "そらみみ",
+          "source": "https://commons.wikimedia.org/wiki/File:Hall_of_Union_and_Peace_20160826.jpg",
+          "date": "2016-08-26 13:46:28",
+          "changes": "等比缩放至最长边不超过 1200px；JPEG 重新编码与压缩；移除原文件 EXIF 元数据；来源与许可保存在本清单"
+        }
+      }
+    }
+  ]
+}

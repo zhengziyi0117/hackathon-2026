@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Scenic package catalog",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "scenics": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]*$"
+      },
+      "minItems": 1
+    },
+    "defaultScenic": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "featuredSpot": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "closingSpot": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "scenics",
+    "defaultScenic",
+    "featuredSpot",
+    "closingSpot"
+  ],
+  "additionalProperties": false
+}

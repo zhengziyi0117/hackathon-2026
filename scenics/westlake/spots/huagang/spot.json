@@ -1,0 +1,64 @@
+{
+  "id": "huagang",
+  "name": "花港观鱼 · 御碑亭",
+  "description": "到花港观鱼，在御碑亭前停一停。石柱、灰瓦与临水园径，把西湖十景中的一处风景收进眼前。这次先从亭前的一张实拍，试着走进它的空间。",
+  "guide": "花港观鱼是西湖十景之一，位于西湖西南、苏堤南段一带。景名源于南宋时这里的私家花园与观鱼景致。园中的御碑亭内立有碑石，碑上的“花港观鱼”四字相传为清代康熙皇帝题写。今天的公园以花、港、鱼为主题，园中有红鱼池与牡丹园。",
+  "notice": "",
+  "x": 0.388,
+  "y": 0.862,
+  "photoName": "花港观鱼御碑亭 · 正面实拍",
+  "factSource": "https://wbdl.hzwbzx.cn/house?id=121",
+  "photos": {
+    "front": "front"
+  },
+  "publishedPhotos": {
+    "left": "left",
+    "rear": "rear",
+    "back": "back",
+    "top": "top",
+    "inside": "inside"
+  },
+  "sample": {
+    "reference": {
+      "angle": "front",
+      "asset": "front",
+      "kind": "real"
+    },
+    "binding": {
+      "worldId": "55dcc5ef-342c-4548-b937-6ffe6fb330ed",
+      "referenceUrl": "/assets/real/huagang.jpg"
+    },
+    "initialWorld": {
+      "kind": "pilot",
+      "label": "御碑亭实拍试点",
+      "revision": 0
+    },
+    "completion": {
+      "left": "left",
+      "rear": "rear",
+      "back": "back",
+      "top": "top",
+      "inside": "inside"
+    },
+    "worlds": [
+      {
+        "id": "single",
+        "asset": "single-world",
+        "receipt": "single-receipt",
+        "model": "marble-1.1",
+        "label": "单张实拍",
+        "short": "单图",
+        "note": "由 Marble 1.1 以一张正面实拍生成，未拍到的区域由模型推测。"
+      },
+      {
+        "id": "multi",
+        "asset": "multi-world",
+        "receipt": "multi-receipt",
+        "model": "marble-1.1",
+        "label": "实拍 + 5 张 AI 补图",
+        "short": "六图试验",
+        "note": "由 Marble 1.1 以 1 张正面实拍和 5 张经审核的 AI 补图生成，布局交给模型；补图是推测，背面与屋顶不代表实地样貌。"
+      }
+    ]
+  }
+}

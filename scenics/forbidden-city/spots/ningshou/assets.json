@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "assets": [
+    {
+      "id": "front",
+      "file": "photos/ningshou.jpg",
+      "url": "/assets/forbidden-city/real/ningshou.jpg",
+      "sha256": "32c9c1d14b2d5da46b5bffe191a0cc3f05cb2f1e55141cd6b4656a611d9bb2ed",
+      "publish": true,
+      "photo": {
+        "name": "宁寿宫区 · 皇极殿",
+        "kind": "real",
+        "credit": {
+          "id": "ningshou",
+          "name": "宁寿宫区",
+          "caption": "宁寿宫区 · 皇极殿",
+          "path": "/assets/forbidden-city/real/ningshou.jpg",
+          "author": "Gisling",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:%E7%9A%87%E6%9E%81%E6%AE%BF.JPG",
+          "license": "CC BY-SA 3.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+          "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b3/%E7%9A%87%E6%9E%81%E6%AE%BF.JPG",
+          "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b3/%E7%9A%87%E6%9E%81%E6%AE%BF.JPG/1280px-%E7%9A%87%E6%9E%81%E6%AE%BF.JPG",
+          "commonsPageId": 12609145,
+          "captureDate": "2006-10",
+          "transformations": [
+            "等比缩放至最长边不超过 1200px",
+            "JPEG 重新编码与压缩",
+            "移除原文件 EXIF 元数据；来源与许可保存在本清单"
+          ],
+          "croppedByProject": false,
+          "resized": true,
+          "width": 1200,
+          "height": 1200,
+          "bytes": 247611,
+          "sha256": "32c9c1d14b2d5da46b5bffe191a0cc3f05cb2f1e55141cd6b4656a611d9bb2ed",
+          "depicts": "宁寿宫区 · 皇极殿",
+          "match": "该景区内的代表建筑",
+          "isGenericFallback": false,
+          "officialSummary": "宁寿宫区位于内廷外东路，其中皇极殿是乾隆为归政后临朝受贺而改建的主体建筑。",
+          "officialSource": "https://www.dpm.org.cn/show/225714.html",
+          "artist": "Gisling",
+          "source": "https://commons.wikimedia.org/wiki/File:%E7%9A%87%E6%9E%81%E6%AE%BF.JPG",
+          "date": "2006-10",
+          "changes": "等比缩放至最长边不超过 1200px；JPEG 重新编码与压缩；移除原文件 EXIF 元数据；来源与许可保存在本清单"
+        }
+      }
+    }
+  ]
+}

@@ -6,9 +6,10 @@ import {validatePackage} from '../src/map3d/contract.js';
 import {createModelKit} from '../src/map3d/models.js';
 import {disposeTree} from '../src/map3d/dispose.js';
 import {createWorkspace,upgradeWorkspace,createScenicState,worldAsset} from '../src/scenic-core.js';
+import {assetFiles} from '../src/content/catalog.js';
 import {readFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
-import sources from '../public/assets/forbidden-city/real/sources.json' with {type:'json'};
+import sources from '../scenics/forbidden-city/provenance/photo-sources.json' with {type:'json'};
 const p=MAP_PACKAGES['forbidden-city'],g=p.geo;
 
 test('palace has a validated distinct package, every observation point is reachable and can exit',()=>{
@@ -61,7 +62,7 @@ test('all twelve real photos are local, attributed, licensed and hash verified',
  assert.equal(sources.images.length,12);
  for(const im of sources.images){
   assert.ok(im.author&&im.sourcePage.startsWith('https://commons.wikimedia.org/')&&im.licenseUrl.startsWith('https://creativecommons.org/'));
-  const b=await readFile(new URL('../public'+im.path,import.meta.url));
+  const b=await readFile(new URL('../'+assetFiles.get(im.path),import.meta.url));
   assert.equal(createHash('sha256').update(b).digest('hex'),im.sha256);assert.ok(b.length<310000);
  }
 });

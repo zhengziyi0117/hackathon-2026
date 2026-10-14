@@ -3,12 +3,13 @@ import {readFile,writeFile,mkdir,rename} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
 import path from 'node:path';
+import {assetFiles} from './src/content/catalog.js';
 // Local server: static dist/ plus two optional proxies that keep API keys on this machine.
 // /api/guide → Anthropic Messages API; /api/worlds → World Labs Marble. The public static site has neither and falls back.
 const root=path.dirname(fileURLToPath(import.meta.url));
 try{const env=await readFile(path.join(root,'.env'),'utf8');for(const line of env.split('\n')){const m=line.match(/^([A-Z_]+)=(.*)$/);if(m&&process.env[m[1]]===undefined)process.env[m[1]]=m[2].trim().replace(/^['"]|['"]$/g,'');}}catch{}
 const ENV=process.env,PORT=Number(ENV.PORT)||4173;
-const publicRoot=path.join(root,'public'),distRoot=path.join(root,'dist'),dataRoot=ENV.JINGJIAN_DATA_DIR||path.join(root,'data');
+const distRoot=path.join(root,'dist'),dataRoot=ENV.JINGJIAN_DATA_DIR||path.join(root,'data');
 const TYPES={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml','.json':'application/json','.wasm':'application/wasm','.txt':'text/plain; charset=utf-8'};
 const json=(res,status,data)=>{res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(JSON.stringify(data));};
 const fail=(status,message)=>Object.assign(Error(message),{status});
@@ -76,9 +77,9 @@ const EXT={'image/jpeg':'jpg','image/png':'png','image/webp':'webp'};
 async function imageBytes(src){
   const m=/^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/.exec(src||'');
   if(m){const buf=Buffer.from(m[2],'base64');if(buf.length>12*1024*1024)throw fail(400,'单张图片超过 12 MB。');return {buf,ext:EXT[m[1]]};}
-  // Built-in assets are read from public/ originals, never from outside it.
+  // Only registered package assets are accepted; never accept arbitrary repository paths.
   const asset=/^\/assets\/[\w./-]+\.(jpe?g|png|webp)$/i.exec(src||'');
-  if(asset){const file=path.resolve(publicRoot,'.'+src);if(!file.startsWith(publicRoot+path.sep))throw fail(403,'禁止访问。');
+  if(asset){const relative=assetFiles.get(src);if(!relative)throw fail(400,'找不到图片 '+src);const file=path.resolve(root,relative);if(!file.startsWith(path.join(root,'scenics')+path.sep))throw fail(403,'禁止访问。');
     try{return {buf:await readFile(file),ext:asset[1].toLowerCase().replace('jpeg','jpg')};}catch{throw fail(400,'找不到图片 '+src);}}
   throw fail(400,'图片格式不正确。');
 }

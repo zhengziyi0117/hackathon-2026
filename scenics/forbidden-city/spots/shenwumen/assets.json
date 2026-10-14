@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "assets": [
+    {
+      "id": "front",
+      "file": "photos/shenwumen.jpg",
+      "url": "/assets/forbidden-city/real/shenwumen.jpg",
+      "sha256": "f3959a59e44a706a90f374c42f0bc52c3a3939c237062fe68657f3473499f5e7",
+      "publish": true,
+      "photo": {
+        "name": "神武门与护城河夜景",
+        "kind": "real",
+        "credit": {
+          "id": "shenwumen",
+          "name": "神武门",
+          "caption": "神武门与护城河夜景",
+          "path": "/assets/forbidden-city/real/shenwumen.jpg",
+          "author": "Morio",
+          "sourcePage": "https://commons.wikimedia.org/wiki/File:Gate_of_Divine_Might_(Forbidden_City)_2015_October.jpg",
+          "license": "CC BY-SA 4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+          "originalUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b0/Gate_of_Divine_Might_%28Forbidden_City%29_2015_October.jpg",
+          "thumbnailUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b0/Gate_of_Divine_Might_%28Forbidden_City%29_2015_October.jpg/1280px-Gate_of_Divine_Might_%28Forbidden_City%29_2015_October.jpg",
+          "commonsPageId": 54826693,
+          "captureDate": "1 October 2015, Beijing, China",
+          "transformations": [
+            "等比缩放至最长边不超过 1200px",
+            "JPEG 重新编码与压缩",
+            "移除原文件 EXIF 元数据；来源与许可保存在本清单"
+          ],
+          "croppedByProject": false,
+          "resized": true,
+          "width": 1200,
+          "height": 799,
+          "bytes": 134598,
+          "sha256": "f3959a59e44a706a90f374c42f0bc52c3a3939c237062fe68657f3473499f5e7",
+          "depicts": "神武门与护城河夜景",
+          "match": "对应景点实拍",
+          "isGenericFallback": false,
+          "officialSummary": "神武门是紫禁城的北门，明代称玄武门，清代因避康熙帝名讳改为现名。",
+          "officialSource": "https://www.dpm.org.cn/explore/building/236456.html",
+          "artist": "Morio",
+          "source": "https://commons.wikimedia.org/wiki/File:Gate_of_Divine_Might_(Forbidden_City)_2015_October.jpg",
+          "date": "1 October 2015, Beijing, China",
+          "changes": "等比缩放至最长边不超过 1200px；JPEG 重新编码与压缩；移除原文件 EXIF 元数据；来源与许可保存在本清单"
+        }
+      }
+    }
+  ]
+}

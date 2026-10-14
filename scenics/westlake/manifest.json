@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "westlake",
+  "title": "西湖 · 六处风景",
+  "intro": "湖光、长堤与园林，从六处西湖十景开始；御碑亭可以 3D 漫游。",
+  "map": {
+    "package": "map/manifest.json",
+    "asset": "scroll",
+    "name": "西湖游览绘卷 · AI 插画",
+    "custom": false
+  },
+  "spots": [
+    "huagang",
+    "duanqiao",
+    "pinghu",
+    "quyuan",
+    "santan",
+    "leifeng"
+  ],
+  "seedOnUpgrade": false,
+  "legacy": {
+    "replacedMapUrls": [
+      "/assets/scenic/garden-map.png"
+    ],
+    "previousSpotIds": [
+      "pavilion",
+      "willow",
+      "bridge",
+      "lotus",
+      "corridor",
+      "landing"
+    ]
+  }
+}

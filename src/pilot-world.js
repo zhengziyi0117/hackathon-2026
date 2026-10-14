@@ -1,5 +1,5 @@
 import {escapeHTML as e} from './core.js';
-import {PILOT_SOURCE} from './scenic-places.js';
+import {defaultScenicId,settings} from './content/catalog.js';
 import {roamBounds,worldAsset,worldVariants} from './scenic-core.js';
 import {loadScenic} from './scenic-store.js';
 import {webImageUrl} from './web-images.js';
@@ -26,7 +26,7 @@ const short=s=>s.name.split(' · ')[0];
 // Either way, neighbouring spots appear in their real compass direction so the tour can continue.
 export function mountPilotWorld(host,{hydrate}){
  let disposed=false,scene,viewer;
- const params=new URLSearchParams(location.hash.split('?')[1]),sid=params.get('s')||'westlake',id=params.get('id')||'huagang',want=params.get('variant');
+ const params=new URLSearchParams(location.hash.split('?')[1]),sid=params.get('s')||defaultScenicId,id=params.get('id')||settings.featuredSpot,want=params.get('variant');
  // The studio opens this page with &heading= to check a calibration before adopting it.
  const G=geoFor(sid),previewHeading=params.has('heading')?Number(params.get('heading')):NaN;
  const q=x=>'?s='+encodeURIComponent(sid)+'&id='+encodeURIComponent(x);
@@ -58,7 +58,7 @@ export function mountPilotWorld(host,{hydrate}){
   }
   // 3D stage
   const multi=asset.id==='multi';
-  $('#pw-tools').innerHTML=`${variants.length>1?`<div class="m3-switch" role="group" aria-label="世界模型版本">${variants.map(v=>`<a class="${v===asset?'active':''}" href="#pilot${q(id)}&variant=${v.id}" title="${e(v.label)}">${e(v.short)}</a>`).join('')}</div>`:''}${guide}<details class="pw-info"><summary class="m3-chip m3-icon" aria-label="关于这个 3D 场景">${ic('info')}</summary><div><h3>关于这个 3D 场景</h3><p>${e(asset.note)}漫游范围限制在照片拍到的区域附近，范围内仍可能变形；不能用于判断实地路线。路标方向按景点真实方位标注，场景朝向为人工标定。<a href="${e(asset.receipt)}" target="_blank" rel="noopener">生成记录</a></p>${asset.generated?'':`<p>原摄影：${e(PILOT_SOURCE.artist)}，2021-01-17；景见 AI 衍生，2026-10-12。<a href="${e(PILOT_SOURCE.source)}" target="_blank" rel="noopener">原图来源</a> · <a href="${e(PILOT_SOURCE.licenseUrl)}" target="_blank" rel="noopener">CC BY-SA 4.0</a></p>`}</div></details>`;
+  $('#pw-tools').innerHTML=`${variants.length>1?`<div class="m3-switch" role="group" aria-label="世界模型版本">${variants.map(v=>`<a class="${v===asset?'active':''}" href="#pilot${q(id)}&variant=${v.id}" title="${e(v.label)}">${e(v.short)}</a>`).join('')}</div>`:''}${guide}<details class="pw-info"><summary class="m3-chip m3-icon" aria-label="关于这个 3D 场景">${ic('info')}</summary><div><h3>关于这个 3D 场景</h3><p>${e(asset.note)}漫游范围限制在照片拍到的区域附近，范围内仍可能变形；不能用于判断实地路线。路标方向按景点真实方位标注，场景朝向为人工标定。<a href="${e(asset.receipt)}" target="_blank" rel="noopener">生成记录</a></p>${asset.generated?'':`<p>原摄影：${e(photo?.credit?.artist||'')}，${e(photo?.credit?.date||'')}。<a href="${e(photo?.credit?.source||'')}" target="_blank" rel="noopener">原图来源</a> · <a href="${e(photo?.credit?.licenseUrl||'')}" target="_blank" rel="noopener">${e(photo?.credit?.license||'')}</a></p>`}</div></details>`;
   $('#pw-bottom').innerHTML=`<div class="pw-views" role="group" aria-label="视角">${VIEWS.map(([k,label])=>`<button data-view="${k}">${label}</button>`).join('')}</div>
    <div class="pw-status"><span id="pilot-status" role="status">正在载入 3D 场景…</span><span class="pw-hint">拖动环顾 · WASD 移动 · Q / E 升降</span><span id="pilot-distance">距起点 0.0 m</span></div>
    <div class="pw-pad" role="group" aria-label="漫游移动"><button data-pilot-move="up" aria-label="升高视点">${ic('chevrons-up')}</button><button data-pilot-move="forward" aria-label="向前移动">${ic('arrow-up')}</button><button data-pilot-move="down" aria-label="降低视点">${ic('chevrons-down')}</button><button data-pilot-move="left" aria-label="向左移动">${ic('arrow-left')}</button><button data-pilot-move="back" aria-label="向后移动">${ic('arrow-down')}</button><button data-pilot-move="right" aria-label="向右移动">${ic('arrow-right')}</button></div>`;

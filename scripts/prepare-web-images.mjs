@@ -1,20 +1,16 @@
-// Make delivery copies; original photographs and generated artwork remain unchanged.
-// Re-run on macOS only when the originals change. Builds use the checked-in copies.
+// Rebuild checked-in delivery copies on macOS, using each owner's declared image recipe.
 import {execFileSync} from 'node:child_process';
-import {readFile,writeFile,mkdir,stat} from 'node:fs/promises';
-import {createHash} from 'node:crypto';
-const originals=[
- 'scenic/garden-map.png',
- ...['left','rear','back','top','detail'].map(v=>`completion/huagang-${v}.png`),
- 'real/huagang.jpg','real/duanqiao.jpg','real/quyuan.jpg',
-];
-await mkdir('public/assets/web',{recursive:true});
-const entries=[];
-for(const name of originals){
- const source=`/assets/${name}`,output=`/assets/web/${name.replaceAll('/','-').replace(/\.(png|jpg)$/,'.jpg')}`;
- execFileSync('/usr/bin/sips',['-Z','1920','-s','format','jpeg','-s','formatOptions','85',`public${source}`,'--out',`public${output}`],{stdio:'ignore'});
- const hash=async p=>createHash('sha256').update(await readFile(p)).digest('hex');
- entries.push({source,output,sourceSha256:await hash(`public${source}`),outputSha256:await hash(`public${output}`),originalBytes:(await stat(`public${source}`)).size,webBytes:(await stat(`public${output}`)).size,keepOriginalInSite:name==='real/huagang.jpg'});
+import {readFile,writeFile,mkdir} from 'node:fs/promises';
+import {dirname} from 'node:path';
+import {assetRecords} from '../src/content/catalog.js';
+import {within,assetHash} from './scenic-assets.mjs';
+const manifests=new Map();
+for(const a of assetRecords.filter(a=>a.delivery)){
+ const source=within(a.base,a.file),output=within(a.base,a.delivery.file);
+ await mkdir(dirname(output),{recursive:true});
+ execFileSync('/usr/bin/sips',['-Z',String(a.delivery.maxDimension),'-s','format','jpeg','-s','formatOptions',String(a.delivery.quality),source,'--out',output],{stdio:'ignore'});
+ const file=within(a.base,'assets.json');if(!manifests.has(file))manifests.set(file,JSON.parse(await readFile(file,'utf8')));
+ const entry=manifests.get(file).assets.find(e=>e.id===a.id);entry.sha256=await assetHash(source);entry.delivery.sha256=await assetHash(output);
 }
-await writeFile('public/assets/web/manifest.json',JSON.stringify({format:'JPEG',quality:85,maxDimension:1920,changes:'Web delivery copies: resized when larger than 1920 px and JPEG-compressed; no scene or content edits.',entries},null,2)+'\n');
-console.log(JSON.stringify({originalBytes:entries.reduce((n,e)=>n+e.originalBytes,0),webBytes:entries.reduce((n,e)=>n+e.webBytes,0)}));
+for(const [file,data] of manifests)await writeFile(file,JSON.stringify(data,null,2)+'\n');
+console.log('Regenerated delivery copies for '+manifests.size+' asset manifests');

@@ -1,7 +1,5 @@
-import manifest from '../public/assets/web/manifest.json' with {type:'json'};
-
-// Resolve our bundled images to delivery copies, and stored uploads ('idb:…') to object URLs. External URLs stay intact.
-// Keep source URLs in saved drafts so provenance and pilot bindings remain stable.
-const copies=new Map(manifest.entries.map(entry=>[entry.source,entry.output]));
+import {deliveryCopies} from './content/catalog.js';
+// Keep source URLs in drafts and receipts; resolve delivery copies only at display time.
+const copies=new Map(deliveryCopies);
 export const registerImage=(ref,objectURL)=>copies.set(ref,objectURL);
 export const webImageUrl=url=>copies.get(url)||url;
