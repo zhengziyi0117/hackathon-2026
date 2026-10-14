@@ -1,11 +1,14 @@
 import * as T from 'three';
 import {createModelKit} from './models.js';
+import {createSurface} from './surface.js';
+import {createTerraces} from './terraces.js';
 import {disposeTree} from './dispose.js';
 
 // The renderer consumes geography, placement and style independently.
 export function createWorld(parent,{geo,layout,style}){
-const {GEO_FRAME,CAUSEWAYS,BRIDGES,BRIDGE,PLACES,NODES,EDGES,SPOT_GEO,landField,terrainHeight,groundHeight,hillHeight,cityAmount,distToPolyline,pointOnPolyline}=geo;
-const {U,MAT,GLOW,weatherize,glowMat,boat,TREE_GEO,landmark,traveler}=createModelKit(style);
+const {GEO_FRAME,CAUSEWAYS,BRIDGES,BRIDGE,PLACES,NODES,EDGES,SPOT_GEO,landField,hillHeight,cityAmount,distToPolyline,pointOnPolyline}=geo;
+const surface=createSurface(geo,style),{terrainHeight,groundHeight}=surface;
+const {SHAPE,U,MAT,GLOW,weatherize,glowMat,boat,TREE_GEO,landmark,traveler}=createModelKit(style);
 const MOODS=style.moods,scene=new T.Group();parent.add(scene);
 const B=GEO_FRAME.bounds,W=B.maxX-B.minX,D=B.maxZ-B.minZ,CX=(B.minX+B.maxX)/2,CZ=(B.minZ+B.maxZ)/2;
 const rng=(seed=7)=>()=>{seed=(seed*16807)%2147483647;return (seed-1)/2147483646;};
@@ -19,7 +22,7 @@ function landTexture(res=layout.quality.landTextureResolution){
 function terrain(){
  const seg=layout.quality.terrainSegments,g=new T.PlaneGeometry(W,D,seg,seg);g.rotateX(-Math.PI/2);g.translate(CX,0,CZ);
  const p=g.attributes.position,col=[],grass=[],land=new Float32Array(p.count);
- for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getZ(i),l=landField(x,z);land[i]=l;p.setY(i,terrainHeight(x,z,l));}
+ for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getZ(i),l=landField(x,z);land[i]=l;p.setY(i,surface.baseHeight(x,z,l));}
  g.computeVertexNormals();const n=g.attributes.normal;
  const {sand,lawn,meadow,forest,rock,bed,bedDeep,city}=Object.fromEntries(Object.entries(style.terrain).map(([k,v])=>[k,C(v)])),tmp=new T.Color();
  for(let i=0;i<p.count;i++){
@@ -35,7 +38,7 @@ function terrain(){
  }
  g.setAttribute('color',new T.Float32BufferAttribute(col,3));g.setAttribute('aGrass',new T.Float32BufferAttribute(grass,1));
  const m=new T.Mesh(g,weatherize(new T.MeshStandardMaterial({vertexColors:true,roughness:.95,flatShading:style.surface.flatTerrain}),{tint:true,key:'terrain'}));m.receiveShadow=true;m.name='terrain';
- return m;
+ return surface.tiles.length?new T.Group().add(m,createTerraces(surface,geo,style,weatherize)):m;
 }
 // Strata skirt around the diorama slab.
 function skirt(){
@@ -110,11 +113,11 @@ function vegetation(spotPoints){
   const x=cx+(rand()-.5)*r*2,z=cz+(rand()-.5)*r*2,l=landField(x,z);if(l<.05||nearPath(x,z,.14)||rand()>.32)continue;kinds[rand()<.45?'willow':'round'].push([x,z,.42+rand()*.18,rand(),true]);
  }
  const meshes={},dummy=new T.Object3D(),trunkGeo=TREE_GEO.trunk(),trunks=[];
- const leafMat={round:weatherize(new T.MeshStandardMaterial({roughness:.9,flatShading:true}),{key:'leaf'}),conifer:weatherize(new T.MeshStandardMaterial({roughness:.9,flatShading:true}),{key:'leaf'}),
-  willow:weatherize(new T.MeshStandardMaterial({roughness:.85}),{sway:.05,key:'willow'}),peach:weatherize(new T.MeshStandardMaterial({roughness:.85,flatShading:true}),{key:'leaf'})};
+ const leafMat={round:weatherize(new T.MeshStandardMaterial({roughness:style.surface.roughness??.9,flatShading:style.geometry!=='adventure'&&style.geometry!=='bricks'}),{key:'leaf'}),conifer:weatherize(new T.MeshStandardMaterial({roughness:style.surface.roughness??.9,flatShading:style.geometry!=='adventure'&&style.geometry!=='bricks'}),{key:'leaf'}),
+  willow:weatherize(new T.MeshStandardMaterial({roughness:style.surface.roughness??.85}),{sway:SHAPE.playful?0:.05,key:'willow'}),peach:weatherize(new T.MeshStandardMaterial({roughness:style.surface.roughness??.85,flatShading:style.geometry!=='adventure'&&style.geometry!=='bricks'}),{key:'leaf'})};
  for(const [kind,list] of Object.entries(kinds)){
   const m=new T.InstancedMesh(TREE_GEO[kind](),leafMat[kind],list.length);m.castShadow=true;m.receiveShadow=true;
-  list.forEach(([x,z,s,r],i)=>{dummy.position.set(x,terrainHeight(x,z)-.02,z);dummy.rotation.set(0,r*6.28,0);dummy.scale.setScalar(s*(kind==='willow'?.9:1));dummy.updateMatrix();m.setMatrixAt(i,dummy.matrix);if(kind!=='conifer')trunks.push(dummy.matrix.clone());});
+  list.forEach(([x,z,s,r],i)=>{dummy.position.set(x,terrainHeight(x,z)-.02,z);dummy.rotation.set(0,style.geometry==='voxel'?Math.round(r*4)*Math.PI/2:r*6.28,0);dummy.scale.setScalar(s*(kind==='willow'?.9:1));dummy.updateMatrix();m.setMatrixAt(i,dummy.matrix);if(kind!=='conifer')trunks.push(dummy.matrix.clone());});
   m.userData.list=list;meshes[kind]=m;out.push(m);
  }
  const tm=new T.InstancedMesh(trunkGeo,MAT.woodDark,trunks.length);trunks.forEach((mx,i)=>tm.setMatrixAt(i,mx));tm.castShadow=true;out.push(tm);
@@ -146,13 +149,13 @@ function city(){
   (l<2.6||rand()<.25?houses:blocks).push([px,pz,rand(),l]);
  }
  const d=new T.Object3D(),tint=new T.Color(),out=new T.Group();
- const body=new T.BoxGeometry(.32,.2,.24).translate(0,.1,0),roof=new T.CylinderGeometry(.19,.19,.36,3,1).rotateZ(Math.PI/2).rotateX(-Math.PI/2).scale(1,.42,1).translate(0,.24,0);
+ const body=SHAPE.box(.32,.2,.24).translate(0,.1,0),roof=SHAPE.houseRoof()||new T.CylinderGeometry(.19,.19,.36,3,1).rotateZ(Math.PI/2).rotateX(-Math.PI/2).scale(1,.42,1).translate(0,.24,0);
  const hm=new T.InstancedMesh(body,MAT.wall,houses.length),rm=new T.InstancedMesh(roof,MAT.roofCity,houses.length);
  houses.forEach(([x,z,r],i)=>{const s=1.2+r*.6;d.position.set(x,terrainHeight(x,z)-.01,z);d.rotation.set(0,r>.5?.08:Math.PI/2+.08,0);d.scale.set(s,.8+r*.5,s);d.updateMatrix();hm.setMatrixAt(i,d.matrix);rm.setMatrixAt(i,d.matrix);
-  hm.setColorAt(i,tint.set(['#f6f2e9','#efe8da','#f8f5ee'][Math.floor(r*631)%3]));rm.setColorAt(i,tint.set(style.geometry==='folded-paper'?style.materials.roof:['#5d6670','#6b747d','#545c66'][Math.floor(r*997)%3]));});
- const block=new T.BoxGeometry(.5,.5,.4).translate(0,.25,0),bm=new T.InstancedMesh(block,MAT.wall,blocks.length);
+  hm.setColorAt(i,tint.set(SHAPE.playful?[style.materials.wall,style.materials.stone,'#f2c99b'][Math.floor(r*631)%3]:['#f6f2e9','#efe8da','#f8f5ee'][Math.floor(r*631)%3]));rm.setColorAt(i,tint.set(style.geometry!=='classic'?style.materials.roof:['#5d6670','#6b747d','#545c66'][Math.floor(r*997)%3]));});
+ const block=SHAPE.cityBlock(),bm=new T.InstancedMesh(block,MAT.wall,blocks.length);
  blocks.forEach(([x,z,r,l],i)=>{const tall=l>5&&r>.82,h=tall?2.4+r*2.6:.7+r*1.1;d.position.set(x,terrainHeight(x,z)-.01,z);d.rotation.set(0,.08,0);d.scale.set(tall?.8:1+r*.5,h,tall?.8:1);d.updateMatrix();bm.setMatrixAt(i,d.matrix);
-  bm.setColorAt(i,tint.set(tall?['#dfe4e8','#cfd8de','#e8e4dc'][Math.floor(r*313)%3]:['#ece6da','#e4ddd0','#f1ede5','#d9d4ca'][Math.floor(r*419)%4]));});
+  bm.setColorAt(i,tint.set(SHAPE.playful?[style.materials.wall,'#f1d6ae','#bbd2c4','#d6c6ac'][Math.floor(r*419)%4]:tall?['#dfe4e8','#cfd8de','#e8e4dc'][Math.floor(r*313)%3]:['#ece6da','#e4ddd0','#f1ede5','#d9d4ca'][Math.floor(r*419)%4]));});
  for(const m of [hm,rm,bm]){m.castShadow=m.receiveShadow=true;out.add(m);}
  // Lit windows at night: a band per house, a few rows per block.
  const lit=[...houses.map(h=>[...h,0]),...blocks.map(b=>[...b,1])],win=new T.InstancedMesh(new T.BoxGeometry(1,1,1),glowMat('#ffcf7a',0,2.4,'#8d99a3'),lit.length);
@@ -273,7 +276,7 @@ function build(){
  const fall=(pts,t,dt,kind)=>{const p=pts.geometry.attributes.position,seed=pts.geometry.userData.seed;if(pts.material.opacity<.01)return;
   for(let i=0;i<p.count;i++){let y=p.getY(i)-dt*(kind==='snow'?.9+seed[i]*.6:.35+seed[i]*.3);if(y<0)y+=14;p.setY(i,y);if(kind==='petal'){p.setX(i,p.getX(i)+Math.sin(t*.8+seed[i]*20)*dt*.6+dt*.25);}else p.setX(i,p.getX(i)+Math.sin(t+seed[i]*30)*dt*.15);}p.needsUpdate=true;};
  return {
-  terrain:ter,water:wat,spots:lm.spots,moon,createTraveler(){const h=traveler();scene.add(h);return h;},dispose(){disposeTree(scene);},get night(){return mood.night;},
+  terrain:ter,water:wat,terrainHeight,groundHeight,spots:lm.spots,moon,createTraveler(){const h=traveler();scene.add(h);return h;},dispose(){disposeTree(scene);},get night(){return mood.night;},
   setMood(id,immediate=false){if(!MOODS[id])return;to=structuredClone(MOODS[id]);from=structuredClone(mood);blend=immediate?1:0;if(immediate){mood=to;apply(mood);}},
   update(t,dt,renderer){
    U.uTime.value=t;

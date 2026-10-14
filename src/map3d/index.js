@@ -28,7 +28,7 @@ export function mountMap3D(host,{hydrate,toast}){
  const pkg=mapPackageFor(sid);
  if(!pkg){host.innerHTML='<p>此景区暂未提供三维底图。<a href="#map?s='+encodeURIComponent(sid)+'&view=scroll">查看绘卷</a></p>';return()=>{};}
  const {geo,layout,interaction:rules}=pkg;
- const {NODES,SPOT_GEO,walkable,terrainHeight,groundHeight,landField,shortestPath,nearestNode,neighboursOf,compassName,GEO_FRAME}=geo;
+ const {NODES,SPOT_GEO,walkable,landField,shortestPath,nearestNode,neighboursOf,compassName,GEO_FRAME}=geo;
  let saved=null;try{saved=JSON.parse(sessionStorage.getItem(SESSION)||'null');}catch{}
  let style=styleFor(pkg,params.get('style')||saved?.style);
  const MOODS=style.moods;
@@ -71,6 +71,7 @@ export function mountMap3D(host,{hydrate,toast}){
  renderer.toneMapping=T.ACESFilmicToneMapping;renderer.outputColorSpace=T.SRGBColorSpace;stage.append(renderer.domElement);
  const scene=new T.Scene(),camera=new T.PerspectiveCamera(rules.camera.fov,1,.5,900);
  let world=createWorld(scene,{geo,layout,style});
+ const terrainHeight=(...at)=>world.terrainHeight(...at),groundHeight=(...at)=>world.groundHeight(...at);
  const composer=new EffectComposer(renderer),bloom=new UnrealBloomPass(new T.Vector2(1,1),.55,.55,.9),tilt=new ShaderPass(TiltShift);
  composer.addPass(new RenderPass(scene,camera));composer.addPass(bloom);composer.addPass(tilt);composer.addPass(new OutputPass());
  const resize=()=>{const w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;renderer.setSize(w,h);composer.setSize(w,h);composer.setPixelRatio(renderer.getPixelRatio());camera.aspect=w/h;camera.updateProjectionMatrix();tilt.uniforms.uRes.value.set(w,h);};
@@ -195,7 +196,8 @@ export function mountMap3D(host,{hydrate,toast}){
   $$('[data-map-style]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mapStyle===style.id)));
   $('#m3').dataset.style=style.id;
   params.set('style',style.id);history.replaceState(null,'',location.pathname+location.search+'#map?'+params);
-  persist();if(selected)openCard(selected);
+  PLACE_LABELS.forEach((p,i)=>p.y=Math.max(.2,terrainHeight(...p.at))+layout.labels[i].lift);
+  drawRoute();persist();if(selected)openCard(selected);
  }
  $$('[data-map-style]').forEach(b=>b.onclick=()=>setStyle(b.dataset.mapStyle));
  $('#m3-style-picker').addEventListener('keydown',ev=>{if(ev.key==='Escape'){$('#m3-style-picker').open=false;$('#m3-style-picker summary').focus();}});
@@ -222,8 +224,8 @@ export function mountMap3D(host,{hydrate,toast}){
   const r=el.getBoundingClientRect();ndc.set((ev.clientX-r.left)/r.width*2-1,-(ev.clientY-r.top)/r.height*2+1);ray.setFromCamera(ndc,camera);
   const lm=ray.intersectObjects(Object.values(world.spots).map(s=>s.object),true)[0];
   if(lm?.object.userData.spot&&spots.some(s=>s.id===lm.object.userData.spot))return selectSpot(lm.object.userData.spot,true);
-  const hit=ray.intersectObjects([world.water,world.terrain],false)[0];if(!hit)return;
-  let {x,z}=hit.point;if(hit.object===world.water&&landField(x,z)>0){const t=ray.intersectObject(world.terrain)[0];if(t)({x,z}=t.point);}
+  const hit=ray.intersectObjects([world.water,world.terrain],true)[0];if(!hit)return;
+  let {x,z}=hit.point;if(hit.object===world.water&&landField(x,z)>0){const t=ray.intersectObject(world.terrain,true)[0];if(t)({x,z}=t.point);}
   ripple(x,z);walkTo(x,z);
  }
  const ripples=[];

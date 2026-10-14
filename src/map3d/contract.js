@@ -26,11 +26,12 @@ export const CONTRACTS={
   vegetation:object({seed:num,attempts:{type:'integer',minimum:1,maximum:20000},islands:array(tuple(num,num,positive))}),city:object({seed:num}),
   lotus:object({at:xy,seed:num,attempts:{type:'integer',minimum:1,maximum:10000},maxPads:{type:'integer',minimum:1,maximum:2000}}),pond:object({at:xy,radius:positive,koi:{type:'integer',minimum:0,maximum:100}}),boatLoops:array(tuple(xy,positive,positive)),quality}),
  interaction:object({schemaVersion:version,id,mapId:id,startNode:str,defaultMood:enumeration('spring','summer','dusk','autumn','winter'),avatar:object({scale:positive,keyboardSpeed:positive,walkSpeed:positive,boatSpeed:positive,arrivalRadius:positive}),routing:object({boatCostMultiplier:positive,walkMetersPerMinute:positive,boatMetersPerMinute:positive,straightSampleStep:positive}),movement:object({boundsPadding:nonnegative,minLand:nonnegative,maxTerrainHeight:positive}),camera:object({fov:{type:'number',minimum:10,maximum:100},intro:pose,home:pose,minDistance:positive,maxDistance:positive,minPhi:positive,maxPhi:positive})}),
- style:object({schemaVersion:version,id,name:str,description:str,swatches:tuple(color,color,color),geometry:enumeration('classic','folded-paper'),terrain:object(Object.fromEntries(['sand','lawn','meadow','forest','rock','bed','bedDeep','city'].map(k=>[k,color]))),
+ style:object({schemaVersion:version,id,name:str,description:str,swatches:tuple(color,color,color),geometry:enumeration('classic','folded-paper','voxel','bricks','adventure'),terrain:object(Object.fromEntries(['sand','lawn','meadow','forest','rock','bed','bedDeep','city'].map(k=>[k,color]))),
   treePalette:object(Object.fromEntries(['round','conifer','willow','peach'].map(k=>[k,object({green:array(color,1),autumn:array(color,1),winter:array(color,1),blossom:array(color,1)},k==='peach'?[]:['blossom'])]))),
   strata:array(tuple({type:'number',minimum:0,maximum:1},color),2),base:color,path:color,
   materials:object(Object.fromEntries(['stone','stoneDark','wall','wood','woodDark','roof','roofCity','roofBronze','gold','pagoda','hull','awning','skin','robe','hair','umbrella'].map(k=>[k,color]))),
-  surface:object({paperGrain:nonnegative,roughness:oneOf({type:'number',minimum:0,maximum:1},{type:'null'}),flatTerrain:bool,contours:nonnegative}),water:object({waves:nonnegative,specular:nonnegative,grain:nonnegative,pond:color}),post:object({bloomDay:nonnegative,bloomNight:nonnegative,tilt:nonnegative}),moods:object(Object.fromEntries(['spring','summer','dusk','autumn','winter'].map(k=>[k,mood])))})
+  landform:object({cell:{type:'number',minimum:.2,maximum:.6},step:{type:'number',minimum:.1,maximum:.4},minHeight:{type:'number',minimum:.35,maximum:1}}),
+  surface:object({paperGrain:nonnegative,roughness:oneOf({type:'number',minimum:0,maximum:1},{type:'null'}),flatTerrain:bool,contours:nonnegative}),water:object({waves:nonnegative,specular:nonnegative,grain:nonnegative,pond:color}),post:object({bloomDay:nonnegative,bloomNight:nonnegative,tilt:nonnegative}),moods:object(Object.fromEntries(['spring','summer','dusk','autumn','winter'].map(k=>[k,mood])))},['landform'])
 };
 // Implements only the schema vocabulary emitted above; no executable code is accepted in map files.
 export function schemaErrors(schema,value,path='$'){
@@ -89,6 +90,7 @@ export function validatePackage(pkg,styles){
  if(!m.styles.includes(m.defaultStyle))errors.push('manifest.defaultStyle: not in styles');
  for(const id of m.styles){if(!styles[id]||styles[id].id!==id)errors.push('manifest.styles: missing style '+id);}
  for(const [id,s] of Object.entries(styles)){
+  if(['voxel','bricks'].includes(s.geometry)&&!s.landform)errors.push('styles.'+id+'.landform: terraced geometry requires a bounded surface profile');
   const bands=s.strata.map(b=>b[0]);if(bands[0]!==0||bands.at(-1)!==1||bands.some((b,i)=>i&&b<=bands[i-1]))errors.push('styles.'+id+'.strata: must ascend from 0 to 1');
  }
  return errors;

@@ -40,7 +40,10 @@
     "geometry": {
       "enum": [
         "classic",
-        "folded-paper"
+        "folded-paper",
+        "voxel",
+        "bricks",
+        "adventure"
       ]
     },
     "terrain": {
@@ -389,6 +392,32 @@
         "robe",
         "hair",
         "umbrella"
+      ],
+      "additionalProperties": false
+    },
+    "landform": {
+      "type": "object",
+      "properties": {
+        "cell": {
+          "type": "number",
+          "minimum": 0.2,
+          "maximum": 0.6
+        },
+        "step": {
+          "type": "number",
+          "minimum": 0.1,
+          "maximum": 0.4
+        },
+        "minHeight": {
+          "type": "number",
+          "minimum": 0.35,
+          "maximum": 1
+        }
+      },
+      "required": [
+        "cell",
+        "step",
+        "minHeight"
       ],
       "additionalProperties": false
     },

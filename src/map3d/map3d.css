@@ -129,3 +129,10 @@
 .m3-style-picker summary:focus-visible,.m3-style-menu button:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 @media(max-width:760px){.m3-style-picker{position:absolute;right:0;top:46px}.m3-style-picker summary{height:34px;padding:0 11px;font-size:11px}.m3-style-menu{top:41px}.m3-osm{top:99px;font-size:8px}.m3-title h1{font-size:20px;letter-spacing:2px}}
 @media(prefers-reduced-motion:reduce){.m3-style-menu{animation:none}}
+
+.m3-style-menu{max-height:calc(100dvh - 150px);overflow-y:auto;overscroll-behavior:contain}
+.m3[data-style=voxel]:not(.m3-dark){--paper:rgba(248,247,227,.88);--ink:#304932;--gold:#aa833d}
+.m3[data-style=bricks]:not(.m3-dark){--paper:rgba(255,249,235,.88);--ink:#31545b;--gold:#d49739}
+.m3[data-style=adventure]:not(.m3-dark){--paper:rgba(249,252,236,.88);--ink:#34584f;--gold:#d69852}
+
+@media(max-width:380px){.m3-title{gap:8px}.m3-title h1{font-size:17px;letter-spacing:1px;white-space:nowrap}.m3-title small{font-size:8px;letter-spacing:1px;white-space:nowrap}.m3-switch a{padding:8px 10px;font-size:10px}.m3-title .m3-chip{width:34px;height:34px;min-width:34px}.m3-style-picker{top:42px}}
