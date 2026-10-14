@@ -1,30 +1,27 @@
 import * as T from 'three';
-import {GEO_FRAME,CAUSEWAYS,BRIDGES,BRIDGE,PLACES,NODES,EDGES,SPOT_GEO,landField,terrainHeight,groundHeight,hillHeight,cityAmount,distToPolyline,pointOnPolyline} from '../westlake-geo.js';
-import {U,MAT,GLOW,weatherize,glowMat,pavilion,pagoda,stoneLantern,archBridge,boat,TREE_GEO} from './models.js';
+import {createModelKit} from './models.js';
+import {disposeTree} from './dispose.js';
 
-// Moods are named after the West Lake Ten Scenes they evoke. All values are blended when switching.
-export const MOODS={
- spring:{name:'苏堤春晓',short:'春晓',sky:['#8fc0e6','#f6e7d8','#e9dccb'],fog:'#efe3d6',sun:{dir:[-.5,.75,.42],color:'#fff1dc',i:2.6},hemi:['#d6ecff','#8a9a6a',.9],water:['#79c3bd','#2f7f8e'],grass:'#ffffff',snow:0,night:0,blossom:1,autumn:0,lotus:.35,exposure:1,petals:1,flakes:0,stars:0,moon:0,cloud:'#ffffff'},
- summer:{name:'曲院风荷',short:'夏荷',sky:['#5fa9e3','#e7f2f2','#d9e7e2'],fog:'#dfeee9',sun:{dir:[.35,.85,.3],color:'#fff7e6',i:3},hemi:['#cfe8ff','#6f8a52',.95],water:['#5fc0b6','#1f7184'],grass:'#d9f0c4',snow:0,night:0,blossom:0,autumn:0,lotus:1,exposure:1.02,petals:0,flakes:0,stars:0,moon:0,cloud:'#ffffff'},
- dusk:{name:'雷峰夕照',short:'夕照',sky:['#5a6aa8','#ffb27a','#e48a68'],fog:'#f0a882',sun:{dir:[.85,.22,.2],color:'#ffb070',i:2.8},hemi:['#ffc9a0','#5b4a5a',.75],water:['#e0a07e','#3f5a7e'],grass:'#ffd9a8',snow:0,night:.38,blossom:0,autumn:.25,lotus:.6,exposure:.98,petals:0,flakes:0,stars:.1,moon:0,cloud:'#ffd2b8'},
- autumn:{name:'平湖秋月',short:'秋月',sky:['#0b1430','#2b3f6e','#18223e'],fog:'#22325a',sun:{dir:[-.35,.55,-.6],color:'#bcd2ff',i:.85},hemi:['#5d76b8','#1d2236',.55],water:['#2c5070','#0c1c34'],grass:'#c7b98a',snow:0,night:1,blossom:0,autumn:1,lotus:.45,exposure:1.05,petals:0,flakes:0,stars:1,moon:1,cloud:'#7d8fbd'},
- winter:{name:'断桥残雪',short:'残雪',sky:['#a9bccb','#eef1f2','#dfe5e8'],fog:'#e7ecef',sun:{dir:[-.3,.6,.55],color:'#f4f6ff',i:1.9},hemi:['#e8f0ff','#9aa3a8',1.05],water:['#8fb3b5','#4d7280'],grass:'#d6d9c8',snow:1,night:.08,blossom:0,autumn:.5,lotus:.08,exposure:1,petals:0,flakes:1,stars:0,moon:0,cloud:'#ffffff'},
-};
+// The renderer consumes geography, placement and style independently.
+export function createWorld(parent,{geo,layout,style}){
+const {GEO_FRAME,CAUSEWAYS,BRIDGES,BRIDGE,PLACES,NODES,EDGES,SPOT_GEO,landField,terrainHeight,groundHeight,hillHeight,cityAmount,distToPolyline,pointOnPolyline}=geo;
+const {U,MAT,GLOW,weatherize,glowMat,boat,TREE_GEO,landmark,traveler}=createModelKit(style);
+const MOODS=style.moods,scene=new T.Group();parent.add(scene);
 const B=GEO_FRAME.bounds,W=B.maxX-B.minX,D=B.maxZ-B.minZ,CX=(B.minX+B.maxX)/2,CZ=(B.minZ+B.maxZ)/2;
 const rng=(seed=7)=>()=>{seed=(seed*16807)%2147483647;return (seed-1)/2147483646;};
 const C=c=>new T.Color(c);
 
-function landTexture(res=384){
+function landTexture(res=layout.quality.landTextureResolution){
  const data=new Uint8Array(res*res);
  for(let j=0;j<res;j++)for(let i=0;i<res;i++){const x=B.minX+(i+.5)/res*W,z=B.minZ+(j+.5)/res*D;data[j*res+i]=Math.round((Math.max(-3,Math.min(1,landField(x,z)))+3)/4*255);}
  const tex=new T.DataTexture(data,res,res,T.RedFormat,T.UnsignedByteType);tex.magFilter=tex.minFilter=T.LinearFilter;tex.needsUpdate=true;return tex;
 }
 function terrain(){
- const seg=230,g=new T.PlaneGeometry(W,D,seg,seg);g.rotateX(-Math.PI/2);g.translate(CX,0,CZ);
+ const seg=layout.quality.terrainSegments,g=new T.PlaneGeometry(W,D,seg,seg);g.rotateX(-Math.PI/2);g.translate(CX,0,CZ);
  const p=g.attributes.position,col=[],grass=[],land=new Float32Array(p.count);
  for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getZ(i),l=landField(x,z);land[i]=l;p.setY(i,terrainHeight(x,z,l));}
  g.computeVertexNormals();const n=g.attributes.normal;
- const sand=C('#e3d6b3'),lawn=C('#93b86b'),meadow=C('#a9c477'),forest=C('#5f8a4c'),rock=C('#9b9581'),bed=C('#6e9f93'),bedDeep=C('#2f5f66'),city=C('#d9d1bf'),tmp=new T.Color();
+ const {sand,lawn,meadow,forest,rock,bed,bedDeep,city}=Object.fromEntries(Object.entries(style.terrain).map(([k,v])=>[k,C(v)])),tmp=new T.Color();
  for(let i=0;i<p.count;i++){
   const x=p.getX(i),z=p.getZ(i),l=land[i],y=p.getY(i),slope=1-n.getY(i);let gr=0;
   if(l<0)tmp.copy(bed).lerp(bedDeep,Math.min(1,-l/2));
@@ -37,19 +34,19 @@ function terrain(){
   col.push(tmp.r,tmp.g,tmp.b);grass.push(gr);
  }
  g.setAttribute('color',new T.Float32BufferAttribute(col,3));g.setAttribute('aGrass',new T.Float32BufferAttribute(grass,1));
- const m=new T.Mesh(g,weatherize(new T.MeshStandardMaterial({vertexColors:true,roughness:.95}),{tint:true,key:'terrain'}));m.receiveShadow=true;m.name='terrain';
+ const m=new T.Mesh(g,weatherize(new T.MeshStandardMaterial({vertexColors:true,roughness:.95,flatShading:style.surface.flatTerrain}),{tint:true,key:'terrain'}));m.receiveShadow=true;m.name='terrain';
  return m;
 }
 // Strata skirt around the diorama slab.
 function skirt(){
  const ring=[],steps=120;
  for(let s=0;s<4;s++)for(let i=0;i<steps;i++){const t=i/steps;ring.push(s===0?[B.minX+t*W,B.minZ]:s===1?[B.maxX,B.minZ+t*D]:s===2?[B.maxX-t*W,B.maxZ]:[B.minX,B.maxZ-t*D]);}
- const bands=[[0,'#7a5b3f'],[.12,'#9b7a55'],[.32,'#b8996d'],[.38,'#8c6c4c'],[.6,'#a58560'],[.66,'#735640'],[1,'#4a3a2c']],rows=bands.length,pos=[],col=[],idx=[],bottom=-3.4;
+ const bands=style.strata,rows=bands.length,pos=[],col=[],idx=[],bottom=-3.4;
  ring.forEach(([x,z])=>{const top=Math.max(.06,terrainHeight(x,z));for(const [f,c] of bands){pos.push(x,top+(bottom-top)*f,z);const k=C(c);col.push(k.r,k.g,k.b);}});
  for(let i=0;i<ring.length;i++){const a=i*rows,b=((i+1)%ring.length)*rows;for(let r=0;r<rows-1;r++)idx.push(a+r,a+r+1,b+r,b+r,a+r+1,b+r+1);}
  const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(pos,3));g.setAttribute('color',new T.Float32BufferAttribute(col,3));g.setIndex(idx);g.computeVertexNormals();
  const m=new T.Mesh(g,new T.MeshStandardMaterial({vertexColors:true,roughness:1,side:T.DoubleSide}));
- const base=new T.Mesh(new T.BoxGeometry(W,.01,D),new T.MeshStandardMaterial({color:'#3f3126'}));base.position.set(CX,bottom,CZ);
+ const base=new T.Mesh(new T.BoxGeometry(W,.01,D),new T.MeshStandardMaterial({color:style.base}));base.position.set(CX,bottom,CZ);
  return new T.Group().add(m,base);
 }
 function water(landTex){
@@ -65,10 +62,10 @@ void main(){
  float land=texture2D(uLand,(vW.xz-uMin)/uSize).r*4.-3.;if(land>.015)discard;
  float depth=clamp(-land/2.4,0.,1.);vec3 col=mix(uShallow,uDeep,smoothstep(0.,1.,depth));
  vec2 e=vec2(.06,0.);float h0=waves(vW.xz),hx=waves(vW.xz+e.xy),hz=waves(vW.xz+e.yx);
- vec3 N=normalize(vec3((h0-hx)*mix(3.,1.6,uNight),1.,(h0-hz)*mix(3.,1.6,uNight)));vec3 V=normalize(cameraPosition-vW);
+ vec3 N=normalize(vec3((h0-hx)*mix(3.,1.6,uNight)*${style.water.waves.toFixed(3)},1.,(h0-hz)*mix(3.,1.6,uNight)*${style.water.waves.toFixed(3)}));vec3 V=normalize(cameraPosition-vW);
  float fres=pow(1.-max(dot(N,V),0.),4.);col=mix(col,uSky,fres*.55+.08);
- vec3 H=normalize(normalize(uSunDir)+V);float spec=pow(max(dot(N,H),0.),mix(220.,700.,uNight));col+=uSunCol*spec*mix(1.6,.6,uNight);
- float sparkle=step(.99,noise(vW.xz*18.+uTime*.8))*smoothstep(.2,.9,depth)*(1.-uNight)*.35;col+=sparkle;
+ vec3 H=normalize(normalize(uSunDir)+V);float spec=pow(max(dot(N,H),0.),mix(220.,700.,uNight));col+=uSunCol*spec*mix(1.6,.6,uNight)*${style.water.specular.toFixed(3)};
+ float sparkle=step(.99,noise(vW.xz*18.+uTime*.8))*smoothstep(.2,.9,depth)*(1.-uNight)*.35;col+=sparkle*${style.water.specular.toFixed(3)};col+=(hash(floor(vW.xz*180.))-.5)*${style.water.grain.toFixed(3)};
  float shore=1.-smoothstep(0.,.32,-land);float band=.5+.5*sin(-land*34.-uTime*2.2+noise(vW.xz*2.)*5.);
  col=mix(col,mix(vec3(1.),vec3(.55,.66,.9),uNight),shore*(.35+.45*band)*(1.-uSnow*.3)*mix(1.,.45,uNight));
  gl_FragColor=vec4(col,mix(.78,.94,depth));
@@ -86,15 +83,15 @@ function paths(){
   v=pos.length/3;
  }
  const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(pos,3));g.setIndex(idx);g.computeVertexNormals();
- const m=new T.Mesh(g,weatherize(new T.MeshStandardMaterial({color:'#efe4c9',roughness:1,polygonOffset:true,polygonOffsetFactor:-2}),{key:'path'}));m.receiveShadow=true;return m;
+ const m=new T.Mesh(g,weatherize(new T.MeshStandardMaterial({color:style.path,roughness:1,polygonOffset:true,polygonOffsetFactor:-2}),{key:'path'}));m.receiveShadow=true;return m;
 }
 function nearPath(x,z,r){
  for(const e of EDGES){const d=distToPolyline(x,z,[NODES[e.a],NODES[e.b]]).d;if(d<r)return true;}return false;
 }
 function vegetation(spotPoints){
- const rand=rng(11),out=[],kinds={round:[],conifer:[],willow:[],peach:[]};
+ const rand=rng(layout.vegetation.seed),out=[],kinds={round:[],conifer:[],willow:[],peach:[]};
  const clear=(x,z)=>spotPoints.some(([sx,sz])=>Math.hypot(sx-x,sz-z)<1.05);
- for(let i=0;i<9000;i++){
+ for(let i=0;i<layout.vegetation.attempts;i++){
   const x=B.minX+.5+rand()*(W-1),z=B.minZ+.5+rand()*(D-1),l=landField(x,z);if(l<.3||(cityAmount(x,z)>.3&&rand()>.07)||clear(x,z)||nearPath(x,z,.3))continue;
   const h=hillHeight(x,z),p=h>.6?.5:l>1.2?.11:.05;if(rand()>p)continue;
   kinds[h>.9&&rand()<.55?'conifer':'round'].push([x,z,.75+rand()*.6,rand(),l<1.6]);
@@ -109,7 +106,7 @@ function vegetation(spotPoints){
   }
  }
  // Narrow islands (Xiaoyingzhou's ring, Huxinting, Ruangongdun) are too thin for the random pass above.
- for(const [cx,cz,r] of [[...PLACES.xiaoyingzhou,2.4],[...PLACES.huxin,.8],[...PLACES.ruangong,.8]])for(let i=0;i<500;i++){
+ for(const [cx,cz,r] of layout.vegetation.islands)for(let i=0;i<500;i++){
   const x=cx+(rand()-.5)*r*2,z=cz+(rand()-.5)*r*2,l=landField(x,z);if(l<.05||nearPath(x,z,.14)||rand()>.32)continue;kinds[rand()<.45?'willow':'round'].push([x,z,.42+rand()*.18,rand(),true]);
  }
  const meshes={},dummy=new T.Object3D(),trunkGeo=TREE_GEO.trunk(),trunks=[];
@@ -124,12 +121,7 @@ function vegetation(spotPoints){
  return {group:new T.Group().add(...out),meshes};
 }
 // Seasonal canopy colours. Each instance keeps a random r for variety.
-const PALETTE={
- round:{green:['#6f9e4f','#86b25a','#5b8c48','#9bbf63'],autumn:['#d9772e','#e8a83a','#b9462c','#c98d3a'],winter:['#b8b2a2','#a49c8b']},
- conifer:{green:['#3f6e48','#4d7d4f','#355f42'],autumn:['#4d6b40','#5e7444'],winter:['#5e7466','#6b7d70']},
- willow:{green:['#9cc45a','#b3d16a','#8db64f'],autumn:['#c9b14a','#d6c060'],winter:['#b3ae8c','#c2bfa4']},
- peach:{green:['#7fae55','#90b95c'],blossom:['#f5a9be','#f7c1cf','#ee8fab','#fbd3dc'],autumn:['#d28a3d','#c9a04a'],winter:['#b9a99c','#a8998d']},
-};
+const PALETTE=style.treePalette;
 function paintTrees(meshes,m){
  const c=new T.Color(),a=new T.Color(),w=new T.Color(),b=new T.Color();
  for(const [kind,mesh] of Object.entries(meshes)){
@@ -147,7 +139,7 @@ function paintTrees(meshes,m){
 }
 // Hubin and the north-east: low white-walled houses by the lake, mid-rise blocks behind, a few towers at the back.
 function city(){
- const rand=rng(5),houses=[],blocks=[];
+ const rand=rng(layout.city.seed),houses=[],blocks=[];
  for(let x=B.minX+.8;x<B.maxX-.6;x+=.9)for(let z=B.minZ+.8;z<B.maxZ-.8;z+=.8){
   const px=x+(rand()-.5)*.35,pz=z+(rand()-.5)*.3,l=landField(px,pz);
   if(cityAmount(px,pz)<.6||l<.55||nearPath(px,pz,.38)||rand()<.3)continue;
@@ -157,7 +149,7 @@ function city(){
  const body=new T.BoxGeometry(.32,.2,.24).translate(0,.1,0),roof=new T.CylinderGeometry(.19,.19,.36,3,1).rotateZ(Math.PI/2).rotateX(-Math.PI/2).scale(1,.42,1).translate(0,.24,0);
  const hm=new T.InstancedMesh(body,MAT.wall,houses.length),rm=new T.InstancedMesh(roof,MAT.roofCity,houses.length);
  houses.forEach(([x,z,r],i)=>{const s=1.2+r*.6;d.position.set(x,terrainHeight(x,z)-.01,z);d.rotation.set(0,r>.5?.08:Math.PI/2+.08,0);d.scale.set(s,.8+r*.5,s);d.updateMatrix();hm.setMatrixAt(i,d.matrix);rm.setMatrixAt(i,d.matrix);
-  hm.setColorAt(i,tint.set(['#f6f2e9','#efe8da','#f8f5ee'][Math.floor(r*631)%3]));rm.setColorAt(i,tint.set(['#5d6670','#6b747d','#545c66'][Math.floor(r*997)%3]));});
+  hm.setColorAt(i,tint.set(['#f6f2e9','#efe8da','#f8f5ee'][Math.floor(r*631)%3]));rm.setColorAt(i,tint.set(style.geometry==='folded-paper'?style.materials.roof:['#5d6670','#6b747d','#545c66'][Math.floor(r*997)%3]));});
  const block=new T.BoxGeometry(.5,.5,.4).translate(0,.25,0),bm=new T.InstancedMesh(block,MAT.wall,blocks.length);
  blocks.forEach(([x,z,r,l],i)=>{const tall=l>5&&r>.82,h=tall?2.4+r*2.6:.7+r*1.1;d.position.set(x,terrainHeight(x,z)-.01,z);d.rotation.set(0,.08,0);d.scale.set(tall?.8:1+r*.5,h,tall?.8:1);d.updateMatrix();bm.setMatrixAt(i,d.matrix);
   bm.setColorAt(i,tint.set(tall?['#dfe4e8','#cfd8de','#e8e4dc'][Math.floor(r*313)%3]:['#ece6da','#e4ddd0','#f1ede5','#d9d4ca'][Math.floor(r*419)%4]));});
@@ -177,9 +169,9 @@ function lanterns(){
  return new T.Group().add(post,lamp);
 }
 function lotusField(){
- const rand=rng(3),pads=[],flowers=[];
- const [lx,lz]=PLACES.yudai;
- for(let i=0;i<2400&&pads.length<340;i++){const x=lx+(rand()-.5)*5,z=lz+(rand()-.5)*4.4;if(landField(x,z)>-.1||Math.hypot((x-lx)/2.5,(z-lz)/2.2)>1)continue;pads.push([x,z,.6+rand()*.7,rand()]);if(rand()<.24)flowers.push([x+.03,z,rand()]);}
+ const rand=rng(layout.lotus.seed),pads=[],flowers=[];
+ const [lx,lz]=layout.lotus.at;
+ for(let i=0;i<layout.lotus.attempts&&pads.length<layout.lotus.maxPads;i++){const x=lx+(rand()-.5)*5,z=lz+(rand()-.5)*4.4;if(landField(x,z)>-.1||Math.hypot((x-lx)/2.5,(z-lz)/2.2)>1)continue;pads.push([x,z,.6+rand()*.7,rand()]);if(rand()<.24)flowers.push([x+.03,z,rand()]);}
  const pm=new T.InstancedMesh(new T.CylinderGeometry(.09,.09,.012,10),weatherize(new T.MeshStandardMaterial({color:'#5f9a48',roughness:.8}),{key:'lotus'}),pads.length);
  const fm=new T.InstancedMesh(new T.ConeGeometry(.045,.07,6,1,true).rotateX(Math.PI).translate(0,.1,0),new T.MeshStandardMaterial({color:'#f39ab4',emissive:'#f06f97',emissiveIntensity:.25,side:T.DoubleSide}),flowers.length);
  pm.userData.list=pads;fm.userData.list=flowers;
@@ -192,43 +184,18 @@ function setLotus(l,amount,m){
  l.pads.instanceMatrix.needsUpdate=l.flowers.instanceMatrix.needsUpdate=true;l.pads.instanceColor.needsUpdate=true;
 }
 const place=(o,x,z,rot=0,lift=0,s=1)=>{o.position.set(x,Math.max(.06,terrainHeight(x,z))+lift,z);o.rotation.y=rot;o.scale.setScalar(s);return o;};
-// A free spot of land near p (off the paths), so models never swallow the walker.
-function siteNear([x,z],min=.5,max=1.6,minLand=.2,pathGap=.26){
- for(let r=min;r<max;r+=.05)for(let k=0;k<32;k++){const a=k/32*6.283+r*2.3,px=x+Math.cos(a)*r,pz=z+Math.sin(a)*r;if(landField(px,pz)>minLand&&!nearPath(px,pz,pathGap))return [px,pz];}
- return [x+min,z];
-}
-const face=(from,to)=>Math.atan2(to[0]-from[0],to[1]-from[1]);
 function landmarks(){
- const out={},g=new T.Group(),tag=(id,o)=>{o.traverse(c=>{c.userData.spot=id;});out[id]={object:o,top:o.userData.top*o.scale.x};g.add(o);return o;},N=NODES,P=PLACES;
- // Huagang: the imperial stele pavilion beside a koi pond.
- const hgAt=siteNear([N.hg[0]-.85,N.hg[1]+.08],0,1,.12,.3),hg=new T.Group(),pv=pavilion({size:.62,height:.46,roofH:.34});hg.add(pv);
- const stele=new T.Mesh(new T.BoxGeometry(.12,.3,.04),MAT.stoneDark);stele.position.y=.22;stele.castShadow=true;hg.add(stele);
- hg.userData.top=pv.userData.top;tag('huagang',place(hg,...hgAt,face(hgAt,N.hg),0,1.3));
- const pondAt=siteNear([-8.8,15.3],0,2.4,.6,.5),pond=new T.Mesh(new T.CircleGeometry(.5,32),new T.MeshStandardMaterial({color:'#3f8f8c',roughness:.2,metalness:.1}));place(pond,...pondAt,0,.012);pond.rotation.x=-Math.PI/2;g.add(pond);
- const koi=[];for(let i=0;i<8;i++){const k=new T.Mesh(new T.CapsuleGeometry(.022,.06,3,6).rotateZ(Math.PI/2),new T.MeshStandardMaterial({color:i%3?'#f26b2a':'#f7f1e6',roughness:.5}));k.position.y=pond.position.y+.01;k.userData={r:.12+i*.042,s:.4+i*.07,p:i};koi.push(k);g.add(k);}
- // Pinghu Qiuyue: a waterside platform and pavilion on Gushan's east tip, facing the lake.
- const phAt=landField(...P.pinghu)>-.3?P.pinghu:siteNear(P.pinghu,0,1,.05);
- const ph=new T.Group(),deck=new T.Mesh(new T.BoxGeometry(1.1,.06,.7),MAT.stone);deck.position.set(0,.03,.22);deck.receiveShadow=deck.castShadow=true;ph.add(deck);
- const php=pavilion({size:.5,height:.38,roofH:.28,base:false});php.position.set(-.18,.06,.2);ph.add(php);
- const rail=new T.Mesh(new T.BoxGeometry(1.1,.05,.02),MAT.wood);rail.position.set(0,.1,.56);ph.add(rail);ph.userData.top=php.userData.top+.06;tag('pinghu',place(ph,...phAt,.35,0,1.05));
- // Quyuan Fenghe: a pavilion by the lotus water; the Jade Belt bridge is on the Jinsha dike.
- const qyAt=siteNear(N.qy,.45,1.6,.15),qy=new T.Group(),qp=pavilion({size:.5,height:.38,roofH:.3});qy.add(qp);qy.userData.top=qp.userData.top;tag('quyuan',place(qy,...qyAt,face(qyAt,P.yudai),0,1.2));
- // Santan Yinyue: three stone pagodas standing in the lake south of Xiaoyingzhou.
- const st=new T.Group();for(const [x,z] of [[-.6,-.15],[0,.45],[.6,-.15]]){const l=stoneLantern();l.position.set(x,-.02,z);st.add(l);}
- st.userData.top=.95;tag('santan',place(st,...P.santan,0,-.08,1.05));st.position.y=-.03;
- // Leifeng Pagoda on Sunset Hill.
- const lf=pagoda();tag('leifeng',place(lf,...P.leifeng,0,-.05,1.1));
- // Scenery that is not a published spot: Huxinting pavilion, Baochu pagoda on Baoshi hill.
- g.add(place(pavilion({size:.42,height:.3,roofH:.24}),...P.huxin,0,0,.9));
- const bc=new T.Group(),tower=new T.Mesh(new T.CylinderGeometry(.05,.15,2.3,8),MAT.stone);tower.position.y=1.15;tower.castShadow=true;bc.add(tower);
- for(let i=0;i<7;i++){const r=new T.Mesh(new T.CylinderGeometry(.19-i*.016,.19-i*.016,.04,8),MAT.stoneDark);r.position.y=.28+i*.29;r.castShadow=true;bc.add(r);}
- const tip=new T.Mesh(new T.ConeGeometry(.035,.32,6),MAT.roofBronze);tip.position.y=2.45;bc.add(tip);
- g.add(place(bc,...P.baochu,0,-.1,1.3));
- // Stone arch bridges over the gaps in the causeways; the Broken Bridge is the larger one at the end of the Bai causeway.
- for(const b of BRIDGES){
-  const k=b.big?1.4:1,br=archBridge({length:BRIDGE.length*k,height:BRIDGE.height*k,width:b.width+.05,arch:.2*k});br.userData.top=.55;
-  place(br,b.x,b.z,b.angle-Math.PI/2,-.03,1);if(b.big)tag('duanqiao',br);else g.add(br);
+ const out={},g=new T.Group();
+ for(const entry of layout.landmarks){
+  const o=place(landmark(entry.model,entry.parameters),...entry.at,entry.rotation,entry.lift,entry.scale);
+  if(entry.absoluteY!==undefined)o.position.y=entry.absoluteY;
+  o.name=entry.id;
+  if(entry.spotId){o.traverse(c=>{c.userData.spot=entry.spotId;});out[entry.spotId]={object:o,top:o.userData.top*o.scale.x};}
+  g.add(o);
  }
+ const pond=new T.Mesh(new T.CircleGeometry(layout.pond.radius,32),new T.MeshStandardMaterial({color:style.water.pond,roughness:style.geometry==='folded-paper'?1:.2,metalness:.1}));
+ place(pond,...layout.pond.at,0,.012);pond.rotation.x=-Math.PI/2;g.add(pond);
+ const koi=[];for(let i=0;i<layout.pond.koi;i++){const k=new T.Mesh(new T.CapsuleGeometry(.022,.06,3,6).rotateZ(Math.PI/2),new T.MeshStandardMaterial({color:i%3?'#f26b2a':'#f7f1e6',roughness:.5}));k.position.y=pond.position.y+.01;k.userData={r:.12+i*.042,s:.4+i*.07,p:i};koi.push(k);g.add(k);}
  return {group:g,spots:out,koi,pond};
 }
 function sky(){
@@ -266,14 +233,14 @@ function birds(){
  return list;
 }
 function lakeBoats(){
- const loops=[[[2.5,-2],6.5,6.5],[[6,4],5,5.5],[[-13.6,2],1.2,4],[[7,-9],3.4,2.6],[[-3.5,-13.2],2.2,.8]],list=[];
+ const loops=layout.boatLoops,list=[];
  loops.forEach(([c,rx,rz],i)=>{for(let k=0;k<(i<2?3:1);k++){const b=boat();b.userData={c,rx,rz,p:k*2.1+i,s:(.035+i*.006)*(i%2?1:-1)};b.scale.setScalar(1.25);list.push(b);}});
  return list;
 }
 
-export function createWorld(scene){
+function build(){
  const landTex=landTexture(),hemi=new T.HemisphereLight('#d6ecff','#8a9a6a',.9),sun=new T.DirectionalLight('#fff1dc',2.6);
- sun.castShadow=true;sun.shadow.mapSize.set(4096,4096);Object.assign(sun.shadow.camera,{left:-30,right:30,top:30,bottom:-30,near:1,far:140});sun.shadow.bias=-.0004;sun.shadow.normalBias=.02;
+ sun.castShadow=true;sun.shadow.mapSize.set(layout.quality.shadowMapSize,layout.quality.shadowMapSize);Object.assign(sun.shadow.camera,{left:-30,right:30,top:30,bottom:-30,near:1,far:140});sun.shadow.bias=-.0004;sun.shadow.normalBias=.02;
  sun.target.position.set(0,0,-1);scene.add(hemi,sun,sun.target);
  const skyM=sky(),ter=terrain(),wat=water(landTex),veg=vegetation(Object.values(SPOT_GEO).map(g=>g.label)),lot=lotusField(),lm=landmarks(),cl=clouds(),bd=birds(),bt=lakeBoats();
  const petals=particles(900,'#f7b5c6',.16),flakes=particles(2200,'#ffffff',.12);
@@ -281,19 +248,19 @@ export function createWorld(scene){
  scene.add(skyM,ter,skirt(),wat,paths(),veg.group,lot.group,city(),lanterns(),lm.group,...cl,...bd,...bt,petals,flakes,moon);
  const halo=glowTex(),halos=[];
  const addHalo=(x,y,z,size,color,k=1)=>{const h=new T.Sprite(new T.SpriteMaterial({map:halo,color,transparent:true,depthWrite:false,blending:T.AdditiveBlending,opacity:0,fog:false}));h.position.set(x,y,z);h.scale.setScalar(size);h.userData.k=k;halos.push(h);scene.add(h);};
- const st=lm.spots.santan?.object;if(st){st.updateMatrixWorld(true);st.children.forEach(l=>{const p=l.getWorldPosition(new T.Vector3());addHalo(p.x,p.y+.62,p.z,1.6,'#ffb860',.9);addHalo(p.x,.03,p.z+.5,1.1,'#ff9c40',.45);});}
- const lf=lm.spots.leifeng?.object;if(lf){const p=lf.position;for(let i=0;i<5;i++)addHalo(p.x,p.y+.55+i*.42,p.z,1.3-i*.12,'#ffbf6a',.5);}
+ const st=lm.spots[layout.landmarks.find(m=>m.model==='three-lanterns')?.spotId]?.object;if(st){st.updateMatrixWorld(true);st.children.forEach(l=>{const p=l.getWorldPosition(new T.Vector3());addHalo(p.x,p.y+.62,p.z,1.6,'#ffb860',.9);addHalo(p.x,.03,p.z+.5,1.1,'#ff9c40',.45);});}
+ const lf=lm.spots[layout.landmarks.find(m=>m.model==='pagoda')?.spotId]?.object;if(lf){const p=lf.position;for(let i=0;i<5;i++)addHalo(p.x,p.y+.55+i*.42,p.z,1.3-i*.12,'#ffbf6a',.5);}
  const moonGlow=new T.Mesh(new T.CircleGeometry(2.6,40),new T.MeshBasicMaterial({map:halo,color:'#dfe8ff',transparent:true,depthWrite:false,blending:T.AdditiveBlending,opacity:0}));moonGlow.rotation.x=-Math.PI/2;moonGlow.position.set(3.5,.03,-3);moonGlow.renderOrder=3;scene.add(moonGlow);
- scene.fog=new T.Fog('#efe3d6',70,175);
+ parent.fog=new T.Fog('#efe3d6',70,175);
  let mood=structuredClone(MOODS.spring),from=null,to=null,blend=1;
  const lerpMood=(a,b,t)=>{const o={};for(const k of Object.keys(b)){const x=a[k],y=b[k];if(typeof y==='number')o[k]=x+(y-x)*t;else if(typeof y==='string'&&y.startsWith('#'))o[k]='#'+C(x).lerp(C(y),t).getHexString();else if(Array.isArray(y))o[k]=y.map((v,i)=>typeof v==='number'?x[i]+(v-x[i])*t:'#'+C(x[i]).lerp(C(v),t).getHexString());else if(y&&typeof y==='object')o[k]=lerpMood(x,y,t);else o[k]=y;}return o;};
  function apply(m,renderer){
   const su=skyM.material.uniforms;su.uTop.value.set(m.sky[0]);su.uHor.value.set(m.sky[1]);su.uBot.value.set(m.sky[2]);su.uStars.value=m.stars;
-  scene.fog.color.set(m.fog);sun.color.set(m.sun.color);sun.intensity=m.sun.i;sun.position.set(...m.sun.dir).normalize().multiplyScalar(60);
+  parent.fog.color.set(m.fog);sun.color.set(m.sun.color);sun.intensity=m.sun.i;sun.position.set(...m.sun.dir).normalize().multiplyScalar(60);
   hemi.color.set(m.hemi[0]);hemi.groundColor.set(m.hemi[1]);hemi.intensity=m.hemi[2];
   const wu=wat.material.uniforms;wu.uShallow.value.set(m.water[0]);wu.uDeep.value.set(m.water[1]);wu.uSky.value.set(m.sky[1]);wu.uSunDir.value.set(...m.sun.dir).normalize();wu.uSunCol.value.set(m.sun.color);
   U.uSnow.value=m.snow;U.uNight.value=m.night;U.uGrassTint.value.set(m.grass);
-  for(const g of GLOW)g.emissiveIntensity=g.userData.glow[0]+(g.userData.glow[1]-g.userData.glow[0])*m.night;
+  for(const g of GLOW)g.emissiveIntensity=(g.userData.glow[0]+(g.userData.glow[1]-g.userData.glow[0])*m.night)*m.emissionScale;
   petals.material.opacity=m.petals*.9;flakes.material.opacity=m.flakes*.95;
   moon.material.opacity=m.moon;
   for(const c of cl){c.material.color.set(m.cloud);c.material.opacity=c.material.userData.base*(1-m.night*.55);}
@@ -306,8 +273,8 @@ export function createWorld(scene){
  const fall=(pts,t,dt,kind)=>{const p=pts.geometry.attributes.position,seed=pts.geometry.userData.seed;if(pts.material.opacity<.01)return;
   for(let i=0;i<p.count;i++){let y=p.getY(i)-dt*(kind==='snow'?.9+seed[i]*.6:.35+seed[i]*.3);if(y<0)y+=14;p.setY(i,y);if(kind==='petal'){p.setX(i,p.getX(i)+Math.sin(t*.8+seed[i]*20)*dt*.6+dt*.25);}else p.setX(i,p.getX(i)+Math.sin(t+seed[i]*30)*dt*.15);}p.needsUpdate=true;};
  return {
-  terrain:ter,water:wat,spots:lm.spots,moon,get night(){return mood.night;},
-  setMood(id){to=structuredClone(MOODS[id]);from=structuredClone(mood);blend=0;},
+  terrain:ter,water:wat,spots:lm.spots,moon,createTraveler(){const h=traveler();scene.add(h);return h;},dispose(){disposeTree(scene);},get night(){return mood.night;},
+  setMood(id,immediate=false){if(!MOODS[id])return;to=structuredClone(MOODS[id]);from=structuredClone(mood);blend=immediate?1:0;if(immediate){mood=to;apply(mood);}},
   update(t,dt,renderer){
    U.uTime.value=t;
    if(blend<1){blend=Math.min(1,blend+dt/1.6);const e=blend<.5?2*blend*blend:1-(-2*blend+2)**2/2;mood=lerpMood(from,to,e);apply(mood,renderer);}
@@ -318,4 +285,7 @@ export function createWorld(scene){
    fall(petals,t,dt,'petal');fall(flakes,t,dt,'snow');
   },
  };
+}
+
+return build();
 }

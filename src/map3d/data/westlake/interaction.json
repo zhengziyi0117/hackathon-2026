@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "id": "westlake-interaction",
+  "mapId": "westlake",
+  "startNode": "dq",
+  "defaultMood": "spring",
+  "avatar": {
+    "scale": 1.45,
+    "keyboardSpeed": 2.4,
+    "walkSpeed": 2.6,
+    "boatSpeed": 3.6,
+    "arrivalRadius": 1.1
+  },
+  "routing": {
+    "boatCostMultiplier": 0.8,
+    "walkMetersPerMinute": 75,
+    "boatMetersPerMinute": 150,
+    "straightSampleStep": 0.12
+  },
+  "movement": {
+    "boundsPadding": 0.6,
+    "minLand": 0.04,
+    "maxTerrainHeight": 3.8
+  },
+  "camera": {
+    "fov": 30,
+    "intro": {
+      "target": [
+        -1,
+        0,
+        -1
+      ],
+      "distance": 110,
+      "theta": -1.6,
+      "phi": 0.18
+    },
+    "home": {
+      "target": [
+        -2.5,
+        0,
+        -1
+      ],
+      "distance": 80,
+      "theta": -0.55,
+      "phi": 0.78
+    },
+    "minDistance": 7,
+    "maxDistance": 80,
+    "minPhi": 0.32,
+    "maxPhi": 1.3
+  }
+}

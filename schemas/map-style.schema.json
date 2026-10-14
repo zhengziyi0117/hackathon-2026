@@ -1,0 +1,1414 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Scenic Map v1 — style",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "swatches": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        }
+      ],
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "geometry": {
+      "enum": [
+        "classic",
+        "folded-paper"
+      ]
+    },
+    "terrain": {
+      "type": "object",
+      "properties": {
+        "sand": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "lawn": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "meadow": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "forest": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "rock": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "bed": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "bedDeep": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "city": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        }
+      },
+      "required": [
+        "sand",
+        "lawn",
+        "meadow",
+        "forest",
+        "rock",
+        "bed",
+        "bedDeep",
+        "city"
+      ],
+      "additionalProperties": false
+    },
+    "treePalette": {
+      "type": "object",
+      "properties": {
+        "round": {
+          "type": "object",
+          "properties": {
+            "green": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              },
+              "minItems": 1
+            },
+            "autumn": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              },
+              "minItems": 1
+            },
+            "winter": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              },
+              "minItems": 1
+            },
+            "blossom": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "green",
+            "autumn",
+            "winter"
+          ],
+          "additionalProperties": false
+        },
+        "conifer": {
+          "type": "object",
+          "properties": {
+            "green": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              },
+              "minItems": 1
+            },
+            "autumn": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              },
+              "minItems": 1
+            },
+            "winter": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              },
+              "minItems": 1
+            },
+            "blossom": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "green",
+            "autumn",
+            "winter"
+          ],
+          "additionalProperties": false
+        },
+        "willow": {
+          "type": "object",
+          "properties": {
+            "green": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              },
+              "minItems": 1
+            },
+            "autumn": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              },
+              "minItems": 1
+            },
+            "winter": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              },
+              "minItems": 1
+            },
+            "blossom": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "green",
+            "autumn",
+            "winter"
+          ],
+          "additionalProperties": false
+        },
+        "peach": {
+          "type": "object",
+          "properties": {
+            "green": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              },
+              "minItems": 1
+            },
+            "autumn": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              },
+              "minItems": 1
+            },
+            "winter": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              },
+              "minItems": 1
+            },
+            "blossom": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              },
+              "minItems": 1
+            }
+          },
+          "required": [
+            "green",
+            "autumn",
+            "winter",
+            "blossom"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "round",
+        "conifer",
+        "willow",
+        "peach"
+      ],
+      "additionalProperties": false
+    },
+    "strata": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "prefixItems": [
+          {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          {
+            "type": "string",
+            "pattern": "^#[0-9a-fA-F]{6}$"
+          }
+        ],
+        "minItems": 2,
+        "maxItems": 2
+      },
+      "minItems": 2
+    },
+    "base": {
+      "type": "string",
+      "pattern": "^#[0-9a-fA-F]{6}$"
+    },
+    "path": {
+      "type": "string",
+      "pattern": "^#[0-9a-fA-F]{6}$"
+    },
+    "materials": {
+      "type": "object",
+      "properties": {
+        "stone": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "stoneDark": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "wall": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "wood": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "woodDark": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "roof": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "roofCity": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "roofBronze": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "gold": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "pagoda": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "hull": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "awning": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "skin": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "robe": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "hair": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "umbrella": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        }
+      },
+      "required": [
+        "stone",
+        "stoneDark",
+        "wall",
+        "wood",
+        "woodDark",
+        "roof",
+        "roofCity",
+        "roofBronze",
+        "gold",
+        "pagoda",
+        "hull",
+        "awning",
+        "skin",
+        "robe",
+        "hair",
+        "umbrella"
+      ],
+      "additionalProperties": false
+    },
+    "surface": {
+      "type": "object",
+      "properties": {
+        "paperGrain": {
+          "type": "number",
+          "minimum": 0
+        },
+        "roughness": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "flatTerrain": {
+          "type": "boolean"
+        },
+        "contours": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "paperGrain",
+        "roughness",
+        "flatTerrain",
+        "contours"
+      ],
+      "additionalProperties": false
+    },
+    "water": {
+      "type": "object",
+      "properties": {
+        "waves": {
+          "type": "number",
+          "minimum": 0
+        },
+        "specular": {
+          "type": "number",
+          "minimum": 0
+        },
+        "grain": {
+          "type": "number",
+          "minimum": 0
+        },
+        "pond": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        }
+      },
+      "required": [
+        "waves",
+        "specular",
+        "grain",
+        "pond"
+      ],
+      "additionalProperties": false
+    },
+    "post": {
+      "type": "object",
+      "properties": {
+        "bloomDay": {
+          "type": "number",
+          "minimum": 0
+        },
+        "bloomNight": {
+          "type": "number",
+          "minimum": 0
+        },
+        "tilt": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "bloomDay",
+        "bloomNight",
+        "tilt"
+      ],
+      "additionalProperties": false
+    },
+    "moods": {
+      "type": "object",
+      "properties": {
+        "spring": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "short": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sky": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                }
+              ],
+              "minItems": 3,
+              "maxItems": 3
+            },
+            "fog": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "sun": {
+              "type": "object",
+              "properties": {
+                "dir": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ],
+                  "minItems": 3,
+                  "maxItems": 3
+                },
+                "color": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "i": {
+                  "type": "number",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "dir",
+                "color",
+                "i"
+              ],
+              "additionalProperties": false
+            },
+            "hemi": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                {
+                  "type": "number",
+                  "minimum": 0
+                }
+              ],
+              "minItems": 3,
+              "maxItems": 3
+            },
+            "water": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                }
+              ],
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "grass": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "snow": {
+              "type": "number",
+              "minimum": 0
+            },
+            "night": {
+              "type": "number",
+              "minimum": 0
+            },
+            "blossom": {
+              "type": "number",
+              "minimum": 0
+            },
+            "autumn": {
+              "type": "number",
+              "minimum": 0
+            },
+            "lotus": {
+              "type": "number",
+              "minimum": 0
+            },
+            "exposure": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "emissionScale": {
+              "type": "number",
+              "minimum": 0
+            },
+            "petals": {
+              "type": "number",
+              "minimum": 0
+            },
+            "flakes": {
+              "type": "number",
+              "minimum": 0
+            },
+            "stars": {
+              "type": "number",
+              "minimum": 0
+            },
+            "moon": {
+              "type": "number",
+              "minimum": 0
+            },
+            "cloud": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            }
+          },
+          "required": [
+            "name",
+            "short",
+            "sky",
+            "fog",
+            "sun",
+            "hemi",
+            "water",
+            "grass",
+            "snow",
+            "night",
+            "blossom",
+            "autumn",
+            "lotus",
+            "exposure",
+            "emissionScale",
+            "petals",
+            "flakes",
+            "stars",
+            "moon",
+            "cloud"
+          ],
+          "additionalProperties": false
+        },
+        "summer": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "short": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sky": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                }
+              ],
+              "minItems": 3,
+              "maxItems": 3
+            },
+            "fog": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "sun": {
+              "type": "object",
+              "properties": {
+                "dir": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ],
+                  "minItems": 3,
+                  "maxItems": 3
+                },
+                "color": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "i": {
+                  "type": "number",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "dir",
+                "color",
+                "i"
+              ],
+              "additionalProperties": false
+            },
+            "hemi": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                {
+                  "type": "number",
+                  "minimum": 0
+                }
+              ],
+              "minItems": 3,
+              "maxItems": 3
+            },
+            "water": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                }
+              ],
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "grass": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "snow": {
+              "type": "number",
+              "minimum": 0
+            },
+            "night": {
+              "type": "number",
+              "minimum": 0
+            },
+            "blossom": {
+              "type": "number",
+              "minimum": 0
+            },
+            "autumn": {
+              "type": "number",
+              "minimum": 0
+            },
+            "lotus": {
+              "type": "number",
+              "minimum": 0
+            },
+            "exposure": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "emissionScale": {
+              "type": "number",
+              "minimum": 0
+            },
+            "petals": {
+              "type": "number",
+              "minimum": 0
+            },
+            "flakes": {
+              "type": "number",
+              "minimum": 0
+            },
+            "stars": {
+              "type": "number",
+              "minimum": 0
+            },
+            "moon": {
+              "type": "number",
+              "minimum": 0
+            },
+            "cloud": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            }
+          },
+          "required": [
+            "name",
+            "short",
+            "sky",
+            "fog",
+            "sun",
+            "hemi",
+            "water",
+            "grass",
+            "snow",
+            "night",
+            "blossom",
+            "autumn",
+            "lotus",
+            "exposure",
+            "emissionScale",
+            "petals",
+            "flakes",
+            "stars",
+            "moon",
+            "cloud"
+          ],
+          "additionalProperties": false
+        },
+        "dusk": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "short": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sky": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                }
+              ],
+              "minItems": 3,
+              "maxItems": 3
+            },
+            "fog": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "sun": {
+              "type": "object",
+              "properties": {
+                "dir": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ],
+                  "minItems": 3,
+                  "maxItems": 3
+                },
+                "color": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "i": {
+                  "type": "number",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "dir",
+                "color",
+                "i"
+              ],
+              "additionalProperties": false
+            },
+            "hemi": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                {
+                  "type": "number",
+                  "minimum": 0
+                }
+              ],
+              "minItems": 3,
+              "maxItems": 3
+            },
+            "water": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                }
+              ],
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "grass": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "snow": {
+              "type": "number",
+              "minimum": 0
+            },
+            "night": {
+              "type": "number",
+              "minimum": 0
+            },
+            "blossom": {
+              "type": "number",
+              "minimum": 0
+            },
+            "autumn": {
+              "type": "number",
+              "minimum": 0
+            },
+            "lotus": {
+              "type": "number",
+              "minimum": 0
+            },
+            "exposure": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "emissionScale": {
+              "type": "number",
+              "minimum": 0
+            },
+            "petals": {
+              "type": "number",
+              "minimum": 0
+            },
+            "flakes": {
+              "type": "number",
+              "minimum": 0
+            },
+            "stars": {
+              "type": "number",
+              "minimum": 0
+            },
+            "moon": {
+              "type": "number",
+              "minimum": 0
+            },
+            "cloud": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            }
+          },
+          "required": [
+            "name",
+            "short",
+            "sky",
+            "fog",
+            "sun",
+            "hemi",
+            "water",
+            "grass",
+            "snow",
+            "night",
+            "blossom",
+            "autumn",
+            "lotus",
+            "exposure",
+            "emissionScale",
+            "petals",
+            "flakes",
+            "stars",
+            "moon",
+            "cloud"
+          ],
+          "additionalProperties": false
+        },
+        "autumn": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "short": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sky": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                }
+              ],
+              "minItems": 3,
+              "maxItems": 3
+            },
+            "fog": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "sun": {
+              "type": "object",
+              "properties": {
+                "dir": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ],
+                  "minItems": 3,
+                  "maxItems": 3
+                },
+                "color": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "i": {
+                  "type": "number",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "dir",
+                "color",
+                "i"
+              ],
+              "additionalProperties": false
+            },
+            "hemi": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                {
+                  "type": "number",
+                  "minimum": 0
+                }
+              ],
+              "minItems": 3,
+              "maxItems": 3
+            },
+            "water": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                }
+              ],
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "grass": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "snow": {
+              "type": "number",
+              "minimum": 0
+            },
+            "night": {
+              "type": "number",
+              "minimum": 0
+            },
+            "blossom": {
+              "type": "number",
+              "minimum": 0
+            },
+            "autumn": {
+              "type": "number",
+              "minimum": 0
+            },
+            "lotus": {
+              "type": "number",
+              "minimum": 0
+            },
+            "exposure": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "emissionScale": {
+              "type": "number",
+              "minimum": 0
+            },
+            "petals": {
+              "type": "number",
+              "minimum": 0
+            },
+            "flakes": {
+              "type": "number",
+              "minimum": 0
+            },
+            "stars": {
+              "type": "number",
+              "minimum": 0
+            },
+            "moon": {
+              "type": "number",
+              "minimum": 0
+            },
+            "cloud": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            }
+          },
+          "required": [
+            "name",
+            "short",
+            "sky",
+            "fog",
+            "sun",
+            "hemi",
+            "water",
+            "grass",
+            "snow",
+            "night",
+            "blossom",
+            "autumn",
+            "lotus",
+            "exposure",
+            "emissionScale",
+            "petals",
+            "flakes",
+            "stars",
+            "moon",
+            "cloud"
+          ],
+          "additionalProperties": false
+        },
+        "winter": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "short": {
+              "type": "string",
+              "minLength": 1
+            },
+            "sky": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                }
+              ],
+              "minItems": 3,
+              "maxItems": 3
+            },
+            "fog": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "sun": {
+              "type": "object",
+              "properties": {
+                "dir": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ],
+                  "minItems": 3,
+                  "maxItems": 3
+                },
+                "color": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "i": {
+                  "type": "number",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "dir",
+                "color",
+                "i"
+              ],
+              "additionalProperties": false
+            },
+            "hemi": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                {
+                  "type": "number",
+                  "minimum": 0
+                }
+              ],
+              "minItems": 3,
+              "maxItems": 3
+            },
+            "water": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                }
+              ],
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "grass": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "snow": {
+              "type": "number",
+              "minimum": 0
+            },
+            "night": {
+              "type": "number",
+              "minimum": 0
+            },
+            "blossom": {
+              "type": "number",
+              "minimum": 0
+            },
+            "autumn": {
+              "type": "number",
+              "minimum": 0
+            },
+            "lotus": {
+              "type": "number",
+              "minimum": 0
+            },
+            "exposure": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "emissionScale": {
+              "type": "number",
+              "minimum": 0
+            },
+            "petals": {
+              "type": "number",
+              "minimum": 0
+            },
+            "flakes": {
+              "type": "number",
+              "minimum": 0
+            },
+            "stars": {
+              "type": "number",
+              "minimum": 0
+            },
+            "moon": {
+              "type": "number",
+              "minimum": 0
+            },
+            "cloud": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            }
+          },
+          "required": [
+            "name",
+            "short",
+            "sky",
+            "fog",
+            "sun",
+            "hemi",
+            "water",
+            "grass",
+            "snow",
+            "night",
+            "blossom",
+            "autumn",
+            "lotus",
+            "exposure",
+            "emissionScale",
+            "petals",
+            "flakes",
+            "stars",
+            "moon",
+            "cloud"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "spring",
+        "summer",
+        "dusk",
+        "autumn",
+        "winter"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "id",
+    "name",
+    "description",
+    "swatches",
+    "geometry",
+    "terrain",
+    "treePalette",
+    "strata",
+    "base",
+    "path",
+    "materials",
+    "surface",
+    "water",
+    "post",
+    "moods"
+  ],
+  "additionalProperties": false
+}

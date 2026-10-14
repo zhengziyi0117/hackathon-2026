@@ -1,0 +1,241 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Scenic Map v1 — interaction",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "mapId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "startNode": {
+      "type": "string",
+      "minLength": 1
+    },
+    "defaultMood": {
+      "enum": [
+        "spring",
+        "summer",
+        "dusk",
+        "autumn",
+        "winter"
+      ]
+    },
+    "avatar": {
+      "type": "object",
+      "properties": {
+        "scale": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "keyboardSpeed": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "walkSpeed": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "boatSpeed": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "arrivalRadius": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "required": [
+        "scale",
+        "keyboardSpeed",
+        "walkSpeed",
+        "boatSpeed",
+        "arrivalRadius"
+      ],
+      "additionalProperties": false
+    },
+    "routing": {
+      "type": "object",
+      "properties": {
+        "boatCostMultiplier": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "walkMetersPerMinute": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "boatMetersPerMinute": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "straightSampleStep": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "required": [
+        "boatCostMultiplier",
+        "walkMetersPerMinute",
+        "boatMetersPerMinute",
+        "straightSampleStep"
+      ],
+      "additionalProperties": false
+    },
+    "movement": {
+      "type": "object",
+      "properties": {
+        "boundsPadding": {
+          "type": "number",
+          "minimum": 0
+        },
+        "minLand": {
+          "type": "number",
+          "minimum": 0
+        },
+        "maxTerrainHeight": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "required": [
+        "boundsPadding",
+        "minLand",
+        "maxTerrainHeight"
+      ],
+      "additionalProperties": false
+    },
+    "camera": {
+      "type": "object",
+      "properties": {
+        "fov": {
+          "type": "number",
+          "minimum": 10,
+          "maximum": 100
+        },
+        "intro": {
+          "type": "object",
+          "properties": {
+            "target": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "minItems": 3,
+              "maxItems": 3
+            },
+            "distance": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "theta": {
+              "type": "number"
+            },
+            "phi": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          },
+          "required": [
+            "target",
+            "distance",
+            "theta",
+            "phi"
+          ],
+          "additionalProperties": false
+        },
+        "home": {
+          "type": "object",
+          "properties": {
+            "target": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "minItems": 3,
+              "maxItems": 3
+            },
+            "distance": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "theta": {
+              "type": "number"
+            },
+            "phi": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          },
+          "required": [
+            "target",
+            "distance",
+            "theta",
+            "phi"
+          ],
+          "additionalProperties": false
+        },
+        "minDistance": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "maxDistance": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "minPhi": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "maxPhi": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "required": [
+        "fov",
+        "intro",
+        "home",
+        "minDistance",
+        "maxDistance",
+        "minPhi",
+        "maxPhi"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "id",
+    "mapId",
+    "startNode",
+    "defaultMood",
+    "avatar",
+    "routing",
+    "movement",
+    "camera"
+  ],
+  "additionalProperties": false
+}

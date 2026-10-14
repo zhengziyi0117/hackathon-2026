@@ -7,6 +7,10 @@ description: >-
 
 # 景见三维：如实记录
 
+## 地图数据包 v1 更新
+
+本分支的大地图已采用四层 JSON。新增/调整大地图时，先读 [地图数据包与 Agent 工作流](../../../docs/地图数据包与Agent工作流.md)，再检查 `src/map3d/data/`、`src/map3d/styles/` 和 `schemas/`。使用 `npm run check:map`、`npm test` 与浏览器验收。下文关于单景点 SPZ 的说明仍适用；关于大地图硬编码坐标的描述是改造前记录，以新工作流为准。新地图在 `data/catalog.js` 注册，两个风格共用地理和路网。
+
 项目目录：`sites/jingjian-studio-redesign`。本地预览是静态构建加本机服务，不是云端已发布能力。
 
 这里有两套互不替代的三维。不要把其中一套的产物当成另一套已经完成。

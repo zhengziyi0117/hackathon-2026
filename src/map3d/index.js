@@ -8,9 +8,8 @@ import {escapeHTML as e} from '../core.js';
 import {loadScenic} from '../scenic-store.js';
 import {worldAsset} from '../scenic-core.js';
 import {webImageUrl} from '../web-images.js';
-import {NODES,SPOT_GEO,PLACES,CAUSEWAYS,walkable,terrainHeight,groundHeight,landField,shortestPath,nearestNode,neighboursOf,compassName,pointOnPolyline,GEO_FRAME} from '../westlake-geo.js';
-import {createWorld,MOODS} from './scene.js';
-import {traveler} from './models.js';
+import {createWorld} from './scene.js';
+import {mapPackageFor,STYLES,styleFor} from './packages.js';
 import {loadStamps,saveStamp} from './stamps.js';
 import {bindSpeak,stopSpeaking} from '../narration.js';
 
@@ -26,7 +25,14 @@ vec2 q=vUv-.5;c.rgb*=1.-dot(q,q)*.55;gl_FragColor=c;}`};
 
 export function mountMap3D(host,{hydrate,toast}){
  const params=new URLSearchParams(location.hash.split('?')[1]),sid=params.get('s')||'westlake',focusId=params.get('id');
- const saved=JSON.parse(sessionStorage.getItem(SESSION)||'null');
+ const pkg=mapPackageFor(sid);
+ if(!pkg){host.innerHTML='<p>此景区暂未提供三维底图。<a href="#map?s='+encodeURIComponent(sid)+'&view=scroll">查看绘卷</a></p>';return()=>{};}
+ const {geo,layout,interaction:rules}=pkg;
+ const {NODES,SPOT_GEO,walkable,terrainHeight,groundHeight,landField,shortestPath,nearestNode,neighboursOf,compassName,GEO_FRAME}=geo;
+ let saved=null;try{saved=JSON.parse(sessionStorage.getItem(SESSION)||'null');}catch{}
+ let style=styleFor(pkg,params.get('style')||saved?.style);
+ const MOODS=style.moods;
+
  let alive=true,frame,renderer,spots=[],selected=null,near=null,stamps=loadStamps(sid);
  host.innerHTML=`<main class="m3" id="m3">
  <div class="m3-stage" id="m3-stage"></div>
@@ -35,8 +41,12 @@ export function mountMap3D(host,{hydrate,toast}){
  <div class="m3-bubble" id="m3-bubble" hidden></div>
  <div class="m3-me" id="m3-me" aria-hidden="true"><span></span></div>
  <header class="m3-top">
-  <div class="m3-title"><a class="m3-chip m3-icon" href="#scenics" aria-label="全部景区">${ic('arrow-left')}</a><div><small>JINGJIAN · 西湖</small><h1>湖山微缩游</h1></div></div>
+  <div class="m3-title"><a class="m3-chip m3-icon" href="#scenics" aria-label="全部景区">${ic('arrow-left')}</a><div><small>JINGJIAN · ${e(pkg.manifest.name)}</small><h1>湖山微缩游</h1></div></div>
   <div class="m3-actions">
+   <details class="m3-style-picker" id="m3-style-picker">
+    <summary class="m3-chip">${ic('palette')}<span id="m3-style-name">${e(style.name)}</span>${ic('chevron-down')}</summary>
+    <div class="m3-style-menu" role="group" aria-label="三维地图风格">${pkg.manifest.styles.map(id=>{const p=STYLES[id];return `<button type="button" data-map-style="${id}" aria-label="${e(p.name)}" aria-pressed="${style.id===id}"><span class="m3-style-swatch" aria-hidden="true" style="--c1:${p.swatches[0]};--c2:${p.swatches[1]};--c3:${p.swatches[2]}"></span><span><b>${e(p.name)}</b><small>${e(p.description)}</small></span>${ic('check')}</button>`;}).join('')}</div>
+   </details>
    <button class="m3-compass" id="m3-compass" aria-label="正北朝上"><span id="m3-needle">${ic('navigation-2')}</span><b>北</b></button>
    <div class="m3-switch" role="group" aria-label="地图风格"><a class="active" aria-current="page">${ic('box')}微缩 3D</a><a href="#map?s=${encodeURIComponent(sid)}&view=scroll">${ic('scroll')}绘卷 2D</a></div>
   </div>
@@ -59,31 +69,31 @@ export function mountMap3D(host,{hydrate,toast}){
  catch{$('#m3-load-text').innerHTML='当前浏览器未开启三维渲染。<a href="#map?s='+encodeURIComponent(sid)+'&view=scroll">改看绘卷地图</a>';return()=>{};}
  renderer.setPixelRatio(Math.min(devicePixelRatio,1.75));renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;
  renderer.toneMapping=T.ACESFilmicToneMapping;renderer.outputColorSpace=T.SRGBColorSpace;stage.append(renderer.domElement);
- const scene=new T.Scene(),camera=new T.PerspectiveCamera(30,1,.5,900),world=createWorld(scene);
+ const scene=new T.Scene(),camera=new T.PerspectiveCamera(rules.camera.fov,1,.5,900);
+ let world=createWorld(scene,{geo,layout,style});
  const composer=new EffectComposer(renderer),bloom=new UnrealBloomPass(new T.Vector2(1,1),.55,.55,.9),tilt=new ShaderPass(TiltShift);
  composer.addPass(new RenderPass(scene,camera));composer.addPass(bloom);composer.addPass(tilt);composer.addPass(new OutputPass());
  const resize=()=>{const w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;renderer.setSize(w,h);composer.setSize(w,h);composer.setPixelRatio(renderer.getPixelRatio());camera.aspect=w/h;camera.updateProjectionMatrix();tilt.uniforms.uRes.value.set(w,h);};
  const ro=new ResizeObserver(resize);ro.observe(stage);resize();
 
  // Camera rig: orbit around a target; goal values are eased in every frame.
- const rig={target:new T.Vector3(-1,0,-1),dist:110,theta:-1.6,phi:.18},goal={target:new T.Vector3(-2.5,0,-1),dist:80,theta:-.55,phi:.78};
+ const rigFrom=c=>({target:new T.Vector3(...c.target),dist:c.distance,theta:c.theta,phi:c.phi}),rig=rigFrom(rules.camera.intro),goal=rigFrom(rules.camera.home);
  let ease=1.4,follow=false,userAt=0;
  const placeCamera=()=>{const s=Math.sin(rig.phi);camera.position.set(rig.target.x+s*Math.sin(rig.theta)*rig.dist,rig.target.y+Math.cos(rig.phi)*rig.dist,rig.target.z+s*Math.cos(rig.theta)*rig.dist);camera.lookAt(rig.target);};
  const clampTarget=v=>{const b=GEO_FRAME.bounds;v.x=Math.max(b.minX+2,Math.min(b.maxX-2,v.x));v.z=Math.max(b.minZ+2,Math.min(b.maxZ-2,v.z));return v;};
 
  // Place names floating over the map: water, causeways, islands and hills.
- const su=CAUSEWAYS[0].points,bai=CAUSEWAYS[1].points,lab=(name,at,kind,y=.5)=>({name,at,kind,y:Math.max(.2,terrainHeight(...at))+y});
- const PLACE_LABELS=[lab('苏 堤',pointOnPolyline(su,.42),'dike',.35),lab('白 堤',pointOnPolyline(bai,.62),'dike',.35),lab('孤 山',PLACES.gushan,'hill',.9),lab('小瀛洲',[PLACES.xiaoyingzhou[0]+1.6,PLACES.xiaoyingzhou[1]-.6],'isle',.3),lab('西 湖',[3.5,-3],'lake',.1),lab('北里湖',[-3.6,-13.4],'lake',.1),lab('西里湖',[-14.2,1],'lake',.1),lab('宝石山',PLACES.baoshi,'hill',1),lab('南屏山',PLACES.nanping,'hill',1),lab('湖 滨',[17.5,-2],'city',.6)];
+ const PLACE_LABELS=layout.labels.map(p=>({name:p.text,at:p.at,kind:p.kind,y:Math.max(.2,terrainHeight(...p.at))+p.lift}));
  const placeEls=[];$('#m3-places').innerHTML=PLACE_LABELS.map(p=>`<span class="m3-place ${p.kind}">${p.name}</span>`).join('');placeEls.push(...$$('.m3-place'));
 
  // Traveller
- const hero=traveler();hero.scale.setScalar(1.45);scene.add(hero);
- const start=focusId&&SPOT_GEO[focusId]?NODES[SPOT_GEO[focusId].node]:saved?.hero||NODES.dq;
+ let hero=world.createTraveler();hero.scale.setScalar(rules.avatar.scale);
+ const start=focusId&&SPOT_GEO[focusId]?NODES[SPOT_GEO[focusId].node]:(Array.isArray(saved?.hero)&&saved.hero.length===2&&saved.hero.every(Number.isFinite)&&walkable(...saved.hero)?saved.hero:NODES[rules.startNode]);
  const me={x:start[0],z:start[1],heading:Math.PI,route:[],mode:'walk',goal:null,moving:false,walked:0};
  const keys=new Set();
 
  const markSeen=()=>{const h=$('#m3-hint');if(h&&!h.classList.contains('gone')){h.classList.add('gone');}};
- const straight=(ax,az,bx,bz)=>{const n=Math.ceil(Math.hypot(bx-ax,bz-az)/.12);for(let i=1;i<=n;i++)if(!walkable(ax+(bx-ax)*i/n,az+(bz-az)*i/n))return false;return true;};
+ const straight=(ax,az,bx,bz)=>{const n=Math.ceil(Math.hypot(bx-ax,bz-az)/rules.routing.straightSampleStep);for(let i=1;i<=n;i++)if(!walkable(ax+(bx-ax)*i/n,az+(bz-az)*i/n))return false;return true;};
  function plan(tx,tz){
   if(straight(me.x,me.z,tx,tz))return [{x:tx,z:tz,mode:'walk'}];
   const nodes=Object.entries(NODES).map(([id,[x,z]])=>({id,d:Math.hypot(x-me.x,z-me.z)})).sort((a,b)=>a.d-b.d);
@@ -108,7 +118,7 @@ export function mountMap3D(host,{hydrate,toast}){
  }
 
  // Spots from the published scenic snapshot; positions come from the shared geo data.
- const posOf=s=>SPOT_GEO[s.id]?.label||[-15+30*(s.x??.5),-17+31*(s.y??.5)];
+ const posOf=s=>{const b=GEO_FRAME.bounds;return SPOT_GEO[s.id]?.label||[b.minX+(b.maxX-b.minX)*(.1+.8*(s.x??.5)),b.minZ+(b.maxZ-b.minZ)*(.1+.8*(s.y??.5))];};
  const nodeOf=s=>SPOT_GEO[s.id]?.node||nearestNode(...posOf(s)).id;
  function tagSub(s){const [main,sub]=s.name.split(' · '),scene=SPOT_GEO[s.id]?.scene?.replace('西湖十景 · ','');return sub||(scene&&scene!==main?scene:'西湖十景');}
  function tagsHTML(){return spots.map((s,i)=>`<button class="m3-tag ${stamps[s.id]?'stamped':''}" data-spot="${e(s.id)}" style="--i:${i}"><i class="m3-seal-mini">${stamps[s.id]?'印':String(i+1).padStart(2,'0')}</i><span><b>${e(s.name.split(' · ')[0])}</b><small>${e(tagSub(s))}</small></span>${worldAsset(s)?'<em>3D</em>':''}</button>`).join('');}
@@ -172,9 +182,24 @@ export function mountMap3D(host,{hydrate,toast}){
  let audio;
  function thunk(){try{audio||=new AudioContext();const t=audio.currentTime,o=audio.createOscillator(),g=audio.createGain();o.type='triangle';o.frequency.setValueAtTime(140,t);o.frequency.exponentialRampToValueAtTime(48,t+.18);g.gain.setValueAtTime(.35,t);g.gain.exponentialRampToValueAtTime(.001,t+.3);o.connect(g).connect(audio.destination);o.start(t);o.stop(t+.32);}catch{}}
 
- let currentMood=saved?.mood&&MOODS[saved.mood]?saved.mood:'spring';
+ let currentMood=saved?.mood&&MOODS[saved.mood]?saved.mood:rules.defaultMood;
  function setMood(id){currentMood=id;world.setMood(id);$$('[data-mood]').forEach(b=>b.classList.toggle('active',b.dataset.mood===id));$('#m3').classList.toggle('m3-dark',MOODS[id].night>.6);if(selected)openCard(selected);persist();}
- const persist=()=>sessionStorage.setItem(SESSION,JSON.stringify({hero:[me.x,me.z],mood:currentMood}));
+ const persist=()=>sessionStorage.setItem(SESSION,JSON.stringify({hero:[me.x,me.z],mood:currentMood,style:style.id}));
+
+ function setStyle(id){
+  const next=styleFor(pkg,id);if(next.id===style.id)return;
+  world.dispose();style=next;world=createWorld(scene,{geo,layout,style});
+  hero=world.createTraveler();hero.scale.setScalar(rules.avatar.scale);
+  world.setMood(currentMood,true);renderer.toneMappingExposure=style.moods[currentMood].exposure;
+  $('#m3-style-name').textContent=style.name;$('#m3-style-picker').open=false;
+  $$('[data-map-style]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mapStyle===style.id)));
+  $('#m3').dataset.style=style.id;
+  params.set('style',style.id);history.replaceState(null,'',location.pathname+location.search+'#map?'+params);
+  persist();if(selected)openCard(selected);
+ }
+ $$('[data-map-style]').forEach(b=>b.onclick=()=>setStyle(b.dataset.mapStyle));
+ $('#m3-style-picker').addEventListener('keydown',ev=>{if(ev.key==='Escape'){$('#m3-style-picker').open=false;$('#m3-style-picker summary').focus();}});
+ $('#m3').dataset.style=style.id;
 
  // Input
  const ray=new T.Raycaster(),ndc=new T.Vector2();let drag=null;const pointers=new Map();
@@ -186,13 +211,13 @@ export function mountMap3D(host,{hydrate,toast}){
   const dx=ev.clientX-drag.x,dy=ev.clientY-drag.y;drag.x=ev.clientX;drag.y=ev.clientY;
   if(Math.hypot(ev.clientX-drag.sx,ev.clientY-drag.sy)>5){drag.moved=true;markSeen();}
   if(!drag.moved)return;
-  if(drag.mode==='pinch'&&pointers.size===2){const [a,b]=[...pointers.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1]);goal.dist=Math.max(7,Math.min(75,goal.dist*drag.pinch/d));drag.pinch=d;return;}
-  if(drag.mode==='rotate'){goal.theta-=dx*.0055;goal.phi=Math.max(.32,Math.min(1.3,goal.phi-dy*.004));}
+  if(drag.mode==='pinch'&&pointers.size===2){const [a,b]=[...pointers.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1]);goal.dist=Math.max(rules.camera.minDistance,Math.min(rules.camera.maxDistance,goal.dist*drag.pinch/d));drag.pinch=d;return;}
+  if(drag.mode==='rotate'){goal.theta-=dx*.0055;goal.phi=Math.max(rules.camera.minPhi,Math.min(rules.camera.maxPhi,goal.phi-dy*.004));}
   else{const k=goal.dist*.0016,f=new T.Vector3(Math.sin(goal.theta),0,Math.cos(goal.theta)),r=new T.Vector3(f.z,0,-f.x);goal.target.addScaledVector(r,-dx*k).addScaledVector(f,-dy*k);clampTarget(goal.target);follow=false;userAt=performance.now();}
  });
  const up=ev=>{pointers.delete(ev.pointerId);if(!drag)return;const click=!drag.moved&&performance.now()-drag.t<450&&drag.mode!=='pinch';drag=pointers.size?drag:null;if(click)pick(ev);};
  el.addEventListener('pointerup',up);el.addEventListener('pointercancel',ev=>{pointers.delete(ev.pointerId);drag=null;});
- el.addEventListener('wheel',ev=>{ev.preventDefault();goal.dist=Math.max(7,Math.min(75,goal.dist*(1+ev.deltaY*.0011)));markSeen();},{passive:false});
+ el.addEventListener('wheel',ev=>{ev.preventDefault();goal.dist=Math.max(rules.camera.minDistance,Math.min(rules.camera.maxDistance,goal.dist*(1+ev.deltaY*.0011)));markSeen();},{passive:false});
  function pick(ev){
   const r=el.getBoundingClientRect();ndc.set((ev.clientX-r.left)/r.width*2-1,-(ev.clientY-r.top)/r.height*2+1);ray.setFromCamera(ndc,camera);
   const lm=ray.intersectObjects(Object.values(world.spots).map(s=>s.object),true)[0];
@@ -219,11 +244,11 @@ export function mountMap3D(host,{hydrate,toast}){
   if(keys.size){
    const f=new T.Vector2(-Math.sin(rig.theta),-Math.cos(rig.theta)),r=new T.Vector2(-f.y,f.x),v=new T.Vector2();
    if(keys.has('f'))v.add(f);if(keys.has('b'))v.sub(f);if(keys.has('r'))v.add(r);if(keys.has('l'))v.sub(r);
-   if(v.lengthSq()){v.normalize().multiplyScalar(dt*2.4);const nx=me.x+v.x,nz=me.z+v.y;
+   if(v.lengthSq()){v.normalize().multiplyScalar(dt*rules.avatar.keyboardSpeed);const nx=me.x+v.x,nz=me.z+v.y;
     if(walkable(nx,nz)){me.x=nx;me.z=nz;}else if(walkable(nx,me.z))me.x=nx;else if(walkable(me.x,nz))me.z=nz;
     me.heading=Math.atan2(v.x,v.y);me.moving=true;me.mode='walk';}
   }else if(me.route.length){
-   const p=me.route[0],dx=p.x-me.x,dz=p.z-me.z,d=Math.hypot(dx,dz),sp=(p.mode==='boat'?3.6:2.6)*dt;me.mode=p.mode;
+   const p=me.route[0],dx=p.x-me.x,dz=p.z-me.z,d=Math.hypot(dx,dz),sp=(p.mode==='boat'?rules.avatar.boatSpeed:rules.avatar.walkSpeed)*dt;me.mode=p.mode;
    if(d<=sp){me.x=p.x;me.z=p.z;me.route.shift();drawRoute();if(!me.route.length&&me.goal){const g=me.goal;me.goal=null;near=g;openCard(g);goal.dist=Math.min(goal.dist,18);}}
    else{me.x+=dx/d*sp;me.z+=dz/d*sp;me.heading=Math.atan2(dx,dz);}
    me.moving=true;
@@ -236,7 +261,7 @@ export function mountMap3D(host,{hydrate,toast}){
   ring.scale.setScalar(1+Math.sin(t*3)*.08);ring.material.opacity=boatNow?0:.55+Math.sin(t*3)*.2;
   if(me.moving)persistThrottled();
   // Nearby spot
-  const was=near;near=null;for(const s of spots){const [x,z]=NODES[nodeOf(s)]||posOf(s);if(Math.hypot(x-me.x,z-me.z)<1.1){near=s.id;break;}}
+  const was=near;near=null;for(const s of spots){const [x,z]=NODES[nodeOf(s)]||posOf(s);if(Math.hypot(x-me.x,z-me.z)<rules.avatar.arrivalRadius){near=s.id;break;}}
   if(was!==near){if(selected===was||selected===near)selected&&openCard(selected);}
   // Camera
   if(follow||performance.now()-userAt>6000){if(me.moving||follow){goal.target.lerp(tmp.set(me.x,gy*.5,me.z),Math.min(1,dt*2.2));follow=true;}}
@@ -246,7 +271,7 @@ export function mountMap3D(host,{hydrate,toast}){
   if(ease<6)ease=Math.min(6,ease+dt*.9);
   placeCamera();
   if(world.night>.02){camera.updateMatrixWorld();const d=tmp.set(.8,.64,.5).unproject(camera).sub(camera.position).normalize();world.moon.position.copy(camera.position).addScaledVector(d,300);}
-  tilt.uniforms.uAmount.value=Math.min(1.2,Math.max(.35,(rig.dist-6)/30));
+  tilt.uniforms.uAmount.value=Math.min(1.2,Math.max(.35,(rig.dist-6)/30))*style.post.tilt;
   $('#m3-needle').style.transform=`rotate(${(rig.theta*180/Math.PI+180)%360}deg)`;
   for(let i=ripples.length-1;i>=0;i--){const m=ripples[i];m.userData.t+=dt;m.scale.setScalar(1+m.userData.t*5);m.material.opacity=.9-m.userData.t*1.4;if(m.userData.t>.65){scene.remove(m);m.geometry.dispose();ripples.splice(i,1);}}
   routeLine.material.dashOffset=-t*.8;
@@ -268,8 +293,8 @@ export function mountMap3D(host,{hydrate,toast}){
  function loop(){
   if(!alive)return;frame=requestAnimationFrame(loop);
   const dt=Math.min(clock.getDelta(),.05),t=clock.elapsedTime;
-  const t0=performance.now();world.update(t,dt,renderer);bloom.strength=.5+world.night*.55;const t1=performance.now();step(dt,t);const t2=performance.now();composer.render(dt);
-  if(window.__m3)__m3.ms=[t1-t0,t2-t1,performance.now()-t2].map(x=>+x.toFixed(1));
+  const t0=performance.now();world.update(t,dt,renderer);bloom.strength=style.post.bloomDay+world.night*style.post.bloomNight;const t1=performance.now();step(dt,t);const t2=performance.now();composer.render(dt);
+  if(window.__m3)window.__m3.ms=[t1-t0,t2-t1,performance.now()-t2].map(x=>+x.toFixed(1));
   if(!shown&&++frames>2){shown=true;$('#m3-loading').classList.add('done');}
  }
  setMood(currentMood);
@@ -279,9 +304,10 @@ export function mountMap3D(host,{hydrate,toast}){
   $('#m3-tags').innerHTML=tagsHTML();bindTags();updateCount();
   if(focusId&&spots.some(s=>s.id===focusId)){const [x,z]=posOf(spots.find(s=>s.id===focusId));goal.target.set(x,0,z);goal.dist=20;goal.phi=.95;near=focusId;setTimeout(()=>alive&&openCard(focusId),1600);}
  });
- if(params.get('debug'))window.__m3={camera,world,renderer,scene,composer,bloom,tilt,goal,rig,me,setMood,walkTo,selectSpot,get near(){return near;},get spots(){return spots;}};
+ if(params.get('debug'))window.__m3={camera,get world(){return world;},renderer,scene,composer,bloom,tilt,goal,rig,me,setMood,setStyle,get style(){return style.id;},walkTo,selectSpot,get near(){return near;},get spots(){return spots;}};
  loop();
  return()=>{alive=false;stopSpeaking();cancelAnimationFrame(frame);ro.disconnect();removeEventListener('keydown',kd);removeEventListener('keyup',ku);persist();
+  world.dispose();
   scene.traverse(o=>{o.geometry?.dispose();const m=o.material;(Array.isArray(m)?m:m?[m]:[]).forEach(x=>{x.map?.dispose();x.dispose();});});
   composer.dispose?.();renderer.dispose();renderer.forceContextLoss();audio?.close();};
 }

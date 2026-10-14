@@ -1,0 +1,343 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Scenic Map v1 — layout",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "mapId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "catalogVersion": {
+      "const": 1
+    },
+    "landmarks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$"
+          },
+          "model": {
+            "enum": [
+              "stele-pavilion",
+              "lake-terrace",
+              "pavilion",
+              "three-lanterns",
+              "pagoda",
+              "slender-pagoda",
+              "arch-bridge"
+            ]
+          },
+          "at": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "rotation": {
+            "type": "number"
+          },
+          "scale": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "lift": {
+            "type": "number"
+          },
+          "spotId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]*$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "parameters": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          },
+          "absoluteY": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "model",
+          "at",
+          "rotation",
+          "scale",
+          "lift",
+          "spotId",
+          "parameters"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "labels": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "at": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "kind": {
+            "enum": [
+              "dike",
+              "hill",
+              "isle",
+              "lake",
+              "city"
+            ]
+          },
+          "lift": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "text",
+          "at",
+          "kind",
+          "lift"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0
+    },
+    "vegetation": {
+      "type": "object",
+      "properties": {
+        "seed": {
+          "type": "number"
+        },
+        "attempts": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20000
+        },
+        "islands": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number",
+                "exclusiveMinimum": 0
+              }
+            ],
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "minItems": 0
+        }
+      },
+      "required": [
+        "seed",
+        "attempts",
+        "islands"
+      ],
+      "additionalProperties": false
+    },
+    "city": {
+      "type": "object",
+      "properties": {
+        "seed": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "seed"
+      ],
+      "additionalProperties": false
+    },
+    "lotus": {
+      "type": "object",
+      "properties": {
+        "at": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "seed": {
+          "type": "number"
+        },
+        "attempts": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10000
+        },
+        "maxPads": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2000
+        }
+      },
+      "required": [
+        "at",
+        "seed",
+        "attempts",
+        "maxPads"
+      ],
+      "additionalProperties": false
+    },
+    "pond": {
+      "type": "object",
+      "properties": {
+        "at": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "radius": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "koi": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        }
+      },
+      "required": [
+        "at",
+        "radius",
+        "koi"
+      ],
+      "additionalProperties": false
+    },
+    "boatLoops": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "prefixItems": [
+          {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "minItems": 2,
+            "maxItems": 2
+          },
+          {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          {
+            "type": "number",
+            "exclusiveMinimum": 0
+          }
+        ],
+        "minItems": 3,
+        "maxItems": 3
+      },
+      "minItems": 0
+    },
+    "quality": {
+      "type": "object",
+      "properties": {
+        "terrainSegments": {
+          "type": "integer",
+          "minimum": 64,
+          "maximum": 512
+        },
+        "landTextureResolution": {
+          "type": "integer",
+          "minimum": 64,
+          "maximum": 1024
+        },
+        "shadowMapSize": {
+          "enum": [
+            1024,
+            2048,
+            4096
+          ]
+        }
+      },
+      "required": [
+        "terrainSegments",
+        "landTextureResolution",
+        "shadowMapSize"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "id",
+    "mapId",
+    "catalogVersion",
+    "landmarks",
+    "labels",
+    "vegetation",
+    "city",
+    "lotus",
+    "pond",
+    "boatLoops",
+    "quality"
+  ],
+  "additionalProperties": false
+}

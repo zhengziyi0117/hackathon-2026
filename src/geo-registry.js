@@ -1,4 +1,4 @@
-// Scenic areas that have a 3D miniature map, keyed by scenic id. A scenic without an entry only gets the 2D map.
-import * as westlake from './westlake-geo.js';
-export const GEO={westlake};
+// The guide, itinerary and renderer all use the same registered map packages.
+import {MAP_PACKAGES} from './map3d/data/catalog.js';
+export const GEO=Object.fromEntries(Object.entries(MAP_PACKAGES).map(([id,p])=>[id,p.geo]));
 export const geoFor=id=>GEO[id]||null;

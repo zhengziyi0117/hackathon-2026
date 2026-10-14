@@ -1,5 +1,7 @@
 # 景见
 
+本仓库 `main` 保存 2026-10-14 的 3D 微缩地图基线；`feature/map-pipeline-papercraft` 提供地图数据包 v1 与纸艺风格切换。查看[地图数据包与 Agent 工作流](docs/地图数据包与Agent工作流.md)。分支的本地预览与在线站点发布分开管理。
+
 把景点照片与资料，整理成游客可以浏览、探索的景区预览。名称暂定，当前为黑客松原型。
 
 景区人员在维护端管理地图、景点和多视角素材；游客从地图选择景点，查看实景照片，并进入已接入的三维空间。当前试点为**西湖花港观鱼·御碑亭**。
@@ -29,8 +31,9 @@
 准备 Node.js（本机验证 24.x）。依赖版本在 package.json 中固定。
 
 ```sh
-git clone https://github.com/Arlencl/hackathon-2026.git
-cd hackathon-2026
+git clone https://github.com/Arlencl/hackathon-2026-3.0.git
+cd hackathon-2026-3.0
+git switch feature/map-pipeline-papercraft
 npm install        # 首次；也可用 pnpm install
 npm start          # 构建 → 启动服务 → 自动打开浏览器
 ```

@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Scenic Map v1 — manifest",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "geography": {
+      "type": "string",
+      "minLength": 1
+    },
+    "layout": {
+      "type": "string",
+      "minLength": 1
+    },
+    "interaction": {
+      "type": "string",
+      "minLength": 1
+    },
+    "styles": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]*$"
+      },
+      "minItems": 1
+    },
+    "defaultStyle": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "id",
+    "name",
+    "geography",
+    "layout",
+    "interaction",
+    "styles",
+    "defaultStyle"
+  ],
+  "additionalProperties": false
+}

@@ -1,7 +1,9 @@
+import {execFileSync} from 'node:child_process';
 import { build, context } from 'esbuild';
 import { cp, mkdir, rm, readFile } from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {relative,resolve} from 'node:path';
+execFileSync(process.execPath,['scripts/validate-map.mjs'],{stdio:'inherit'});
 const manifest=JSON.parse(await readFile('public/assets/web/manifest.json','utf8'));
 for(const entry of manifest.entries){
   for(const [path,expected] of [[entry.source,entry.sourceSha256],[entry.output,entry.outputSha256]]){

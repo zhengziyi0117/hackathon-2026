@@ -1,4 +1,4 @@
-// Snaps the hand-drawn walking routes onto land and prints NODES/EDGES for src/westlake-geo.js.
+// Snaps the hand-drawn walking routes onto land and prints a JSON network for geography.json.
 // Usage: node scripts/westlake-paths.mjs
 import {landField,walkable,PLACES as P,CAUSEWAYS,pointOnPolyline,distToPolyline} from '../src/westlake-geo.js';
 
@@ -58,6 +58,5 @@ chain([['hg'],['hgPier',[-4.3,12.2]]]);
 chain([['stPier',line('jiuqu')[0]],['stMid',line('jiuqu')[1]],['st',line('jiuqu')[2]]],{snapStops:false});
 EDGES.push(['hgPier','stPier','boat'],['hubinPier','stPier','boat'],['phPier','stPier','boat']);
 const bad=Object.entries(NODES).filter(([,p])=>!walkable(...p)).map(([k])=>k);
-console.log('export const NODES='+JSON.stringify(NODES).replace(/"(\w+)":/g,'$1:')+';');
-console.log('const EDGE_LIST='+JSON.stringify(EDGES)+';');
+console.log(JSON.stringify({nodes:NODES,edges:EDGES.map(([a,b,mode='walk'])=>({a,b,mode}))},null,2));
 console.error('nodes',Object.keys(NODES).length,'edges',EDGES.length,'not walkable',bad.join(',')||'none');

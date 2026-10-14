@@ -1,0 +1,517 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Scenic Map v1 — geography",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "frame": {
+      "type": "object",
+      "properties": {
+        "origin": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "unitMeters": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "bounds": {
+          "type": "object",
+          "properties": {
+            "minX": {
+              "type": "number"
+            },
+            "maxX": {
+              "type": "number"
+            },
+            "minZ": {
+              "type": "number"
+            },
+            "maxZ": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "minX",
+            "maxX",
+            "minZ",
+            "maxZ"
+          ],
+          "additionalProperties": false
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "axes": {
+          "type": "object",
+          "properties": {
+            "x": {
+              "const": "east"
+            },
+            "z": {
+              "const": "south"
+            }
+          },
+          "required": [
+            "x",
+            "z"
+          ],
+          "additionalProperties": false
+        },
+        "projection": {
+          "type": "object",
+          "properties": {
+            "lonUnits": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "latUnits": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          },
+          "required": [
+            "lonUnits",
+            "latUnits"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "origin",
+        "unitMeters",
+        "bounds",
+        "source",
+        "axes",
+        "projection"
+      ],
+      "additionalProperties": false
+    },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "attribution": {
+          "type": "string",
+          "minLength": 1
+        },
+        "url": {
+          "type": "string",
+          "pattern": "^https://"
+        },
+        "fetched": {
+          "type": "string",
+          "minLength": 1
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "attribution",
+        "url",
+        "fetched",
+        "notes"
+      ],
+      "additionalProperties": false
+    },
+    "water": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "minItems": 3
+      },
+      "minItems": 1
+    },
+    "places": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "prefixItems": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "number"
+          }
+        ],
+        "minItems": 2,
+        "maxItems": 2
+      },
+      "minProperties": 1
+    },
+    "causeways": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "width": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "minor": {
+            "type": "boolean"
+          },
+          "points": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "minItems": 2
+          },
+          "bridges": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "t": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "big": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "name",
+                "t",
+                "big"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 0
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "width",
+          "points",
+          "bridges"
+        ],
+        "additionalProperties": false
+      },
+      "minItems": 0
+    },
+    "bridge": {
+      "type": "object",
+      "properties": {
+        "length": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "height": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "gap": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "required": [
+        "length",
+        "height",
+        "gap"
+      ],
+      "additionalProperties": false
+    },
+    "terrain": {
+      "type": "object",
+      "properties": {
+        "cell": {
+          "type": "number",
+          "minimum": 0.05,
+          "maximum": 1
+        },
+        "hills": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "at": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "minItems": 2,
+                "maxItems": 2
+              },
+              "radius": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "height": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              }
+            },
+            "required": [
+              "at",
+              "radius",
+              "height"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0
+        },
+        "westRidge": {
+          "type": "object",
+          "properties": {
+            "startX": {
+              "type": "number"
+            },
+            "width": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "height": {
+              "type": "number",
+              "minimum": 0
+            },
+            "noise": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "startX",
+            "width",
+            "height",
+            "noise"
+          ],
+          "additionalProperties": false
+        },
+        "city": {
+          "type": "object",
+          "properties": {
+            "eastX": {
+              "type": "number"
+            },
+            "eastWidth": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "northX": {
+              "type": "number"
+            },
+            "northWidth": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "northZ": {
+              "type": "number"
+            },
+            "northDepth": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          },
+          "required": [
+            "eastX",
+            "eastWidth",
+            "northX",
+            "northWidth",
+            "northZ",
+            "northDepth"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "cell",
+        "hills",
+        "westRidge",
+        "city"
+      ],
+      "additionalProperties": false
+    },
+    "network": {
+      "type": "object",
+      "properties": {
+        "nodes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "minProperties": 1
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "a": {
+                "type": "string",
+                "minLength": 1
+              },
+              "b": {
+                "type": "string",
+                "minLength": 1
+              },
+              "mode": {
+                "enum": [
+                  "walk",
+                  "boat"
+                ]
+              }
+            },
+            "required": [
+              "a",
+              "b",
+              "mode"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "nodes",
+        "edges"
+      ],
+      "additionalProperties": false
+    },
+    "spots": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "node": {
+            "type": "string",
+            "minLength": 1
+          },
+          "label": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "scene": {
+            "type": "string",
+            "minLength": 1
+          },
+          "heading": {
+            "type": "number",
+            "minimum": 0,
+            "exclusiveMaximum": 360
+          },
+          "season": {
+            "enum": [
+              "spring",
+              "summer",
+              "dusk",
+              "autumn",
+              "winter"
+            ]
+          }
+        },
+        "required": [
+          "node",
+          "label",
+          "scene",
+          "season"
+        ],
+        "additionalProperties": false
+      },
+      "minProperties": 1
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "id",
+    "name",
+    "frame",
+    "provenance",
+    "water",
+    "places",
+    "causeways",
+    "bridge",
+    "terrain",
+    "network",
+    "spots"
+  ],
+  "additionalProperties": false
+}

@@ -3,6 +3,7 @@ import './style.css';
 import './map3d/map3d.css';
 import {mountScenic} from './scenic-workflow.js';
 import {mountPilotWorld} from './pilot-world.js';
+import {geoFor} from './geo-registry.js';
 import {mountLanding} from './landing.jsx';
 // Routes (?s=<scenic id>, defaults to West Lake): #home (product landing, also the default), #scenics (visitor home), #map, #spot?id=…, #pilot, #trip (&embed=1 for an iframe), #studio.
 const app=document.querySelector('#app'),toastEl=document.querySelector('#toast');
@@ -19,7 +20,7 @@ function mountMiniature(host){
 function render(){
   cleanup?.();
   const [r,q]=location.hash.slice(1).split('?'),mode=['map','spot','studio','pilot','scenics','trip'].includes(r)?(r==='scenics'?'list':r):'home';
-  const p=new URLSearchParams(q),miniature=mode==='map'&&p.get('view')!=='scroll'&&(p.get('s')||'westlake')==='westlake';
+  const p=new URLSearchParams(q),miniature=mode==='map'&&p.get('view')!=='scroll'&&Boolean(geoFor(p.get('s')||'westlake'));
   app.className='route-'+(miniature?'map3d':mode);
   cleanup=mode==='home'?mountLanding(app):mode==='pilot'?mountPilotWorld(app,{hydrate}):miniature?mountMiniature(app):mountScenic(app,{mode,hydrate,toast});
   hydrate();window.scrollTo(0,0);

@@ -1,0 +1,486 @@
+{
+  "schemaVersion": 1,
+  "id": "westlake-layout",
+  "mapId": "westlake",
+  "catalogVersion": 1,
+  "landmarks": [
+    {
+      "id": "hg",
+      "model": "stele-pavilion",
+      "at": [
+        -6.85,
+        13.33
+      ],
+      "rotation": 1.6646375394242334,
+      "scale": 1.3,
+      "lift": 0,
+      "spotId": "huagang",
+      "parameters": {}
+    },
+    {
+      "id": "ph",
+      "model": "lake-terrace",
+      "at": [
+        -1.14,
+        -9.22
+      ],
+      "rotation": 0.35,
+      "scale": 1.05,
+      "lift": 0,
+      "spotId": "pinghu",
+      "parameters": {}
+    },
+    {
+      "id": "qy",
+      "model": "pavilion",
+      "at": [
+        -12.98889233392184,
+        -6.33606775452751
+      ],
+      "rotation": 3.105393587226154,
+      "scale": 1.2,
+      "lift": 0,
+      "spotId": "quyuan",
+      "parameters": {
+        "size": 0.5,
+        "height": 0.38,
+        "roofH": 0.3
+      }
+    },
+    {
+      "id": "st",
+      "model": "three-lanterns",
+      "at": [
+        -2.91,
+        7.13
+      ],
+      "rotation": 0,
+      "scale": 1.05,
+      "lift": 0,
+      "spotId": "santan",
+      "parameters": {},
+      "absoluteY": -0.03
+    },
+    {
+      "id": "lf",
+      "model": "pagoda",
+      "at": [
+        2.13,
+        13.34
+      ],
+      "rotation": 0,
+      "scale": 1.1,
+      "lift": -0.05,
+      "spotId": "leifeng",
+      "parameters": {}
+    },
+    {
+      "id": "huxin",
+      "model": "pavilion",
+      "at": [
+        -2.97,
+        -2.96
+      ],
+      "rotation": 0,
+      "scale": 0.9,
+      "lift": 0,
+      "spotId": null,
+      "parameters": {
+        "size": 0.42,
+        "height": 0.3,
+        "roofH": 0.24
+      }
+    },
+    {
+      "id": "baochu",
+      "model": "slender-pagoda",
+      "at": [
+        0.55,
+        -19.36
+      ],
+      "rotation": 0,
+      "scale": 1.3,
+      "lift": -0.1,
+      "spotId": null,
+      "parameters": {}
+    },
+    {
+      "id": "bridge-0",
+      "model": "arch-bridge",
+      "at": [
+        -11.086673170731707,
+        -7.640858536585366
+      ],
+      "rotation": -1.3182420510168373,
+      "scale": 1,
+      "lift": -0.03,
+      "spotId": null,
+      "parameters": {
+        "length": 0.8,
+        "height": 0.14,
+        "width": 0.41,
+        "arch": 0.2
+      }
+    },
+    {
+      "id": "bridge-1",
+      "model": "arch-bridge",
+      "at": [
+        -10.464858536585366,
+        -5.231326829268292
+      ],
+      "rotation": -1.3182420510168373,
+      "scale": 1,
+      "lift": -0.03,
+      "spotId": null,
+      "parameters": {
+        "length": 0.8,
+        "height": 0.14,
+        "width": 0.41,
+        "arch": 0.2
+      }
+    },
+    {
+      "id": "bridge-2",
+      "model": "arch-bridge",
+      "at": [
+        -9.081654945466916,
+        -0.5295751903971792
+      ],
+      "rotation": -1.3195302358030019,
+      "scale": 1,
+      "lift": -0.03,
+      "spotId": null,
+      "parameters": {
+        "length": 0.8,
+        "height": 0.14,
+        "width": 0.41,
+        "arch": 0.2
+      }
+    },
+    {
+      "id": "bridge-3",
+      "model": "arch-bridge",
+      "at": [
+        -7.6639774092098785,
+        4.993320235210804
+      ],
+      "rotation": -1.3195302358030019,
+      "scale": 1,
+      "lift": -0.03,
+      "spotId": null,
+      "parameters": {
+        "length": 0.8,
+        "height": 0.14,
+        "width": 0.41,
+        "arch": 0.2
+      }
+    },
+    {
+      "id": "bridge-4",
+      "model": "arch-bridge",
+      "at": [
+        -6.184627430985503,
+        9.962386918202348
+      ],
+      "rotation": -1.110965493153139,
+      "scale": 1,
+      "lift": -0.03,
+      "spotId": null,
+      "parameters": {
+        "length": 0.8,
+        "height": 0.14,
+        "width": 0.41,
+        "arch": 0.2
+      }
+    },
+    {
+      "id": "bridge-5",
+      "model": "arch-bridge",
+      "at": [
+        -3.950878882266615,
+        14.366035969930214
+      ],
+      "rotation": -1.160823283428543,
+      "scale": 1,
+      "lift": -0.03,
+      "spotId": null,
+      "parameters": {
+        "length": 0.8,
+        "height": 0.14,
+        "width": 0.41,
+        "arch": 0.2
+      }
+    },
+    {
+      "id": "bridge-6",
+      "model": "arch-bridge",
+      "at": [
+        0.8279018114990809,
+        -12.341550013126804
+      ],
+      "rotation": 0.9345414679815094,
+      "scale": 1,
+      "lift": -0.03,
+      "spotId": null,
+      "parameters": {
+        "length": 0.8,
+        "height": 0.14,
+        "width": 0.37,
+        "arch": 0.2
+      }
+    },
+    {
+      "id": "bridge-7",
+      "model": "arch-bridge",
+      "at": [
+        4.064592496765846,
+        -16.65417852522639
+      ],
+      "rotation": 0.9129077216126866,
+      "scale": 1,
+      "lift": -0.03,
+      "spotId": "duanqiao",
+      "parameters": {
+        "length": 1.1199999999999999,
+        "height": 0.196,
+        "width": 0.37,
+        "arch": 0.27999999999999997
+      }
+    },
+    {
+      "id": "bridge-8",
+      "model": "arch-bridge",
+      "at": [
+        -8.546411299656409,
+        -9.0783150147871
+      ],
+      "rotation": -3.9563941051912486,
+      "scale": 1,
+      "lift": -0.03,
+      "spotId": null,
+      "parameters": {
+        "length": 0.8,
+        "height": 0.14,
+        "width": 0.29,
+        "arch": 0.2
+      }
+    },
+    {
+      "id": "bridge-9",
+      "model": "arch-bridge",
+      "at": [
+        -11.602428437425546,
+        -4.7921509055017
+      ],
+      "rotation": -3.614289789304382,
+      "scale": 1,
+      "lift": -0.03,
+      "spotId": null,
+      "parameters": {
+        "length": 0.8,
+        "height": 0.14,
+        "width": 0.29,
+        "arch": 0.2
+      }
+    },
+    {
+      "id": "bridge-10",
+      "model": "arch-bridge",
+      "at": [
+        9.35,
+        -17.4
+      ],
+      "rotation": 1.5707963267948966,
+      "scale": 1,
+      "lift": -0.03,
+      "spotId": null,
+      "parameters": {
+        "length": 0.8,
+        "height": 0.14,
+        "width": 0.25,
+        "arch": 0.2
+      }
+    }
+  ],
+  "labels": [
+    {
+      "text": "苏 堤",
+      "at": [
+        -8.43678522444175,
+        1.9826660924591581
+      ],
+      "kind": "dike",
+      "lift": 0.35
+    },
+    {
+      "text": "白 堤",
+      "at": [
+        2.3627967248208996,
+        -14.41927361530634
+      ],
+      "kind": "dike",
+      "lift": 0.35
+    },
+    {
+      "text": "孤 山",
+      "at": [
+        -4.83,
+        -9.21
+      ],
+      "kind": "hill",
+      "lift": 0.9
+    },
+    {
+      "text": "小瀛洲",
+      "at": [
+        -0.6200000000000001,
+        5.010000000000001
+      ],
+      "kind": "isle",
+      "lift": 0.3
+    },
+    {
+      "text": "西 湖",
+      "at": [
+        3.5,
+        -3
+      ],
+      "kind": "lake",
+      "lift": 0.1
+    },
+    {
+      "text": "北里湖",
+      "at": [
+        -3.6,
+        -13.4
+      ],
+      "kind": "lake",
+      "lift": 0.1
+    },
+    {
+      "text": "西里湖",
+      "at": [
+        -14.2,
+        1
+      ],
+      "kind": "lake",
+      "lift": 0.1
+    },
+    {
+      "text": "宝石山",
+      "at": [
+        -1.34,
+        -18.34
+      ],
+      "kind": "hill",
+      "lift": 1
+    },
+    {
+      "text": "南屏山",
+      "at": [
+        1.51,
+        19.01
+      ],
+      "kind": "hill",
+      "lift": 1
+    },
+    {
+      "text": "湖 滨",
+      "at": [
+        17.5,
+        -2
+      ],
+      "kind": "city",
+      "lift": 0.6
+    }
+  ],
+  "vegetation": {
+    "seed": 11,
+    "attempts": 9000,
+    "islands": [
+      [
+        -2.22,
+        5.61,
+        2.4
+      ],
+      [
+        -2.97,
+        -2.96,
+        0.8
+      ],
+      [
+        -5.78,
+        -3.23,
+        0.8
+      ]
+    ]
+  },
+  "city": {
+    "seed": 5
+  },
+  "lotus": {
+    "at": [
+      -12.95,
+      -7.41
+    ],
+    "seed": 3,
+    "attempts": 2400,
+    "maxPads": 340
+  },
+  "pond": {
+    "at": [
+      -8.8,
+      15.3
+    ],
+    "radius": 0.5,
+    "koi": 8
+  },
+  "boatLoops": [
+    [
+      [
+        2.5,
+        -2
+      ],
+      6.5,
+      6.5
+    ],
+    [
+      [
+        6,
+        4
+      ],
+      5,
+      5.5
+    ],
+    [
+      [
+        -13.6,
+        2
+      ],
+      1.2,
+      4
+    ],
+    [
+      [
+        7,
+        -9
+      ],
+      3.4,
+      2.6
+    ],
+    [
+      [
+        -3.5,
+        -13.2
+      ],
+      2.2,
+      0.8
+    ]
+  ],
+  "quality": {
+    "terrainSegments": 230,
+    "landTextureResolution": 384,
+    "shadowMapSize": 4096
+  }
+}

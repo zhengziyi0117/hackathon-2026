@@ -1,5 +1,7 @@
 # 西湖微缩大地图：这次实际怎么做的
 
+> 这是 `95eed47` 基线的历史制作记录。当前分支已拆成 JSON 数据包，文件槽位与命令以[地图数据包与 Agent 工作流](../../../docs/地图数据包与Agent工作流.md)为准。不要再照下文向 `westlake-geo.js` 或 `scene.js` 写景点坐标。
+
 这是 `sites/jingjian-studio-redesign` 里西湖大地图的记录，不是自动管线。换一座景区要重做几何和手工布景；运行时没有「生成大地图」按钮。
 
 预览：`http://127.0.0.1:4175/#map?s=westlake`（`npm start` 或先 `npm run build` 再看 `dist/`）。只对景区 id `westlake` 且 URL 不是 `view=scroll` 时加载（`src/app.js`）。

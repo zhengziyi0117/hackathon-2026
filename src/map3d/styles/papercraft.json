@@ -1,0 +1,382 @@
+{
+  "schemaVersion": 1,
+  "id": "papercraft",
+  "name": "纸艺西湖",
+  "description": "折纸山林 · 青绿湖山",
+  "swatches": [
+    "#568e80",
+    "#a8ccc2",
+    "#e6c697"
+  ],
+  "geometry": "folded-paper",
+  "terrain": {
+    "sand": "#eee0bc",
+    "lawn": "#85ad8d",
+    "meadow": "#b7c5a2",
+    "forest": "#477c73",
+    "rock": "#b6b4a0",
+    "bed": "#95beb5",
+    "bedDeep": "#568f91",
+    "city": "#eadbc4"
+  },
+  "treePalette": {
+    "round": {
+      "green": [
+        "#659b85",
+        "#91b49a",
+        "#467e72",
+        "#bed0a4"
+      ],
+      "autumn": [
+        "#d9772e",
+        "#e8a83a",
+        "#b9462c",
+        "#c98d3a"
+      ],
+      "winter": [
+        "#b8b2a2",
+        "#a49c8b"
+      ]
+    },
+    "conifer": {
+      "green": [
+        "#326d65",
+        "#497c70",
+        "#608f79"
+      ],
+      "autumn": [
+        "#4d6b40",
+        "#5e7444"
+      ],
+      "winter": [
+        "#5e7466",
+        "#6b7d70"
+      ]
+    },
+    "willow": {
+      "green": [
+        "#8fb69b",
+        "#b4ccb0",
+        "#6fa58e"
+      ],
+      "autumn": [
+        "#c9b14a",
+        "#d6c060"
+      ],
+      "winter": [
+        "#b3ae8c",
+        "#c2bfa4"
+      ]
+    },
+    "peach": {
+      "green": [
+        "#7fae55",
+        "#90b95c"
+      ],
+      "blossom": [
+        "#e9ad9f",
+        "#f3cbb9",
+        "#d18e85",
+        "#f5dbcb"
+      ],
+      "autumn": [
+        "#d28a3d",
+        "#c9a04a"
+      ],
+      "winter": [
+        "#b9a99c",
+        "#a8998d"
+      ]
+    }
+  },
+  "strata": [
+    [
+      0,
+      "#f2e5cb"
+    ],
+    [
+      0.07,
+      "#c6d5b1"
+    ],
+    [
+      0.14,
+      "#eaddb7"
+    ],
+    [
+      0.22,
+      "#7fa997"
+    ],
+    [
+      0.3,
+      "#eddfbe"
+    ],
+    [
+      0.4,
+      "#599085"
+    ],
+    [
+      0.5,
+      "#e6d1ad"
+    ],
+    [
+      0.61,
+      "#3f756f"
+    ],
+    [
+      0.73,
+      "#dbbf98"
+    ],
+    [
+      0.85,
+      "#d2b38c"
+    ],
+    [
+      1,
+      "#ad9476"
+    ]
+  ],
+  "base": "#b49b7b",
+  "path": "#f9edd3",
+  "materials": {
+    "stone": "#eee1c4",
+    "stoneDark": "#aeaa93",
+    "wall": "#fff5df",
+    "wood": "#b67662",
+    "woodDark": "#7e5b4d",
+    "roof": "#527c77",
+    "roofCity": "#ffffff",
+    "roofBronze": "#c5a16b",
+    "gold": "#d6b678",
+    "pagoda": "#d09c73",
+    "hull": "#b28b69",
+    "awning": "#6f9c91",
+    "skin": "#f3d6b8",
+    "robe": "#548c82",
+    "hair": "#2a211d",
+    "umbrella": "#de8b72"
+  },
+  "surface": {
+    "paperGrain": 0.065,
+    "roughness": 1,
+    "flatTerrain": true,
+    "contours": 0.16
+  },
+  "water": {
+    "waves": 0.18,
+    "specular": 0.12,
+    "grain": 0.035,
+    "pond": "#639c98"
+  },
+  "post": {
+    "bloomDay": 0.12,
+    "bloomNight": 0.2,
+    "tilt": 0.65
+  },
+  "moods": {
+    "spring": {
+      "name": "苏堤春晓",
+      "short": "春晓",
+      "sky": [
+        "#b9d3cd",
+        "#f7ecda",
+        "#eadfc9"
+      ],
+      "fog": "#f3e9d4",
+      "sun": {
+        "dir": [
+          -0.5,
+          0.75,
+          0.42
+        ],
+        "color": "#fff1dc",
+        "i": 2.132
+      },
+      "hemi": [
+        "#d6ecff",
+        "#8a9a6a",
+        1.035
+      ],
+      "water": [
+        "#a1c9bd",
+        "#639c98"
+      ],
+      "grass": "#ffffff",
+      "snow": 0,
+      "night": 0,
+      "blossom": 1,
+      "autumn": 0,
+      "lotus": 0.35,
+      "exposure": 0.98,
+      "petals": 1,
+      "flakes": 0,
+      "stars": 0,
+      "moon": 0,
+      "cloud": "#fff4df",
+      "emissionScale": 0.4
+    },
+    "summer": {
+      "name": "曲院风荷",
+      "short": "夏荷",
+      "sky": [
+        "#b9d3cd",
+        "#f7ecda",
+        "#eadfc9"
+      ],
+      "fog": "#f3e9d4",
+      "sun": {
+        "dir": [
+          0.35,
+          0.85,
+          0.3
+        ],
+        "color": "#fff7e6",
+        "i": 2.46
+      },
+      "hemi": [
+        "#cfe8ff",
+        "#6f8a52",
+        1.0924999999999998
+      ],
+      "water": [
+        "#a1c9bd",
+        "#639c98"
+      ],
+      "grass": "#d9f0c4",
+      "snow": 0,
+      "night": 0,
+      "blossom": 0,
+      "autumn": 0,
+      "lotus": 1,
+      "exposure": 0.98,
+      "petals": 0,
+      "flakes": 0,
+      "stars": 0,
+      "moon": 0,
+      "cloud": "#fff4df",
+      "emissionScale": 0.4
+    },
+    "dusk": {
+      "name": "雷峰夕照",
+      "short": "夕照",
+      "sky": [
+        "#5a6aa8",
+        "#ffb27a",
+        "#e48a68"
+      ],
+      "fog": "#f0a882",
+      "sun": {
+        "dir": [
+          0.85,
+          0.22,
+          0.2
+        ],
+        "color": "#ffb070",
+        "i": 2.296
+      },
+      "hemi": [
+        "#ffc9a0",
+        "#5b4a5a",
+        0.8624999999999999
+      ],
+      "water": [
+        "#e0a07e",
+        "#3f5a7e"
+      ],
+      "grass": "#ffd9a8",
+      "snow": 0,
+      "night": 0.38,
+      "blossom": 0,
+      "autumn": 0.25,
+      "lotus": 0.6,
+      "exposure": 0.98,
+      "petals": 0,
+      "flakes": 0,
+      "stars": 0.1,
+      "moon": 0,
+      "cloud": "#ffd2b8",
+      "emissionScale": 0.4
+    },
+    "autumn": {
+      "name": "平湖秋月",
+      "short": "秋月",
+      "sky": [
+        "#293e50",
+        "#708b94",
+        "#b2b5aa"
+      ],
+      "fog": "#7b969b",
+      "sun": {
+        "dir": [
+          -0.35,
+          0.55,
+          -0.6
+        ],
+        "color": "#bcd2ff",
+        "i": 0.697
+      },
+      "hemi": [
+        "#a3b8c1",
+        "#65746d",
+        0.85
+      ],
+      "water": [
+        "#759b9d",
+        "#3c616b"
+      ],
+      "grass": "#c7b98a",
+      "snow": 0,
+      "night": 1,
+      "blossom": 0,
+      "autumn": 1,
+      "lotus": 0.45,
+      "exposure": 1.05,
+      "petals": 0,
+      "flakes": 0,
+      "stars": 1,
+      "moon": 1,
+      "cloud": "#7d8fbd",
+      "emissionScale": 0.4
+    },
+    "winter": {
+      "name": "断桥残雪",
+      "short": "残雪",
+      "sky": [
+        "#c2d1cc",
+        "#f4eee3",
+        "#e4e3d5"
+      ],
+      "fog": "#e7ecef",
+      "sun": {
+        "dir": [
+          -0.3,
+          0.6,
+          0.55
+        ],
+        "color": "#f4f6ff",
+        "i": 1.5579999999999998
+      },
+      "hemi": [
+        "#e8f0ff",
+        "#9aa3a8",
+        1.2075
+      ],
+      "water": [
+        "#afc9c4",
+        "#7da5a6"
+      ],
+      "grass": "#d6d9c8",
+      "snow": 1,
+      "night": 0.08,
+      "blossom": 0,
+      "autumn": 0.5,
+      "lotus": 0.08,
+      "exposure": 0.98,
+      "petals": 0,
+      "flakes": 1,
+      "stars": 0,
+      "moon": 0,
+      "cloud": "#ffffff",
+      "emissionScale": 0.4
+    }
+  }
+}
