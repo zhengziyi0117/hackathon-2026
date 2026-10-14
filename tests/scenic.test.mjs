@@ -4,7 +4,7 @@ import {createScenicState,completeDemo,publishScenic,putPhoto,removePhoto,visito
 const reviewed=()=>{const state=createScenicState(),s=state.draft.spots[0];completeDemo(s);Object.values(s.photos).forEach(p=>p.accepted=true);return {state,s};};
 test('creator edits never leak into the visitor map before publication or after a later draft edit',()=>{
  const state=createScenicState();state.draft.spots[0].name='草稿新名字';state.draft.spots[0].x=.1;
- assert.equal(state.published.spots[0].name,'花港观鱼 · 御碑亭');assert.equal(state.published.spots[0].x,.795);
+ assert.equal(state.published.spots[0].name,'花港观鱼 · 御碑亭');assert.equal(state.published.spots[0].x,.388);
  publishScenic(state);assert.equal(state.published.spots[0].name,'草稿新名字');state.draft.spots[0].name='第二稿';
  assert.equal(state.published.spots[0].name,'草稿新名字');assert.equal(state.publishNumber,2);
 });

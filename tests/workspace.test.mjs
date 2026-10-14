@@ -11,6 +11,16 @@ test('a single-scenic state becomes the West Lake entry of a workspace',()=>{
   assert.deepEqual(upgradeWorkspace(ws),ws);
   assert.equal(upgradeWorkspace(null).scenics.length,1);
 });
+test('the old garden illustration becomes the West Lake map with its pins, uploaded maps are untouched',()=>{
+  const ws=createWorkspace(),[sc]=ws.scenics,fresh=structuredClone(sc.draft.spots.map(s=>[s.x,s.y]));
+  for(const k of ['draft','published']){sc[k].map={url:'/assets/scenic/garden-map.png',name:'旧图',custom:false};sc[k].spots[0].x=.795;}
+  sc.draft.spots[1].name='改过的断桥';
+  const custom=newScenic('灵隐',{url:'idb:map1',name:'map',custom:true});ws.scenics.push(custom);
+  upgradeWorkspace(ws);
+  assert.equal(sc.draft.map.url,'/assets/scenic/westlake-map.jpg');assert.equal(sc.published.map.url,'/assets/scenic/westlake-map.jpg');
+  assert.deepEqual(sc.draft.spots.map(s=>[s.x,s.y]),fresh);assert.equal(sc.draft.spots[1].name,'改过的断桥');
+  assert.equal(custom.draft.map.url,'idb:map1');
+});
 test('a new scenic stays unpublished until it has a spot with a photo',()=>{
   const sc=newScenic('灵隐',{url:'idb:map1',name:'map',custom:true});
   assert.equal(sc.published,null);assert.deepEqual(draftChanges(sc),['首次发布「灵隐」']);

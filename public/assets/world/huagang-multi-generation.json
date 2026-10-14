@@ -1,0 +1,197 @@
+{
+  "generatedAt": "2026-10-12T13:39:11.716Z",
+  "model": "marble-1.1",
+  "operationId": "82a77990-221e-4e87-a89e-f26ec766cfd3",
+  "worldId": "757c3e1c-ab1a-4f16-b237-8c36404748fc",
+  "actualApiCall": true,
+  "input": {
+    "type": "multi-image",
+    "reconstruct_images": true,
+    "count": 6,
+    "realPhotoCount": 1,
+    "aiSupplementaryImageCount": 5,
+    "aiSupplementaryImagesUsed": true,
+    "images": [
+      {
+        "view": "front",
+        "kind": "real-photo",
+        "source": "/assets/real/huagang.jpg",
+        "sourceSize": [
+          6016,
+          4016
+        ],
+        "sourceSha256": "80f987b71cd2dc92648d7b5a969291fe79131f92bb37066c199834805a51c02e",
+        "uploadSize": [
+          1672,
+          941
+        ],
+        "uploadSha256": "5b311d7fa9ffe3995b20d687b1971474d8fd4528541d80e7f27e10eccf3d9236",
+        "preprocessing": "JPEG quality 95; resize to 1672x941; crop to common aspect ratio, anchored 25% from top; no generated pixels",
+        "preparedRepositoryPath": "public/assets/world/huagang-multi-inputs/front.jpg",
+        "preparedDelivery": "Source repository only; omitted from site deployment"
+      },
+      {
+        "view": "left",
+        "kind": "ai-inferred",
+        "source": "/assets/completion/huagang-left.png",
+        "sourceSize": [
+          1672,
+          941
+        ],
+        "sourceSha256": "097cbe9ab68f6c0bdd5ca57d2afa942beb9f9eec82b3849ce1ebaaeacb5b5d5e",
+        "uploadSize": [
+          1672,
+          941
+        ],
+        "uploadSha256": "66044411e63fef1e9f859c01c829655e69024688c488a623520edf82a2b401c0",
+        "preprocessing": "JPEG quality 95; resize to 1672x941; crop to common aspect ratio, anchored 25% from top; no generated pixels",
+        "preparedRepositoryPath": "public/assets/world/huagang-multi-inputs/left.jpg",
+        "preparedDelivery": "Source repository only; omitted from site deployment"
+      },
+      {
+        "view": "right-oblique",
+        "kind": "ai-inferred",
+        "source": "/assets/completion/huagang-rear.png",
+        "sourceSize": [
+          1672,
+          941
+        ],
+        "sourceSha256": "2a851dcf2265ca10ee4c0a8f6657c7260d2ceef00ccaa923df0f193e9e3f2981",
+        "uploadSize": [
+          1672,
+          941
+        ],
+        "uploadSha256": "791f2604f2eb5bca9a4e7f6fb7bcc5766ea3fe34dfbbe2c5f8a5b44a7beafad2",
+        "preprocessing": "JPEG quality 95; resize to 1672x941; crop to common aspect ratio, anchored 25% from top; no generated pixels",
+        "preparedRepositoryPath": "public/assets/world/huagang-multi-inputs/right-oblique.jpg",
+        "preparedDelivery": "Source repository only; omitted from site deployment"
+      },
+      {
+        "view": "back",
+        "kind": "ai-inferred",
+        "source": "/assets/completion/huagang-back.png",
+        "sourceSize": [
+          1672,
+          941
+        ],
+        "sourceSha256": "8183fa353d6721d46a9065e33eccfed5505e53d3e29cc77266e9c2122b684acb",
+        "uploadSize": [
+          1672,
+          941
+        ],
+        "uploadSha256": "9f8ee649aeff2dfd8e86cb093aef1fd5befc9a8800ac21a027c3431fdbde02dd",
+        "preprocessing": "JPEG quality 95; resize to 1672x941; crop to common aspect ratio, anchored 25% from top; no generated pixels",
+        "preparedRepositoryPath": "public/assets/world/huagang-multi-inputs/back.jpg",
+        "preparedDelivery": "Source repository only; omitted from site deployment"
+      },
+      {
+        "view": "top",
+        "kind": "ai-inferred",
+        "source": "/assets/completion/huagang-top.png",
+        "sourceSize": [
+          1672,
+          941
+        ],
+        "sourceSha256": "fb6244319a08c1dab3a04817060c3707d22a4d66d35d810f61275267195b47df",
+        "uploadSize": [
+          1672,
+          941
+        ],
+        "uploadSha256": "653ec0541fb0e28f2d666672f3cbf38c1aedfd727a6af941afa44280e6be729f",
+        "preprocessing": "JPEG quality 95; resize to 1672x941; crop to common aspect ratio, anchored 25% from top; no generated pixels",
+        "preparedRepositoryPath": "public/assets/world/huagang-multi-inputs/top.jpg",
+        "preparedDelivery": "Source repository only; omitted from site deployment"
+      },
+      {
+        "view": "detail",
+        "kind": "ai-inferred",
+        "source": "/assets/completion/huagang-detail.png",
+        "sourceSize": [
+          1672,
+          941
+        ],
+        "sourceSha256": "6d026add076b8c32127e8f016f7b487a38f4411e11aafe89ffac7eb3ae4895e9",
+        "uploadSize": [
+          1672,
+          941
+        ],
+        "uploadSha256": "9f0d4ed7e0b62dec5ec1bf4587cf2a000e850f47ad6cdd635a4e314b051ed8b9",
+        "preprocessing": "JPEG quality 95; resize to 1672x941; crop to common aspect ratio, anchored 25% from top; no generated pixels",
+        "preparedRepositoryPath": "public/assets/world/huagang-multi-inputs/detail.jpg",
+        "preparedDelivery": "Source repository only; omitted from site deployment"
+      }
+    ]
+  },
+  "prompt": "One coherent photographic garden space containing exactly one Huagang Guanyu imperial stele pavilion at West Lake, Hangzhou. All six images depict different views and details of this SAME pavilion, not six different buildings: front real photograph, left oblique, right oblique, back, overhead roof and close detail. Reconstruct a single shared pavilion with one upturned grey tiled roof, four pale stone columns, carved brown wooden brackets and dark railing enclosing one stone stele. Keep the red inscription on the front face only; the rear face is plain stone. Use the overhead image to constrain the same roof, not as a separate ground-level view. Preserve the pond and winter garden trees. Keep a coherent flat pebble-paved walking area in front, to both sides and behind the pavilion so the camera can walk around the same building. Maintain realistic scale and consistent roof, columns, railing and stele across views. No additional pavilions, no duplicated monuments, no floating roofs, no people. The first view is a real photo; the other five are AI-inferred references. This is a visual consistency experiment, not a surveyed reconstruction.",
+  "semantics": {
+    "metric_scale_factor": 2.7568579,
+    "ground_plane_offset": 1.7176623
+  },
+  "cost": {
+    "total_credits": 1600,
+    "line_items": [
+      {
+        "name": "Pano generation (multi-image)",
+        "credits": 100
+      },
+      {
+        "name": "World generation",
+        "credits": 1500
+      }
+    ]
+  },
+  "creditsBefore": 3840,
+  "creditsAfter": 2240,
+  "assets": [
+    {
+      "file": "huagang-multi-500k.spz",
+      "bytes": 7921210,
+      "sha256": "fde0fc1ab97a34f3aa95a589a024518b993c4391247815e6513cae5f45a0086b"
+    },
+    {
+      "file": "huagang-multi-pano.png",
+      "bytes": 15909903,
+      "sha256": "9dd2e6a93734f0a7f9699849b43f7cc42736db947d79922d51cbcc726ffb9737"
+    }
+  ],
+  "view": {
+    "home": [
+      0,
+      1.7176623,
+      0
+    ],
+    "target": [
+      0,
+      1.7176623,
+      -4
+    ]
+  },
+  "comparison": {
+    "baselineWorldId": "55dcc5ef-342c-4548-b937-6ffe6fb330ed",
+    "baselineReceipt": "/assets/world/huagang-generation.json",
+    "baselineModel": "marble-1.1",
+    "renderAsset": "500k SPZ for both versions",
+    "purpose": "Qualitative six-view trial; not a controlled benchmark. The prompt, crop, stochastic generation and reference set differ."
+  },
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+  "attribution": "AI spatial derivative by 景见 / Marble 1.1, using one real photograph by Siyuwj (2021-01-17) and five imagegen inferred views. Unseen areas, text, scale and geometry may differ from the site.",
+  "limitations": [
+    "Five input images are AI-inferred, not additional real observations",
+    "Not a surveyed reconstruction",
+    "No on-site validation",
+    "Free camera movement without physical collision",
+    "Back and roof consistency must be visually checked"
+  ],
+  "verification": {
+    "checks": [
+      "One six-image world generation succeeded",
+      "Settled API credits and asset SHA-256 recorded"
+    ],
+    "notVerified": [
+      "Browser rendering and back-side inspection pending",
+      "Physical accuracy",
+      "Real-site backside and roof agreement"
+    ]
+  }
+}

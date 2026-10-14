@@ -11,7 +11,7 @@ for(const entry of manifest.entries){
 }
 // Archive unused/full-size source material in Git, not in every website upload.
 // Keep the actual world-model input byte-for-byte available for receipt verification.
-const sourceOnly=new Set([...manifest.entries.filter(e=>!e.keepOriginalInSite).map(e=>e.source.slice(1)),'assets/world/huagang-pano.png','assets/westlake-concept.png']);
+const sourceOnly=new Set([...manifest.entries.filter(e=>!e.keepOriginalInSite).map(e=>e.source.slice(1)),'assets/world/huagang-pano.png','assets/world/huagang-multi-pano.png','assets/world/huagang-multi-inputs','assets/westlake-concept.png']);
 await rm('dist',{recursive:true,force:true});
 await mkdir('dist',{recursive:true});
 await cp('public','dist',{recursive:true,filter:source=>!sourceOnly.has(relative(resolve('public'),resolve(source)))});

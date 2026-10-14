@@ -17,22 +17,32 @@ export function createScenicState() {
   const spots=PLACES.map(p=>({...newSpot(p.id,p.x,p.y),...p,photos:{front:realPhoto(p.id,p.photoName)}}));
   spots[0].world={kind:'pilot',label:'御碑亭实拍试点',revision:0};
   spots[0].pilotAsset=copy(PILOT_ASSET);
-  const draft={title:'西湖 · 六处风景',intro:WESTLAKE_INTRO,map:{url:'/assets/scenic/garden-map.png',name:'西湖灵感游览图 · AI 插画',custom:false},spots};
+  const draft={title:'西湖 · 六处风景',intro:WESTLAKE_INTRO,map:{...LAKE_MAP},spots};
   const published=copy(draft);
   for(const {id,name} of ANGLES.filter(a=>a.id!=='front'))published.spots[0].photos[id]={...completionPhoto(id,name),accepted:true};
   return {schema:7,id:'westlake',draft,published,publishedAt:null,publishNumber:1};
 }
+const LAKE_MAP={url:'/assets/scenic/westlake-map.jpg',name:'西湖游览绘卷 · AI 插画',custom:false};
 const WESTLAKE_INTRO='湖光、长堤与园林，从六处西湖十景开始；御碑亭可以 3D 漫游。';
 // The workspace holds any number of scenic areas; each keeps its own draft, published snapshot and version.
 export const createWorkspace=()=>({schema:8,scenics:[createScenicState()]});
 export function newScenic(title,map){return {schema:7,id:crypto.randomUUID().slice(0,8),draft:{title,intro:'',map,spots:[]},published:null,publishedAt:null,publishNumber:0};}
 export function upgradeWorkspace(value){
-  if(value?.schema===8&&Array.isArray(value.scenics)){value.scenics=value.scenics.map(upgradeScenicState);return value;}
+  if(value?.schema===8&&Array.isArray(value.scenics)){value.scenics=value.scenics.map(upgradeScenicState).map(toLakeMap);return value;}
   if(![1,2,3,4,5,6,7].includes(value?.schema)||!value.draft?.spots||!value.published?.spots)return createWorkspace();
   // A single-scenic state from before schema 8 becomes the West Lake entry, untouched otherwise.
   const sc=upgradeScenicState(value);sc.id||='westlake';
   for(const k of ['draft','published'])if(typeof sc[k].intro!=='string')sc[k].intro=sc.id==='westlake'?WESTLAKE_INTRO:'';
-  return {schema:8,scenics:[sc]};
+  return {schema:8,scenics:[toLakeMap(sc)]};
+}
+// The built-in garden illustration was replaced by a West Lake map; built-in pins move with it, uploaded maps stay.
+function toLakeMap(sc){
+  for(const key of ['draft','published']){
+    const p=sc[key];if(!p||p.map?.custom||p.map?.url!=='/assets/scenic/garden-map.png')continue;
+    p.map={...LAKE_MAP};
+    for(const s of p.spots){const seed=PLACES.find(x=>x.id===s.id);if(seed){s.x=seed.x;s.y=seed.y;}}
+  }
+  return sc;
 }
 export function upgradeScenicState(state){
   if(state.schema===7)return state;
@@ -144,6 +154,15 @@ export function worldAsset(spot){
   return null;
 }
 export const visitorExperience=spot=>worldAsset(spot)?'world':'gallery';
+// The bundled pilot also ships a second generation from six inputs (one real photo, five reviewed AI views).
+// It is an exploratory trial with a different prompt and inputs, not a controlled comparison.
+export function worldVariants(spot){
+  const base=worldAsset(spot);if(!base)return [];
+  const single={...base,id:'single',label:'单张实拍',short:'单图'};
+  if(base.generated||!pilotBound(spot))return [single];
+  return [single,{...base,id:'multi',label:'实拍 + 5 张 AI 补图',short:'六图试验',spz:'/assets/world/huagang-multi-500k.spz',receipt:'/assets/world/huagang-multi-generation.json',
+    note:'由 Marble 1.1 以 1 张正面实拍和 5 张经审核的 AI 补图生成，布局交给模型；补图是推测，背面与屋顶不代表实地样貌。'}];
+}
 
 // Retrieval-only guide: every answer is a sentence the scenic staff wrote, or an honest "not in the material".
 const SERVICE=/开放|几点|营业|门票|票价|价格|多少钱|轮椅|无障碍|天气|排队|人多|拥挤|今天|明天|闭园|停车|交通|怎么去/;
@@ -192,8 +211,15 @@ export function draftChanges(state){
   const {draft:d,published:p}=state;if(!p)return ['首次发布「'+d.title+'」'];const out=[],before=new Map(p.spots.map(s=>[s.id,s]));
   if(d.title!==p.title)out.push('景区名称改为「'+d.title+'」');if((d.intro||'')!==(p.intro||''))out.push('更新了景区介绍');
   if(JSON.stringify(d.map)!==JSON.stringify(p.map))out.push('更换了景区地图');
-  for(const s of d.spots){const o=before.get(s.id);if(!o)out.push('新增景点：'+s.name);else if(JSON.stringify(o)!==JSON.stringify(s))out.push(s.name+(JSON.stringify({...o,world:s.world})===JSON.stringify(s)?'：3D 场景已更新':'：内容有修改'));before.delete(s.id);}
+  const ONLY={world:'：3D 场景已更新',narration:'：讲解稿已更新',heading:'：3D 场景朝向已调整'};
+  for(const s of d.spots){
+    const o=before.get(s.id);before.delete(s.id);
+    if(!o){out.push('新增景点：'+s.name);continue;}
+    const keys=[...new Set([...Object.keys(o),...Object.keys(s)])].filter(k=>JSON.stringify(o[k])!==JSON.stringify(s[k]));
+    if(keys.length)out.push(s.name+(keys.length===1&&ONLY[keys[0]]||'：内容有修改'));
+  }
   for(const s of before.values())out.push('移除景点：'+s.name);
+  if(JSON.stringify(d.trip||null)!==JSON.stringify(p.trip||null))out.push(d.trip?'更新了行程卡「'+d.trip.title+'」':'移除了行程卡');
   return out;
 }
 

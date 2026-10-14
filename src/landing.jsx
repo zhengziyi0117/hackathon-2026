@@ -151,7 +151,7 @@ function Portals({still}){
   return <section className="lp-section lp-portals" id="lp-portals">
     <motion.div className="lp-head" {...reveal()}><p className="lp-eyebrow">两端，一份内容</p><h2>景区编辑一次，<br/>游客处处可见</h2></motion.div>
     <div className="lp-portal-grid">
-      <Portal still={still} delay={0} href={VISIT} kind="visitor" bg="/assets/scenic/garden-map.png" label="游客端" Icon={Compass} title={['挑一处风景，','按自己的节奏看']} go="开始游览" items={[[MapIcon,'插画地图选景点，就地预览'],[Images,'实景照片，附来源与许可'],[Box,'实拍生成的 3D 空间漫游'],[MessageSquareText,'只依据景区资料作答的 AI 导游']]}/>
+      <Portal still={still} delay={0} href={VISIT} kind="visitor" bg="/assets/scenic/westlake-map.jpg" label="游客端" Icon={Compass} title={['挑一处风景，','按自己的节奏看']} go="开始游览" items={[[MapIcon,'插画地图选景点，就地预览'],[Images,'实景照片，附来源与许可'],[Box,'实拍生成的 3D 空间漫游'],[MessageSquareText,'只依据景区资料作答的 AI 导游']]}/>
       <Portal still={still} delay={.12} href={STUDIO} kind="studio" bg="/assets/completion/huagang-detail.png" label="景区维护端" Icon={LayoutDashboard} title={['地图、照片、讲解，','一处管理']} go="进入维护端" items={[[MapPinned,'上传地图，拖放景点位置'],[ScanEye,'六视角审核，接受或移除 AI 补图'],[Move3d,'逐方向调整 3D 漫游范围'],[Send,'草稿与发布分离，一键发布']]}/>
     </div>
   </section>;

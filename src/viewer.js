@@ -1,7 +1,7 @@
 import * as T from 'three';
 import {navigationStep,navigationDistance,clampToBounds} from './navigation.js';
 // Walk-only Gaussian Splat viewer for generated scenic worlds. config.bounds is read on every move so callers can change it live.
-export function createViewer(container,{onStatus,onPosition,splatURL,splatConfig:config}){
+export function createViewer(container,{onStatus,onPosition,onFrame,splatURL,splatConfig:config}){
   let renderer;
   try{renderer=new T.WebGLRenderer({antialias:true,alpha:false,powerPreference:'high-performance'});}
   catch{const box=document.createElement('div'),h=document.createElement('h3'),p=document.createElement('p');box.className='viewer-fallback';h.textContent='当前浏览器未启用三维渲染';p.textContent='可尝试 Chrome 或开启硬件加速。';box.append(h,p);container.prepend(box);onStatus?.('error');return {reset(){},move(){},setMove(){},dispose(){}};}
@@ -10,7 +10,8 @@ export function createViewer(container,{onStatus,onPosition,splatURL,splatConfig
   renderer.domElement.setAttribute('aria-label','由照片生成的三维景点。拖动环顾，WASD 或方向键移动，Shift 加速，Q 下降、E 上升。');
   const scene=new T.Scene();scene.background=new T.Color('#d6e5dc');
   const camera=new T.PerspectiveCamera(65,1,.1,600);camera.rotation.order='YXZ';
-  const home=()=>{camera.position.set(...config.home);camera.lookAt(...config.target);};home();
+  let homeRot,anim=null;
+  const home=()=>{camera.position.set(...config.home);camera.lookAt(...config.target);homeRot=camera.rotation.clone();};home();
   const keyDirections={ArrowUp:'forward',ArrowDown:'back',ArrowLeft:'left',ArrowRight:'right',w:'forward',s:'back',a:'left',d:'right',q:'down',e:'up'};
   const held=new Set(),heldMoves=new Set();let fast=false,dragPoint=null,atEdge=false,splat=null,closed=false,frame,lastPositionUpdate=0;
   function move(direction,distance){
@@ -19,7 +20,7 @@ export function createViewer(container,{onStatus,onPosition,splatURL,splatConfig
     const next=navigationStep(camera.position.toArray(),d.toArray(),direction,distance),bounded=clampToBounds(next,config.home,config.bounds);
     atEdge=bounded.some((v,i)=>v!==next[i]);camera.position.fromArray(bounded);
   }
-  const onDown=e=>{dragPoint=[e.clientX,e.clientY];renderer.domElement.focus();renderer.domElement.setPointerCapture(e.pointerId);};
+  const onDown=e=>{anim=null;dragPoint=[e.clientX,e.clientY];renderer.domElement.focus();renderer.domElement.setPointerCapture(e.pointerId);};
   const onMove=e=>{if(!dragPoint)return;camera.rotation.y-=(e.clientX-dragPoint[0])*.004;camera.rotation.x=T.MathUtils.clamp(camera.rotation.x-(e.clientY-dragPoint[1])*.004,-1.3,1.3);dragPoint=[e.clientX,e.clientY];};
   const release=()=>{dragPoint=null;};
   const keyOf=e=>e.key.length===1?e.key.toLowerCase():e.key;
@@ -38,6 +39,8 @@ export function createViewer(container,{onStatus,onPosition,splatURL,splatConfig
     const delta=Math.min(clock.getDelta(),.05),time=clock.elapsedTime;
     const directions=new Set([...held].map(k=>keyDirections[k]).concat([...heldMoves]));
     for(const direction of directions)move(direction,delta*(fast?9:3)/Math.sqrt(directions.size));
+    if(anim){anim.t=Math.min(1,anim.t+delta/anim.dur);const k=1-(1-anim.t)**3;camera.rotation.y=anim.y0+(anim.y1-anim.y0)*k;camera.rotation.x=anim.x0+(anim.x1-anim.x0)*k;camera.position.lerpVectors(anim.p0,anim.p1,k);if(anim.t>=1)anim=null;}
+    onFrame?.(camera);
     if(splat&&time-lastPositionUpdate>.1){lastPositionUpdate=time;onPosition?.({distance:navigationDistance(camera.position.toArray(),config.home),edge:atEdge});}
     renderer.render(scene,camera);
   })();
@@ -51,7 +54,14 @@ export function createViewer(container,{onStatus,onPosition,splatURL,splatConfig
   return {
     move(direction){move(direction,1);},
     setMove(direction,active){if(active)heldMoves.add(direction);else heldMoves.delete(direction);},
-    reset(){atEdge=false;home();},
+    reset(){atEdge=false;anim=null;home();},
+    camera,
+    // Animated view preset relative to the start view: yaw/pitch in radians, rise in metres (kept inside the roaming box).
+    look({yaw=0,pitch=0,rise=0,fromHome=true}={}){
+      const y1=(fromHome?homeRot.y:camera.rotation.y)+yaw;let y0=camera.rotation.y;y0+=Math.round((y1-y0)/(2*Math.PI))*2*Math.PI;
+      const base=fromHome?new T.Vector3(...config.home):camera.position.clone(),p1=new T.Vector3(...clampToBounds([base.x,base.y+rise,base.z],config.home,config.bounds));
+      anim={t:0,dur:1.1,y0,y1,x0:camera.rotation.x,x1:pitch,p0:camera.position.clone(),p1};atEdge=false;
+    },
     dispose(){closed=true;clearKeys();cancelAnimationFrame(frame);observer.disconnect();window.removeEventListener('keyup',keyUp);window.removeEventListener('blur',clearKeys);splat?.dispose();renderer.dispose();el.remove();}
   };
 }
