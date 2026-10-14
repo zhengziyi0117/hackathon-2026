@@ -12,6 +12,8 @@ const quality=object({terrainSegments:{type:'integer',minimum:64,maximum:512},la
 const mood=object({name:str,short:str,sky:tuple(color,color,color),fog:color,sun:object({dir:xyz,color,i:nonnegative}),hemi:tuple(color,color,nonnegative),water:tuple(color,color),grass:color,snow:nonnegative,night:nonnegative,blossom:nonnegative,autumn:nonnegative,lotus:nonnegative,exposure:positive,emissionScale:nonnegative,petals:nonnegative,flakes:nonnegative,stars:nonnegative,moon:nonnegative,cloud:color});
 const pose=object({target:xyz,distance:positive,theta:num,phi:positive});
 export const MODEL_IDS=['stele-pavilion','lake-terrace','pavilion','three-lanterns','pagoda','slender-pagoda','arch-bridge'];
+// Optional generated model that replaces the procedural placeholder once loaded; files must be served by this site.
+const asset=object({kind:{const:'glb'},url:{type:'string',pattern:'^/(assets|generated)/(?!.*\\.\\.)[\\w./-]+\\.glb$'},height:positive,source:str},['height','source']);
 export const CONTRACTS={
  manifest:object({schemaVersion:version,id,name:str,geography:str,layout:str,interaction:str,styles:array(id,1),defaultStyle:id}),
  geography:object({schemaVersion:version,id,name:str,frame:object({origin:xy,unitMeters:positive,bounds:object({minX:num,maxX:num,minZ:num,maxZ:num}),source:str,axes:object({x:{const:'east'},z:{const:'south'}}),projection:object({lonUnits:positive,latUnits:positive})}),
@@ -21,7 +23,7 @@ export const CONTRACTS={
   network:object({nodes:dictionary(xy),edges:array(object({a:str,b:str,mode:enumeration('walk','boat')}),1)}),
   spots:dictionary(object({node:str,label:xy,scene:str,heading:{type:'number',minimum:0,exclusiveMaximum:360},season:enumeration('spring','summer','dusk','autumn','winter')},['heading']))}),
  layout:object({schemaVersion:version,id,mapId:id,catalogVersion:version,
-  landmarks:array(object({id,model:enumeration(...MODEL_IDS),at:xy,rotation:num,scale:positive,lift:num,spotId:oneOf(id,{type:'null'}),parameters:{type:'object',additionalProperties:positive},absoluteY:num},['absoluteY']),1),
+  landmarks:array(object({id,model:enumeration(...MODEL_IDS),at:xy,rotation:num,scale:positive,lift:num,spotId:oneOf(id,{type:'null'}),parameters:{type:'object',additionalProperties:positive},absoluteY:num,asset},['absoluteY','asset']),1),
   labels:array(object({text:str,at:xy,kind:enumeration('dike','hill','isle','lake','city'),lift:num})),
   vegetation:object({seed:num,attempts:{type:'integer',minimum:1,maximum:20000},islands:array(tuple(num,num,positive))}),city:object({seed:num}),
   lotus:object({at:xy,seed:num,attempts:{type:'integer',minimum:1,maximum:10000},maxPads:{type:'integer',minimum:1,maximum:2000}}),pond:object({at:xy,radius:positive,koi:{type:'integer',minimum:0,maximum:100}}),boatLoops:array(tuple(xy,positive,positive)),quality}),
@@ -93,5 +95,17 @@ export function validatePackage(pkg,styles){
   if(['voxel','bricks'].includes(s.geometry)&&!s.landform)errors.push('styles.'+id+'.landform: terraced geometry requires a bounded surface profile');
   const bands=s.strata.map(b=>b[0]);if(bands[0]!==0||bands.at(-1)!==1||bands.some((b,i)=>i&&b<=bands[i-1]))errors.push('styles.'+id+'.strata: must ascend from 0 to 1');
  }
+ return errors;
+}
+// Geometry checks shared by the build script and in-browser imports. g is createGeography(pkg.geography,pkg.interaction).
+export function spatialErrors(pkg,g){
+ const errors=[];
+ for(const [id,at] of Object.entries(g.NODES))if(!g.walkable(...at))errors.push('Node is not walkable: '+id);
+ for(const edge of g.EDGES.filter(e=>e.mode==='walk')){
+  const [ax,az]=g.NODES[edge.a],[bx,bz]=g.NODES[edge.b],n=Math.ceil(edge.length/.03);
+  for(let i=0;i<=n;i++)if(!g.walkable(ax+(bx-ax)*i/n,az+(bz-az)*i/n)){errors.push('Walking edge crosses water/obstacle: '+edge.a+' → '+edge.b);break;}
+ }
+ const ids=Object.keys(g.SPOT_GEO);for(const a of ids)for(const b of ids)if(a!==b&&!g.shortestPath(g.SPOT_GEO[a].node,g.SPOT_GEO[b].node))errors.push('Unreachable spot: '+a+' → '+b);
+ for(const model of pkg.layout.landmarks){if(!['arch-bridge','three-lanterns','lake-terrace'].includes(model.model)&&g.landField(...model.at)<0)errors.push('Land model is in water: '+model.id);}
  return errors;
 }

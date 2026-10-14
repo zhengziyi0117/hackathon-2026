@@ -2,7 +2,7 @@ import {readFile,mkdir,writeFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {resolve,dirname,relative} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {CONTRACTS,validatePackage} from '../src/map3d/contract.js';
+import {CONTRACTS,validatePackage,spatialErrors} from '../src/map3d/contract.js';
 import {createGeography} from '../src/map3d/geography.js';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const manifestFile=resolve(root,process.argv[2]||'src/map3d/data/westlake/manifest.json');
@@ -17,13 +17,7 @@ const styles={};for(const id of manifest.styles){if(!/^[a-z][a-z0-9-]*$/.test(id
 const errors=validatePackage(pkg,styles);
 if(!errors.length){
  const g=createGeography(pkg.geography,pkg.interaction);
- for(const [id,at] of Object.entries(g.NODES))if(!g.walkable(...at))errors.push('Node is not walkable: '+id);
- for(const edge of g.EDGES.filter(e=>e.mode==='walk')){
-  const [ax,az]=g.NODES[edge.a],[bx,bz]=g.NODES[edge.b],n=Math.ceil(edge.length/.03);
-  for(let i=0;i<=n;i++)if(!g.walkable(ax+(bx-ax)*i/n,az+(bz-az)*i/n)){errors.push('Walking edge crosses water/obstacle: '+edge.a+' → '+edge.b);break;}
- }
- const ids=Object.keys(g.SPOT_GEO);for(const a of ids)for(const b of ids)if(a!==b&&!g.shortestPath(g.SPOT_GEO[a].node,g.SPOT_GEO[b].node))errors.push('Unreachable spot: '+a+' → '+b);
- for(const model of pkg.layout.landmarks){if(!['arch-bridge','three-lanterns','lake-terrace'].includes(model.model)&&g.landField(...model.at)<0)errors.push('Land model is in water: '+model.id);}
+ errors.push(...spatialErrors(pkg,g));
  // Keep published editor schemas aligned with the executable contract.
  for(const [name,schema] of Object.entries(CONTRACTS)){const saved=JSON.parse(await readFile(resolve(root,'schemas/map-'+name+'.schema.json'),'utf8'));delete saved.$schema;delete saved.title;if(JSON.stringify(saved)!==JSON.stringify(schema))errors.push('Editor schema is stale: '+name);}
 }

@@ -211,6 +211,7 @@ export function draftChanges(state){
   const {draft:d,published:p}=state;if(!p)return ['首次发布「'+d.title+'」'];const out=[],before=new Map(p.spots.map(s=>[s.id,s]));
   if(d.title!==p.title)out.push('景区名称改为「'+d.title+'」');if((d.intro||'')!==(p.intro||''))out.push('更新了景区介绍');
   if(JSON.stringify(d.map)!==JSON.stringify(p.map))out.push('更换了景区地图');
+  if(JSON.stringify(d.mapPackage||null)!==JSON.stringify(p.mapPackage||null))out.push(d.mapPackage?'更新了三维底图（地图包）':'移除了导入的三维底图');
   const ONLY={world:'：3D 场景已更新',narration:'：讲解稿已更新',heading:'：3D 场景朝向已调整'};
   for(const s of d.spots){
     const o=before.get(s.id);before.delete(s.id);

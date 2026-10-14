@@ -136,3 +136,18 @@
 .m3[data-style=adventure]:not(.m3-dark){--paper:rgba(249,252,236,.88);--ink:#34584f;--gold:#d69852}
 
 @media(max-width:380px){.m3-title{gap:8px}.m3-title h1{font-size:17px;letter-spacing:1px;white-space:nowrap}.m3-title small{font-size:8px;letter-spacing:1px;white-space:nowrap}.m3-switch a{padding:8px 10px;font-size:10px}.m3-title .m3-chip{width:34px;height:34px;min-width:34px}.m3-style-picker{top:42px}}
+/* Spot scene: embedded guide, in-world portals, interaction prompt */
+.pw-sign.compact small{display:none}.pw-sign.hot span{background:rgba(216,171,92,.55);box-shadow:0 0 0 2px rgba(255,226,168,.6)}
+.pw-npc span{background:rgba(200,100,59,.62)!important}.pw-npc .pw-arrow{background:#c8643b}
+.pw-bubble{position:absolute;left:0;top:0;z-index:3;max-width:min(320px,70vw);padding:10px 14px;border-radius:14px 14px 14px 4px;background:rgba(255,250,240,.94);color:#2a3330;font-size:13px;line-height:1.7;box-shadow:0 8px 28px rgba(0,0,0,.25);pointer-events:none;animation:m3-pop .3s ease;transform:translate(-999px,-999px)}
+.pw-prompt{position:absolute;left:50%;bottom:132px;transform:translateX(-50%);z-index:4;padding:9px 16px;border-radius:999px;background:var(--paper);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--line);font-size:13px;pointer-events:none;animation:m3-pop .25s ease}
+.pw-prompt kbd{display:inline-grid;place-items:center;min-width:22px;height:22px;margin-right:6px;border-radius:6px;background:#f4f1ea;color:#16201e;font:600 12px Inter,sans-serif}
+.pw-guide{position:absolute;top:84px;right:20px;bottom:120px;width:min(380px,calc(100vw - 40px));z-index:5;display:flex;flex-direction:column;animation:m3-pop .3s ease}
+.pw-guide>div{flex:1;min-height:0;display:flex}
+.pw-guide .sw-guide{margin:0;flex:1;display:flex;flex-direction:column;background:rgba(255,252,246,.96);border:0;border-radius:18px;box-shadow:0 18px 50px rgba(0,0,0,.3);color:#2a3330}
+.pw-guide .sw-guide-log{flex:1;max-height:none}
+.pw-guide-close{position:absolute;top:8px;right:8px;z-index:1;color:#2a3330;width:32px;height:32px;justify-content:center}
+.pw-guide .sw-guide-head{padding-right:44px}
+.pw.third .pw-pad [data-pilot-move=up],.pw.third .pw-pad [data-pilot-move=down]{visibility:hidden}
+@media(max-width:760px){.pw-guide{top:auto;left:10px;right:10px;bottom:10px;width:auto;height:62vh}.pw-prompt{bottom:180px}}
+.pw-guide[hidden],.pw-sign[hidden]{display:none}

@@ -17,6 +17,12 @@
 
 样例文件就是当前运行中的完整数据，不是只给 PPT 用的结构示意。文件中不允许放 JavaScript、表达式或远程脚本。模型使用受控模型库里的名称：`stele-pavilion`、`lake-terrace`、`pavilion`、`three-lanterns`、`pagoda`、`slender-pagoda`、`arch-bridge`。增加新造型需要实现模型库，再扩展版本/校验规则；不能凭空填写未支持的模型 ID。
 
+生成模型的接入点是 `layout.landmarks[].asset`（可选）：`{"kind":"glb","url":"/generated/<id>/model.glb","height":0.9,"source":"生成工具与记录"}`。`url` 只能指向本站 `/assets/` 或 `/generated/` 下的 `.glb`；载入前或载入失败时显示 `model` 指定的程序化占位，`height` 省略时按占位高度缩放。专门的 3D 生成 Agent 只需产出 GLB 和这段字段，不改渲染器。
+
+### 运行时地图包（在线编辑）
+
+地图包不必写进代码。维护端「景区地图 → 三维底图」可导入一个合并文件 `{"manifest":…,"geography":…,"layout":…,"interaction":…}`，也可导出当前地图包作模板。导入时在浏览器里执行与构建相同的契约校验和空间校验（`checkMapPackage`，见 `src/map3d/packages.js`），另外要求地图包里的景点 ID 都是该景区已有的景点；风格只能用内置风格。通过后存进草稿（`draft.mapPackage`），可用「预览三维地图」（`#map?s=<id>&draft=1`）查看草稿，发布后随快照生效。页面启动时，`src/app.js` 会注册工作区里已发布和草稿的地图包；`catalog.js` 里的内置包是默认值和种子数据。
+
 地理位置和地形是两类精度：湖岸和主堤来自 OpenStreetMap，山体高度、部分连接道路、堤宽及模型比例经过展示性处理，不是测绘数据。实际营业、安全与通行信息需景区确认。绘卷图片与三维底图仍是不同资产，上传图片本身不会自动产生可信经纬度。
 
 ## 本次实际执行的流水线

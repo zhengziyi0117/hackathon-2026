@@ -4,6 +4,7 @@ import './map3d/map3d.css';
 import {mountScenic} from './scenic-workflow.js';
 import {mountPilotWorld} from './pilot-world.js';
 import {geoFor} from './geo-registry.js';
+import {loadScenic} from './scenic-store.js';
 import {mountLanding} from './landing.jsx';
 // Routes (?s=<scenic id>, defaults to West Lake): #home (product landing, also the default), #scenics (visitor home), #map, #spot?id=…, #pilot, #trip (&embed=1 for an iframe), #studio.
 const app=document.querySelector('#app'),toastEl=document.querySelector('#toast');
@@ -20,10 +21,19 @@ function mountMiniature(host){
 function render(){
   cleanup?.();
   const [r,q]=location.hash.slice(1).split('?'),mode=['map','spot','studio','pilot','scenics','trip'].includes(r)?(r==='scenics'?'list':r):'home';
-  const p=new URLSearchParams(q),miniature=mode==='map'&&p.get('view')!=='scroll'&&Boolean(geoFor(p.get('s')||'westlake'));
+  const p=new URLSearchParams(q),miniature=mode==='map'&&p.get('view')!=='scroll'&&Boolean(geoFor(p.get('draft')?'draft:'+(p.get('s')||'westlake'):p.get('s')||'westlake'));
   app.className='route-'+(miniature?'map3d':mode);
   cleanup=mode==='home'?mountLanding(app):mode==='pilot'?mountPilotWorld(app,{hydrate}):miniature?mountMiniature(app):mountScenic(app,{mode,hydrate,toast});
   hydrate();window.scrollTo(0,0);
 }
 addEventListener('hashchange',render);
-render();
+// Map packages saved in the workspace (studio import or a generation agent) are registered before the first route renders.
+loadScenic().then(async ws=>{
+  const own=ws.scenics.filter(sc=>sc.published?.mapPackage||sc.draft?.mapPackage);
+  if(!own.length)return;
+  const {registerMapPackage}=await import('./map3d/packages.js');
+  for(const sc of own){
+    if(sc.published?.mapPackage)registerMapPackage(sc.id,sc.published.mapPackage);
+    if(sc.draft?.mapPackage)registerMapPackage('draft:'+sc.id,sc.draft.mapPackage);
+  }
+}).catch(()=>{}).finally(render);

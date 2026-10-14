@@ -1,4 +1,3 @@
-// The guide, itinerary and renderer all use the same registered map packages.
+// The guide, itinerary and renderer all use the same registered map packages (bundled or registered at runtime).
 import {MAP_PACKAGES} from './map3d/data/catalog.js';
-export const GEO=Object.fromEntries(Object.entries(MAP_PACKAGES).map(([id,p])=>[id,p.geo]));
-export const geoFor=id=>GEO[id]||null;
+export const geoFor=id=>MAP_PACKAGES[id]?.geo||null;

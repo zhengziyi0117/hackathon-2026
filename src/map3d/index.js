@@ -25,7 +25,7 @@ vec2 q=vUv-.5;c.rgb*=1.-dot(q,q)*.55;gl_FragColor=c;}`};
 
 export function mountMap3D(host,{hydrate,toast}){
  const params=new URLSearchParams(location.hash.split('?')[1]),sid=params.get('s')||'westlake',focusId=params.get('id');
- const pkg=mapPackageFor(sid);
+ const pkg=mapPackageFor(params.get('draft')?'draft:'+sid:sid);
  if(!pkg){host.innerHTML='<p>此景区暂未提供三维底图。<a href="#map?s='+encodeURIComponent(sid)+'&view=scroll">查看绘卷</a></p>';return()=>{};}
  const {geo,layout,interaction:rules}=pkg;
  const {NODES,SPOT_GEO,walkable,landField,shortestPath,nearestNode,neighboursOf,compassName,GEO_FRAME}=geo;
@@ -141,7 +141,7 @@ export function mountMap3D(host,{hydrate,toast}){
     ${w?`<button class="m3-btn primary" id="m3-enter">${ic('box')}走进三维实景</button>`:`<a class="m3-btn primary" href="#spot?s=${encodeURIComponent(sid)}&id=${encodeURIComponent(s.id)}">${ic('images')}看实景照片</a>`}
     ${here?(stamps[s.id]?`<button class="m3-btn stamped" disabled>${ic('check')}已盖章</button>`:`<button class="m3-btn seal" id="m3-stamp">${ic('stamp')}盖章打卡</button>`):`<button class="m3-btn" id="m3-go">${ic('footprints')}走过去</button>`}
    </div>
-   <div class="m3-guide-row">${s.narration?.text?`<button class="m3-guide-link" id="m3-listen">${ic('volume-2')}<span>听讲解</span></button>`:''}<a class="m3-guide-link" href="#spot?s=${encodeURIComponent(sid)}&id=${encodeURIComponent(s.id)}&guide=1">${ic('message-circle')}问问导游 · 照片与讲解</a></div>
+   <div class="m3-guide-row">${s.narration?.text?`<button class="m3-guide-link" id="m3-listen">${ic('volume-2')}<span>听讲解</span></button>`:''}<a class="m3-guide-link" href="#pilot?s=${encodeURIComponent(sid)}&id=${encodeURIComponent(s.id)}&guide=1">${ic('message-circle')}到景点里问导游</a></div>
    ${nb.length?`<div class="m3-near"><h3>顺路去</h3>${nb.map(n=>{const o=spots.find(x=>x.id===n.id);return `<button data-walk="${n.id}"><span>${e(o.name.split(' · ')[0])}</span><small>${compassName(n.bearing)} · ${n.boat?'游船':'步行'}约 ${n.minutes} 分钟</small>${ic('arrow-right')}</button>`;}).join('')}</div>`:''}
   </div>`;
  }
@@ -302,7 +302,8 @@ export function mountMap3D(host,{hydrate,toast}){
  setMood(currentMood);
  loadScenic().catch(()=>null).then(ws=>{
   if(!alive)return;
-  const p=ws?.scenics.find(x=>x.id===sid)?.published;spots=p?.spots||[];
+  // A studio draft preview (&draft=1) shows the draft spots with the draft map package.
+  const sc=ws?.scenics.find(x=>x.id===sid),p=params.get('draft')?sc?.draft:sc?.published;spots=p?.spots||[];
   $('#m3-tags').innerHTML=tagsHTML();bindTags();updateCount();
   if(focusId&&spots.some(s=>s.id===focusId)){const [x,z]=posOf(spots.find(s=>s.id===focusId));goal.target.set(x,0,z);goal.dist=20;goal.phi=.95;near=focusId;setTimeout(()=>alive&&openCard(focusId),1600);}
  });

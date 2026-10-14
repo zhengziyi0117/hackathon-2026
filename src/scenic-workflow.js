@@ -1,12 +1,13 @@
 import {webImageUrl} from './web-images.js';
 import {escapeHTML as e,safeURL} from './core.js';
-import {ANGLES,copy,newSpot,newScenic,putPhoto,removePhoto,pendingAngles,completeDemo,publishScenic,visitorExperience,canCompleteDemo,answerSpot,draftChanges,publishProblems,roamOf,isExtra,extraId,photoName,orderedPhotos,worldAsset,worldInputs,worldProblem,worldStale,applyGeneratedWorld,WORLD_ANGLES,WORLD_MODELS,modelOf,REF} from './scenic-core.js';
+import {ANGLES,copy,newSpot,newScenic,putPhoto,removePhoto,pendingAngles,completeDemo,publishScenic,visitorExperience,canCompleteDemo,draftChanges,publishProblems,roamOf,isExtra,extraId,photoName,orderedPhotos,worldAsset,worldInputs,worldProblem,worldStale,applyGeneratedWorld,WORLD_ANGLES,WORLD_MODELS,modelOf,REF} from './scenic-core.js';
 import {loadScenic,saveScenic,imageFile,exportState} from './scenic-store.js';
 import {mountPilotScene} from './pilot-world.js';
 import {HELPERS,SOURCE_LABEL,runGeo,runScript,runTrip,runQA,tripOf,untraced,helperInput} from './scenic-agents.js';
 import {geoFor} from './geo-registry.js';
 import {tripCardHTML} from './trip-card.js';
 import {bindSpeak,stopSpeaking} from './narration.js';
+import {mountGuideChat,forgetGuide} from './guide-chat.js';
 import './scenic.css';
 
 const ic=name=>`<i data-lucide="${name}"></i>`;
@@ -18,7 +19,7 @@ const imageInput=(id,label,multiple=false)=>`<label class="button outline small 
 export function mountScenic(host,{mode,hydrate,toast}) {
   const params=new URLSearchParams(location.hash.split('?')[1]),sid=params.get('s')||(mode==='studio'?'':'westlake');
   let alive=true, ws, state, selected=(mode==='map'&&params.get('id'))||'huagang', view='map', tab='info', studioScene=null, placement='', busy='', progress=0, saveError='', saving=false, activeAngle='front', jobTimer;
-  let galleryDialog,guideFor='',guideLog=[];
+  let galleryDialog,guideChat;
   // What the local server can do; the public static site has no /api and gets {}.
   let caps={},worldModel='',pollTimer,ticker;const submitting=new Set();
   const $=s=>host.querySelector(s), $$=s=>[...host.querySelectorAll(s)];
@@ -59,17 +60,18 @@ export function mountScenic(host,{mode,hydrate,toast}) {
     host.innerHTML=frame(`<main class="sj-page"><div class="sj-head"><h1>去哪里看看</h1><p>选一个景区，在地图上挑想去的地方。</p></div>${list.length?`<div class="sj-grid">${list.map(card).join('')}</div>`:'<p class="sj-empty">暂时还没有开放的景区。</p>'}</main>`);
   }
   function drawDetail(){
-    const id=new URLSearchParams(location.hash.split('?')[1]).get('id');
+    const q=new URLSearchParams(location.hash.split('?')[1]),id=q.get('id');
+    // The guide lives inside the spot scene now; old "&guide=1" links go there.
+    if(q.get('guide')){location.replace(link('pilot',id)+'&guide=1');return;}
     const p=state.published,s=p.spots.find(x=>x.id===id);
     if(!s){host.innerHTML=frame(`<main class="page sw-empty"><h1>这个景点暂时没有开放预览</h1><p>回到地图，发现其他风景。</p><a class="button primary" href="${link('map')}">回到景区地图</a></main>`);return;}
     const photos=orderedPhotos(s);if(!s.photos[activeAngle])activeAngle=photos[0]?.[0];const shown=s.photos[activeAngle];
     const index=p.spots.indexOf(s),next=p.spots.length>1?p.spots[(index+1)%p.spots.length]:null;
     const hasAI=Object.values(s.photos).some(x=>['ai-demo','concept'].includes(x.kind));
-    host.innerHTML=frame(`<main class="sw-detail page"><a class="sw-back" href="${link('map',s.id)}">${ic('arrow-left')}回到地图</a><div class="sw-detail-layout"><section><div class="sw-photo-stage"><img src="${e(webImageUrl(shown?.url))}" alt="${e(s.name)} · ${e(photoName(activeAngle))}"><span class="sw-photo-credit">${shown?photoLabel(shown):''}</span>${photos.length>1?`<span class="sw-photo-count">${photos.findIndex(([id])=>id===activeAngle)+1} / ${photos.length}</span>`:''}<button class="sw-expand" id="visitor-enlarge" aria-label="放大当前图片">${ic('maximize')}</button></div>${photos.length>1?`<div class="sw-thumbnails">${photos.map(([id,x])=>`<button data-gallery="${id}" class="${id===activeAngle?'active':''}" aria-label="查看${e(photoName(id))}" aria-pressed="${id===activeAngle}"><img src="${e(webImageUrl(x.url))}" alt=""><span>${e(photoName(id))}</span></button>`).join('')}</div>`:''}${creditHTML(shown)}</section><aside class="sw-story"><h1>${e(s.name)}</h1><p>${e(s.description||'沿着自己的节奏，发现这里的风景。')}</p>${s.narration?.text?`<div class="sw-narration"><button class="button outline full" id="listen">${ic('volume-2')}<span>听讲解</span></button><details><summary>讲解稿 · 景区按资料整理</summary><p>${e(s.narration.text)}</p></details></div>`:''}${visitorExperience(s)==='world'?`<a class="button primary large full" href="${link('pilot',s.id)}">${ic('box')}进入 3D 漫游</a><small class="sw-quiet">${e(worldAsset(s).note)}</small>`:''}${guideHTML(s)}<details class="sw-sources"><summary>${ic('info')}关于图片与资料</summary>${safeURL(s.factSource)?`<a class="sw-text-link" href="${e(safeURL(s.factSource))}" target="_blank" rel="noopener noreferrer">景点资料来源</a>`:''}<p>${hasAI?'本页包含 AI 概念或补全图像，用于呈现游览氛围；未拍摄部分为推测，实际景观请以现场为准。':'图片用于景观参考；地图为游览示意，实际位置与开放情况请以景区信息为准。'}</p></details>${next?`<a class="sw-next" href="${spotLink(next)}"><span><small>下一处</small>${e(next.name)}</span>${ic('arrow-right')}</a>`:''}</aside></div></main>`);
+    host.innerHTML=frame(`<main class="sw-detail page"><a class="sw-back" href="${link('map',s.id)}">${ic('arrow-left')}回到地图</a><div class="sw-detail-layout"><section><div class="sw-photo-stage"><img src="${e(webImageUrl(shown?.url))}" alt="${e(s.name)} · ${e(photoName(activeAngle))}"><span class="sw-photo-credit">${shown?photoLabel(shown):''}</span>${photos.length>1?`<span class="sw-photo-count">${photos.findIndex(([id])=>id===activeAngle)+1} / ${photos.length}</span>`:''}<button class="sw-expand" id="visitor-enlarge" aria-label="放大当前图片">${ic('maximize')}</button></div>${photos.length>1?`<div class="sw-thumbnails">${photos.map(([id,x])=>`<button data-gallery="${id}" class="${id===activeAngle?'active':''}" aria-label="查看${e(photoName(id))}" aria-pressed="${id===activeAngle}"><img src="${e(webImageUrl(x.url))}" alt=""><span>${e(photoName(id))}</span></button>`).join('')}</div>`:''}${creditHTML(shown)}</section><aside class="sw-story"><h1>${e(s.name)}</h1><p>${e(s.description||'沿着自己的节奏，发现这里的风景。')}</p>${s.narration?.text?`<div class="sw-narration"><button class="button outline full" id="listen">${ic('volume-2')}<span>听讲解</span></button><details><summary>讲解稿 · 景区按资料整理</summary><p>${e(s.narration.text)}</p></details></div>`:''}${visitorExperience(s)==='world'?`<a class="button primary large full" href="${link('pilot',s.id)}">${ic('box')}进入 3D 漫游</a><small class="sw-quiet">${e(worldAsset(s).note)}</small>`:''}<a class="button outline full sw-ask" href="${link('pilot',s.id)}&guide=1">${ic('message-circle')}到景点里问导游</a><details class="sw-sources"><summary>${ic('info')}关于图片与资料</summary>${safeURL(s.factSource)?`<a class="sw-text-link" href="${e(safeURL(s.factSource))}" target="_blank" rel="noopener noreferrer">景点资料来源</a>`:''}<p>${hasAI?'本页包含 AI 概念或补全图像，用于呈现游览氛围；未拍摄部分为推测，实际景观请以现场为准。':'图片用于景观参考；地图为游览示意，实际位置与开放情况请以景区信息为准。'}</p></details>${next?`<a class="sw-next" href="${spotLink(next)}"><span><small>下一处</small>${e(next.name)}</span>${ic('arrow-right')}</a>`:''}</aside></div></main>`);
     $$('[data-gallery]').forEach(b=>b.onclick=()=>{activeAngle=b.dataset.gallery;draw();});
     $('#visitor-enlarge').onclick=()=>showImage(s,activeAngle,false);
-    bindGuide(s);bindSpeak($('#listen'),s.narration?.text);
-    if(new URLSearchParams(location.hash.split('?')[1]).get('guide'))setTimeout(()=>{const g=$('.sw-guide');if(!g)return;g.scrollIntoView({behavior:'smooth',block:'center'});g.classList.add('sw-flash');$('#guide-q')?.focus({preventScroll:true});},80);
+    bindSpeak($('#listen'),s.narration?.text);
   }
   // Itinerary card: the visitor page shows it inside a mock itinerary; &embed=1 is the bare card for an iframe.
   function drawTrip(){
@@ -80,37 +82,8 @@ export function mountScenic(host,{mode,hydrate,toast}) {
     const src=location.origin+location.pathname+'#trip?s='+encodeURIComponent(sid)+'&embed=1';
     host.innerHTML=frame(`<main class="page tc-page"><a class="sw-back" href="${link('map')}">${ic('arrow-left')}回到景区地图</a><div class="tc-intro"><h1>游览路线卡片</h1><p>一张可以放进行程单、酒店或美食页面的路线卡片。下面是它放进行程单里的样子。</p></div><div class="tc-host"><div class="tc-host-bar"><b>我的行程</b><span>第 1 天 · 杭州</span><em>嵌入示意</em></div>${card}</div><details class="tc-code"><summary>${ic('code')}嵌入代码</summary><code>${e(`<iframe src="${src}" width="420" height="720" style="border:0"></iframe>`)}</code></details></main>`);
   }
-  // One guide widget for visitors and the studio preview. With the local server it asks Claude, grounded in spot.guide / spot.notice;
-  // otherwise (or on any failure) it falls back to sentence retrieval from the same material.
-  function guideHTML(s){
-    if(guideFor!==s.id){guideFor=s.id;guideLog=[];}
-    return `<section class="sw-guide" aria-label="AI 导游"><div class="sw-guide-head">${ic('sparkles')}<b>问问导游</b><small>只依据景区讲解资料回答</small></div><div class="sw-guide-log" id="guide-log" aria-live="polite">${guideLogHTML()}</div><div class="sw-guide-chips">${['讲讲这里','名字怎么来的','有什么提示','今天几点开放'].map(q=>`<button type="button" data-guide-q="${q}">${q}</button>`).join('')}</div><form class="sw-guide-form" id="guide-form"><input id="guide-q" maxlength="200" autocomplete="off" placeholder="关于${e(s.name)}，你想知道…" aria-label="向导游提问"><button type="submit" aria-label="发送">${ic('arrow-up')}</button></form></section>`;
-  }
-  const answerLabel=m=>m.known?(m.mode==='llm'?'AI 导游 · 依据景区讲解资料':'摘自景区讲解资料'):'资料中没有 · 不作推测';
-  function guideLogHTML(){
-    return guideLog.length?guideLog.map(m=>m.role==='user'?`<p class="sw-guide-q">${e(m.text)}</p>`:m.pending?`<div class="sw-guide-a is-pending"><p><span class="sw-typing" aria-label="导游正在回答"><i></i><i></i><i></i></span></p></div>`:`<div class="sw-guide-a"><p>${e(m.text)}</p><small>${answerLabel(m)}</small></div>`).join(''):'<p class="sw-guide-empty">点一个问题，或者直接问。</p>';
-  }
-  async function guideAnswer(s,q,history){
-    if(caps.guide)try{
-      const r=await fetch('/api/guide',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:s.name,guide:s.guide||s.description||'',notice:s.notice||'',question:q,history}),signal:AbortSignal.timeout(35000)});
-      if(r.ok)return await r.json();
-    }catch{}
-    return answerSpot(s,q);
-  }
-  function bindGuide(s){
-    const render=()=>{const log=$('#guide-log');if(!log)return;log.innerHTML=guideLogHTML();log.scrollTop=log.scrollHeight;};
-    const ask=async q=>{
-      q=q.trim();if(!q||guideLog.some(m=>m.pending))return;
-      const history=guideLog.map(m=>({role:m.role==='user'?'user':'assistant',text:m.text}));
-      const reply={role:'guide',pending:true,text:''},log=guideLog;
-      guideLog.push({role:'user',text:q},reply);render();
-      Object.assign(reply,await guideAnswer(s,q,history),{pending:false});
-      if(!alive||guideLog!==log)return;// The visitor moved on to another spot.
-      if(guideLog.length>12)guideLog.splice(0,guideLog.length-12);render();
-    };
-    $$('[data-guide-q]').forEach(b=>b.onclick=()=>ask(b.dataset.guideQ));
-    $('#guide-form').onsubmit=ev=>{ev.preventDefault();const input=$('#guide-q');ask(input.value);input.value='';};
-  }
+  // Studio preview of the same guide the visitor meets inside the 3D spot (guide-chat.js).
+  function bindGuide(s){guideChat?.dispose();const el=$('#guide-preview');guideChat=el?mountGuideChat(el,{spot:s,hydrate,title:'试问导游'}):null;}
   function photoCard(s,a){
     const p=s.photos[a.id];
     return `<article class="sw-angle ${p?.kind==='ai-demo'?'is-ai':''}"><div class="sw-angle-top"><b>${a.name}</b><span>${p?(p.kind==='ai-demo'?(p.accepted?'已接受':'待审核'):'已导入'):'待补充'}</span></div>${p?`<button class="sw-angle-image" data-inspect="${a.id}" aria-label="查看${a.name}大图"><img src="${e(webImageUrl(p.url))}" alt="${e(p.name)}"><span>${ic('maximize')}</span></button><div class="sw-angle-meta"><span class="sw-tag ${p.kind==='ai-demo'?'ai':''}">${photoLabel(p)}</span><small title="${e(p.name)}">${e(p.name)}</small></div><div class="sw-angle-actions">${p.kind==='ai-demo'?`<button class="plain" data-inspect="${a.id}">${ic(p.accepted?'circle-check':'scan-eye')}${p.accepted?'重新查看':'查看并审核'}</button>`:`<label class="plain sw-upload">${ic('replace')}替换<input type="file" data-angle-upload="${a.id}" accept="image/jpeg,image/png,image/webp"></label>`}<button class="plain sw-danger" data-remove="${a.id}" aria-label="移除${a.name}">${ic('trash-2')}移除</button></div>`:`<label class="sw-empty-angle sw-upload">${ic('image-plus')}<b>上传${a.name}</b><small>${a.hint}</small><input type="file" data-angle-upload="${a.id}" accept="image/jpeg,image/png,image/webp"></label>`}</article>`;
@@ -139,7 +112,41 @@ export function mountScenic(host,{mode,hydrate,toast}) {
     return `<aside class="st-side"><a class="st-nav st-back" href="#studio">${ic('arrow-left')}全部景区</a><button class="st-nav ${view==='map'?'active':''}" data-view="map">${ic('map')}景区地图<small>${state.draft.spots.length} 处</small></button><button class="st-nav ${view==='make'?'active':''}" data-view="make">${ic('wand-sparkles')}制作助手<small>${(q=>q.block+q.warn?q.block+q.warn+' 项待处理':'')(runQA(state.draft,geoFor(state.id)))}</small></button><div class="st-side-label">景点</div><div class="st-spots">${state.draft.spots.map((s,i)=>`<button class="st-spot ${view==='spot'&&s.id===selected?'active':''}" data-spot="${e(s.id)}">${cover(s)?`<img loading="lazy" src="${e(webImageUrl(cover(s).url))}" alt="">`:`<span class="st-noimg">${ic('image')}</span>`}<span class="st-spot-text"><b>${String(i+1).padStart(2,'0')} · ${e(s.name)}</b>${chips(s)}</span></button>`).join('')}</div><button class="st-add" id="add-spot">${ic('plus')}添加景点</button><div class="st-side-foot"><button class="plain" id="export-scenic">${ic('download')}导出备份</button></div></aside>`;
   }
   function studioMap(){
-    return `<div class="st-pane-head"><h1>景区地图</h1><div class="button-row">${imageInput('map-upload','更换地图')}<button class="button small ${placement==='add'?'primary':'outline'}" id="map-add">${ic('map-pin-plus')}${placement==='add'?'取消添加':'添加景点'}</button></div></div><label class="st-intro">景区介绍 · 显示在游客端景区列表<input id="scenic-intro" maxlength="120" value="${e(state.draft.intro||'')}" placeholder="一句话介绍这个景区"></label><p class="st-lead">${placement==='add'?'点击地图放置新景点。':state.draft.spots.length?'拖动点位调整位置，点一下打开该景点。选中点位后可用方向键微调。':'点「添加景点」，在地图上放下第一个景点。'}</p>${mapHTML(state.draft,true)}${infoNote('JPG / PNG / WebP，单张不超过 12 MB。点位按地图比例定位，更换地图后请核对位置。地图只是游览示意，不是地理坐标。')}`;
+    return `<div class="st-pane-head"><h1>景区地图</h1><div class="button-row">${imageInput('map-upload','更换地图')}<button class="button small ${placement==='add'?'primary':'outline'}" id="map-add">${ic('map-pin-plus')}${placement==='add'?'取消添加':'添加景点'}</button></div></div><label class="st-intro">景区介绍 · 显示在游客端景区列表<input id="scenic-intro" maxlength="120" value="${e(state.draft.intro||'')}" placeholder="一句话介绍这个景区"></label><p class="st-lead">${placement==='add'?'点击地图放置新景点。':state.draft.spots.length?'拖动点位调整位置，点一下打开该景点。选中点位后可用方向键微调。':'点「添加景点」，在地图上放下第一个景点。'}</p>${mapHTML(state.draft,true)}${infoNote('JPG / PNG / WebP，单张不超过 12 MB。点位按地图比例定位，更换地图后请核对位置。地图只是游览示意，不是地理坐标。')}${studio3D()}`;
+  }
+  // 3D base map (map package) and batch world generation. Packages come from an agent or an exported template, never from code.
+  function studio3D(){
+    const own=state.draft.mapPackage,bundled=!own&&geoFor(state.id),pkgName=own?.manifest?.name||'';
+    const status=own?`已导入地图包「${e(pkgName)}」· ${Object.keys(own.geography.spots).length} 个景点有三维位置 · ${own.layout.landmarks.length} 个模型`:bundled?'使用内置三维底图':'还没有三维底图，游客端只显示绘卷地图';
+    const ready=state.draft.spots.filter(s=>!worldProblem(s)),busyJobs=state.draft.spots.filter(s=>['uploading','running'].includes(state.jobs?.[s.id]?.status)).length;
+    return `<section class="st-3d"><h2>${ic('box')}三维底图与景点场景</h2><p class="st-lead">${status}</p><div class="button-row"><label class="button outline small sw-upload">${ic('file-json')}导入地图包<input id="map-package-upload" type="file" accept="application/json,.json"></label>${own||bundled?`<button class="button outline small" id="map-package-export">${ic('download')}导出当前地图包</button><a class="button outline small" href="#map?s=${encodeURIComponent(state.id)}${own?'&draft=1':''}" target="_blank" rel="noopener">${ic('eye')}预览三维地图</a>`:''}${own?`<button class="plain sw-danger" id="map-package-remove">${ic('trash-2')}移除导入</button>`:''}</div>
+    <div class="st-batch"><div><b>一键生成景点 3D 场景</b><small>${busyJobs?busyJobs+' 个景点正在生成 · ':''}${ready.length} / ${state.draft.spots.length} 个景点照片已满足生成条件</small></div><button class="button small primary" id="batch-world" ${!caps.world||!ready.length?'disabled':''}>${ic('sparkles')}批量生成</button></div>${caps.world?'':`<p class="sw-hint">${ic('plug-zap')} 批量生成需要本机服务：在 .env 配置 WORLDLABS_API_KEY 后运行 npm start。</p>`}
+    ${infoNote('地图包是 manifest / geography / layout / interaction 四层 JSON 合在一个文件里：{"manifest":…,"geography":…,"layout":…,"interaction":…}。导入时按与构建相同的契约和空间规则校验，景点 ID 必须是本景区已有的景点。layout 里的模型可带 asset（本站 /assets 或 /generated 下的 GLB），载入前和载入失败时显示程序化占位模型。发布后游客端使用这份底图。')}</section>`;
+  }
+  function showBatchWorld(){
+    const rows=state.draft.spots.map(s=>{const problem=worldProblem(s),active=['uploading','running'].includes(state.jobs?.[s.id]?.status),has=Boolean(worldAsset(s)&&!worldStale(s));
+      return `<label class="st-batch-row ${problem||active?'off':''}"><input type="checkbox" data-batch="${e(s.id)}" ${problem||active?'disabled':has?'':'checked'}><span><b>${e(s.name)}</b><small>${problem?e(problem):active?'正在生成':has?'已有 3D 场景，勾选后重新生成':worldInputs(s).length+' 张照片'}</small></span></label>`;}).join('');
+    const models=WORLD_MODELS.map((m,i)=>`<label class="st-model ${i===0?'active':''}"><input type="radio" name="batch-model" value="${m.id}" ${i===0?'checked':''}><span><b>${m.name}</b><small>${m.hint}</small></span></label>`).join('');
+    const d=dialog(`<div class="sw-dialog-top"><span>批量生成 3D 场景</span><button class="plain" data-close aria-label="关闭">${ic('x')}</button></div><div class="sw-dialog-copy st-confirm"><div class="st-batch-list">${rows}</div><div class="st-models" role="radiogroup" aria-label="生成模型">${models}</div><p class="sw-hint" id="batch-cost"></p><p class="sw-hint">照片会上传到 World Labs，逐个提交，每个景点单独扣费；已提交的任务不会因关闭页面而取消。</p><div class="button-row"><button class="button outline" data-close>取消</button><button class="button primary" id="batch-confirmed">${ic('sparkles')}开始生成</button></div></div>`);
+    const picked=()=>[...d.querySelectorAll('[data-batch]:checked')].map(x=>state.draft.spots.find(s=>s.id===x.dataset.batch)).filter(Boolean);
+    const model=()=>modelOf(d.querySelector('[name=batch-model]:checked').value);
+    const cost=()=>{const list=picked(),m=model();d.querySelector('#batch-cost').textContent=list.length?`${list.length} 个景点 · 预计约 ${list.reduce((n,s)=>n+m.credits(worldInputs(s).length),0)} credits`:'请至少勾选一个景点';d.querySelectorAll('.st-model').forEach(l=>l.classList.toggle('active',l.querySelector('input').checked));};
+    d.querySelectorAll('input').forEach(i=>i.onchange=cost);cost();
+    d.querySelector('#batch-confirmed').onclick=guarded(async()=>{
+      const list=picked(),m=model();if(!list.length)throw Error('请至少勾选一个景点');d.close();
+      // Sequential: each submit uploads photos, and a failure on one spot must not stop the rest.
+      for(const s of list){if(!alive)return;try{await startWorld(s.id,m.id);}catch(err){notify(s.name+'：'+err.message);}}
+    });
+  }
+  async function importMapPackage(file){
+    if(!file)return;if(file.size>8*1024*1024)throw Error('地图包请控制在 8 MB 以内');
+    let data;try{data=JSON.parse(await file.text());}catch{throw Error('不是有效的 JSON 文件');}
+    const {checkMapPackage,registerMapPackage}=await import('./map3d/packages.js');
+    const errors=checkMapPackage(data,state.draft.spots.map(s=>s.id));
+    if(errors.length)throw Error('地图包未通过校验：'+errors.slice(0,3).join('；')+(errors.length>3?` 等 ${errors.length} 项`:''));
+    state.draft.mapPackage=Object.fromEntries(['manifest','geography','layout','interaction'].map(k=>[k,data[k]]));
+    registerMapPackage('draft:'+state.id,state.draft.mapPackage);
+    await persist('地图包已导入草稿，发布后游客端可见');
   }
   function studioSpot(){
     const s=spot();
@@ -153,7 +160,7 @@ export function mountScenic(host,{mode,hydrate,toast}) {
     return `<div class="st-bar"><span><b>${st.photos} / ${ANGLES.length}</b> 个视角${st.extras?' · 补充 '+st.extras+' 张':''}${st.pending?` · <em>${st.pending} 张 AI 图片待审核</em>`:''}</span><div class="button-row">${imageInput('batch-upload','批量上传',true)}${canCompleteDemo(s)&&pendingAngles(s).length?`<button class="button small primary" id="complete-angles">${ic('sparkles')}AI 补全缺失视角</button>`:''}</div></div>${busy==='completion'?`<div class="sw-job" role="status"><span class="sw-spinner"></span><div><b>正在准备补全视角…</b></div></div>`:''}<div class="sw-angles">${ANGLES.map(a=>photoCard(s,a)).join('')}</div><h3 class="st-sub">补充照片<small>不限数量，游客端排在六个视角之后</small></h3><div class="sw-angles">${Object.keys(s.photos).filter(isExtra).map(k=>photoCard(s,{id:k,name:'补充照片',hint:''})).join('')}<label class="sw-empty-angle sw-upload st-more">${ic('image-plus')}<b>添加照片</b><small>可多选</small><input type="file" id="more-upload" accept="image/jpeg,image/png,image/webp" multiple></label></div>${infoNote('AI 补全目前只对御碑亭原始实拍提供预生成样例，点击后模拟返回；其他景点请上传实拍。AI 图片需逐张打开、接受后才能发布和送入 3D 生成。更换正面、两侧或背面照片后，3D 标签会提示重新生成。')}`;
   }
   function tabGuide(s){
-    return `<div class="sw-guide-editor"><section class="sw-guide-fields"><label>讲解资料<textarea id="guide-text" rows="10" maxlength="3000" placeholder="来历、看点、传说……每句话都应能被核实">${e(s.guide||'')}</textarea></label><label>运营提示<input id="guide-notice" maxlength="300" value="${e(s.notice||'')}" placeholder="例如：塔内电梯今日检修"></label><label>资料来源链接<input id="guide-source" type="url" maxlength="500" value="${e(s.factSource||'')}" placeholder="https://"></label></section><aside class="sw-guide-preview"><div class="sw-panel-caption"><span>试问导游 · 草稿</span></div>${guideHTML(s)}</aside></div>${infoNote('导游按句检索讲解资料，原样作答；问不到的问题会如实说明，不作推测。开放时间、票价等只看运营提示，未填写时提示以官方渠道为准。内置六处讲解为演示整理，正式使用前请景区核实。')}`;
+    return `<div class="sw-guide-editor"><section class="sw-guide-fields"><label>讲解资料<textarea id="guide-text" rows="10" maxlength="3000" placeholder="来历、看点、传说……每句话都应能被核实">${e(s.guide||'')}</textarea></label><label>运营提示<input id="guide-notice" maxlength="300" value="${e(s.notice||'')}" placeholder="例如：塔内电梯今日检修"></label><label>资料来源链接<input id="guide-source" type="url" maxlength="500" value="${e(s.factSource||'')}" placeholder="https://"></label></section><aside class="sw-guide-preview"><div class="sw-panel-caption"><span>试问导游 · 草稿</span></div><div id="guide-preview"></div></aside></div>${infoNote('导游按句检索讲解资料，原样作答；问不到的问题会如实说明，不作推测。开放时间、票价等只看运营提示，未填写时提示以官方渠道为准。内置六处讲解为演示整理，正式使用前请景区核实。')}`;
   }
   // 3D tab: live preview on the left; on the right, what goes in, which model, and the running job.
   const DIRECTION={front:'正面',rear:'右侧',back:'背面',left:'左侧'};
@@ -323,7 +330,7 @@ export function mountScenic(host,{mode,hydrate,toast}) {
     const d=dialog(`<div class="sw-dialog-top"><span>发布到游客端</span><button class="plain" data-close aria-label="关闭">${ic('x')}</button></div><div class="sw-dialog-copy st-publish">${problems.length?`<h3>还有 ${problems.length} 项需要处理</h3><ul class="st-problems">${problems.map((p,i)=>`<li>${ic('circle-alert')}<span>${e(p.text)}</span>${p.spotId?`<button class="plain" data-fix="${i}">去处理 ${ic('arrow-right')}</button>`:''}</li>`).join('')}</ul>`:`<h3>这次会更新</h3><ul class="st-changes">${changes.map(c=>`<li>${ic('dot')}${e(c)}</li>`).join('')}</ul><label class="sw-check-label"><input type="checkbox" id="publish-rights">已核对图片使用权、AI 标记、讲解和介绍。</label><div class="button-row"><button class="button outline" data-close>再看看</button><button class="button primary" id="publish-map">${ic('send')}发布 v${state.publishNumber+1}</button></div><p class="sw-hint">发布只更新本浏览器的游客端；之后继续编辑草稿不会影响已发布内容。</p>`}</div>`);
     d.querySelectorAll('[data-fix]').forEach(b=>b.onclick=()=>{const p=problems[b.dataset.fix];selected=p.spotId;view='spot';tab=p.tab;d.close();draw();});
     const go=d.querySelector('#publish-map');
-    if(go)go.onclick=guarded(async()=>{if(!d.querySelector('#publish-rights').checked)throw Error('请先勾选核对项');const next=copy(state);publishScenic(next);const nextWs={...ws,scenics:ws.scenics.map(x=>x===state?next:x)};await saveScenic(nextWs);ws=nextWs;state=next;d.close();draw();notify('已发布 v'+state.publishNumber+'，游客端已更新');});
+    if(go)go.onclick=guarded(async()=>{if(!d.querySelector('#publish-rights').checked)throw Error('请先勾选核对项');const next=copy(state);publishScenic(next);const nextWs={...ws,scenics:ws.scenics.map(x=>x===state?next:x)};await saveScenic(nextWs);ws=nextWs;state=next;(await import('./map3d/packages.js')).registerMapPackage(next.id,next.published.mapPackage||null);d.close();draw();notify('已发布 v'+state.publishNumber+'，游客端已更新');});
   }
   function bindCreator(){
     const nav=fn=>()=>{if(busy)return;placement='';fn();draw();};
@@ -340,6 +347,13 @@ export function mountScenic(host,{mode,hydrate,toast}) {
       $('#scenic-intro').onchange=guarded(async ev=>{state.draft.intro=ev.target.value.trim();await persist();});
       $('#map-upload').onchange=guarded(async ev=>{const f=ev.target.files[0];if(!f)return;const image=await imageFile(f);state.draft.map={url:image.url,name:image.name,custom:true};await persist('地图已替换，请核对每个景点的位置');});
       $('#map-add').onclick=()=>{placement=placement==='add'?'':'add';draw();};
+      $('#map-package-upload').onchange=guarded(async ev=>{await importMapPackage(ev.target.files[0]);});
+      $('#map-package-export')?.addEventListener('click',guarded(async()=>{
+        const {packageData}=await import('./map3d/packages.js'),data=state.draft.mapPackage||packageData(state.id);if(!data)throw Error('还没有三维底图');
+        const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=(data.manifest.id||'map')+'-map-package.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),5000);
+      }));
+      $('#map-package-remove')?.addEventListener('click',guarded(async()=>{delete state.draft.mapPackage;(await import('./map3d/packages.js')).registerMapPackage('draft:'+state.id,null);await persist('已移除导入的地图包（草稿），发布后生效');}));
+      $('#batch-world').onclick=()=>showBatchWorld();
       return;
     }
     const s=spot();
@@ -358,7 +372,7 @@ export function mountScenic(host,{mode,hydrate,toast}) {
     }
     if(tab==='guide'){
       bindGuide(s);
-      $('#guide-text').onchange=guarded(async ev=>{s.guide=ev.target.value.trim();guideFor='';await persist('讲解资料已保存到草稿');});
+      $('#guide-text').onchange=guarded(async ev=>{s.guide=ev.target.value.trim();forgetGuide(s.id);await persist('讲解资料已保存到草稿');});
       $('#guide-notice').onchange=guarded(async ev=>{s.notice=ev.target.value.trim();await persist();});
       $('#guide-source').onchange=guarded(async ev=>{const v=ev.target.value.trim();if(v&&!safeURL(v)){ev.target.value=s.factSource||'';throw Error('请填写 http 或 https 链接');}s.factSource=v?safeURL(v):'';await persist();});
     }
@@ -464,5 +478,5 @@ export function mountScenic(host,{mode,hydrate,toast}) {
   const health=fetch('/api/health',{signal:AbortSignal.timeout(1500)}).then(r=>r.ok?r.json():{}).catch(()=>({}));
   Promise.all([loadScenic(),health]).then(([value,h])=>{if(!alive)return;caps=h||{};ws=value;state=ws.scenics.find(x=>x.id===sid)||null;draw();if(isCreator)schedulePoll();}).catch(err=>notify(err.message));
   ticker=setInterval(()=>{const el=$('#st-job-time'),job=state?.jobs?.[selected];if(el&&job?.startedAt)el.textContent=elapsed(job);},1000);
-  return ()=>{alive=false;stopSpeaking();clearTimeout(jobTimer);clearTimeout(pollTimer);clearInterval(ticker);galleryDialog?.remove();studioScene?.dispose();};
+  return ()=>{alive=false;stopSpeaking();clearTimeout(jobTimer);clearTimeout(pollTimer);clearInterval(ticker);galleryDialog?.remove();studioScene?.dispose();guideChat?.dispose();};
 }

@@ -13,6 +13,7 @@ const MOODS=style.moods,scene=new T.Group();parent.add(scene);
 const B=GEO_FRAME.bounds,W=B.maxX-B.minX,D=B.maxZ-B.minZ,CX=(B.minX+B.maxX)/2,CZ=(B.minZ+B.maxZ)/2;
 const rng=(seed=7)=>()=>{seed=(seed*16807)%2147483647;return (seed-1)/2147483646;};
 const C=c=>new T.Color(c);
+let disposed=false;
 
 function landTexture(res=layout.quality.landTextureResolution){
  const data=new Uint8Array(res*res);
@@ -194,12 +195,25 @@ function landmarks(){
   if(entry.absoluteY!==undefined)o.position.y=entry.absoluteY;
   o.name=entry.id;
   if(entry.spotId){o.traverse(c=>{c.userData.spot=entry.spotId;});out[entry.spotId]={object:o,top:o.userData.top*o.scale.x};}
+  if(entry.asset)loadAsset(o,entry);
   g.add(o);
  }
  const pond=new T.Mesh(new T.CircleGeometry(layout.pond.radius,32),new T.MeshStandardMaterial({color:style.water.pond,roughness:style.geometry==='folded-paper'?1:.2,metalness:.1}));
  place(pond,...layout.pond.at,0,.012);pond.rotation.x=-Math.PI/2;g.add(pond);
  const koi=[];for(let i=0;i<layout.pond.koi;i++){const k=new T.Mesh(new T.CapsuleGeometry(.022,.06,3,6).rotateZ(Math.PI/2),new T.MeshStandardMaterial({color:i%3?'#f26b2a':'#f7f1e6',roughness:.5}));k.position.y=pond.position.y+.01;k.userData={r:.12+i*.042,s:.4+i*.07,p:i};koi.push(k);g.add(k);}
  return {group:g,spots:out,koi,pond};
+}
+// A generated GLB replaces the procedural placeholder once loaded, fitted to the placeholder's height (or asset.height).
+// Until then, or if loading fails, the placeholder stays, so the map never shows a hole.
+function loadAsset(o,entry){
+ import('three/addons/loaders/GLTFLoader.js').then(({GLTFLoader})=>new GLTFLoader().loadAsync(entry.asset.url)).then(gltf=>{
+  if(disposed){disposeTree(gltf.scene);return;}
+  const model=gltf.scene,box=new T.Box3().setFromObject(model),size=box.getSize(new T.Vector3()),center=box.getCenter(new T.Vector3());
+  const height=entry.asset.height??o.userData.top??1,k=height/(size.y||1);
+  model.position.set(-center.x*k,-box.min.y*k,-center.z*k);model.scale.setScalar(k);
+  model.traverse(c=>{if(c.isMesh){c.castShadow=c.receiveShadow=true;}if(entry.spotId)c.userData.spot=entry.spotId;});
+  o.clear();o.add(model);o.userData.top=height;
+ }).catch(err=>console.warn('Landmark asset kept as placeholder:',entry.id,err?.message||err));
 }
 function sky(){
  const m=new T.Mesh(new T.SphereGeometry(320,32,16),new T.ShaderMaterial({side:T.BackSide,depthWrite:false,depthTest:false,uniforms:{uTop:{value:C('#8fc0e6')},uHor:{value:C('#f6e7d8')},uBot:{value:C('#e9dccb')},uStars:{value:0}},
@@ -276,7 +290,7 @@ function build(){
  const fall=(pts,t,dt,kind)=>{const p=pts.geometry.attributes.position,seed=pts.geometry.userData.seed;if(pts.material.opacity<.01)return;
   for(let i=0;i<p.count;i++){let y=p.getY(i)-dt*(kind==='snow'?.9+seed[i]*.6:.35+seed[i]*.3);if(y<0)y+=14;p.setY(i,y);if(kind==='petal'){p.setX(i,p.getX(i)+Math.sin(t*.8+seed[i]*20)*dt*.6+dt*.25);}else p.setX(i,p.getX(i)+Math.sin(t+seed[i]*30)*dt*.15);}p.needsUpdate=true;};
  return {
-  terrain:ter,water:wat,terrainHeight,groundHeight,spots:lm.spots,moon,createTraveler(){const h=traveler();scene.add(h);return h;},dispose(){disposeTree(scene);},get night(){return mood.night;},
+  terrain:ter,water:wat,terrainHeight,groundHeight,spots:lm.spots,moon,createTraveler(){const h=traveler();scene.add(h);return h;},dispose(){disposed=true;disposeTree(scene);},get night(){return mood.night;},
   setMood(id,immediate=false){if(!MOODS[id])return;to=structuredClone(MOODS[id]);from=structuredClone(mood);blend=immediate?1:0;if(immediate){mood=to;apply(mood);}},
   update(t,dt,renderer){
    U.uTime.value=t;

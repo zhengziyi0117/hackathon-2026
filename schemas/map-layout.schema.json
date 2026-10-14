@@ -80,6 +80,31 @@
           },
           "absoluteY": {
             "type": "number"
+          },
+          "asset": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "const": "glb"
+              },
+              "url": {
+                "type": "string",
+                "pattern": "^/(assets|generated)/(?!.*\\.\\.)[\\w./-]+\\.glb$"
+              },
+              "height": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "source": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "kind",
+              "url"
+            ],
+            "additionalProperties": false
           }
         },
         "required": [

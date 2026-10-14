@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
 import {existsSync} from 'node:fs';
-import {mkdtemp,rm} from 'node:fs/promises';
+import {mkdtemp,rm,mkdir,writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 process.env.PORT='4189';
@@ -11,7 +11,7 @@ process.env.JINGJIAN_DATA_DIR=await mkdtemp(path.join(tmpdir(),'jingjian-'));
 for(const k of ['ANTHROPIC_API_KEY','WORLDLABS_API_KEY'])process.env[k]='';
 const {route}=await import('../server.mjs');
 const call=(p,{host='127.0.0.1:4189',method='GET',origin,body}={})=>new Promise((resolve,reject)=>{
- const req=http.request({port:4189,host:'127.0.0.1',path:p,method,headers:{host,...(origin?{origin}:{}),...(body?{'content-type':'application/json'}:{})}},res=>{let b='';res.on('data',d=>b+=d);res.on('end',()=>resolve({status:res.statusCode,body:b}));});
+ const req=http.request({port:4189,host:'127.0.0.1',path:p,method,headers:{host,...(origin?{origin}:{}),...(body?{'content-type':'application/json'}:{})}},res=>{let b='';res.on('data',d=>b+=d);res.on('end',()=>resolve({status:res.statusCode,body:b,type:res.headers['content-type']}));});
  req.on('error',reject);req.end(body);
 });
 test('local server answers only its own host, checks POST origin and never serves outside dist/ or data/worlds',async()=>{
@@ -27,6 +27,9 @@ test('local server answers only its own host, checks POST origin and never serve
   assert.equal((await call('/api/worlds/abcdefgh-1')).status,404);
   assert.equal((await call('/generated/../../package.json')).status,404);
   assert.equal((await call('/generated/abcdefgh-1/world.spz')).status,404);
+  await mkdir(path.join(process.env.JINGJIAN_DATA_DIR,'worlds','abcdefgh-2'),{recursive:true});await writeFile(path.join(process.env.JINGJIAN_DATA_DIR,'worlds','abcdefgh-2','collider.glb'),'glTF');
+  const glb=await call('/generated/abcdefgh-2/collider.glb');assert.equal(glb.status,200);assert.equal(glb.type,'model/gltf-binary');
+  assert.equal((await call('/generated/abcdefgh-2/other.glb')).status,404,'only known generated file names');
   assert.equal((await call('/..%2fpackage.json')).status,403);
   assert.equal((await call('/%E0%A4%A')).status,400);
   if(existsSync('dist/index.html'))assert.equal((await call('/')).status,200);
