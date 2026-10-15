@@ -161,3 +161,40 @@
 .m3[data-style^=imperial] .m3-chip,.m3[data-style^=imperial] .m3-switch,.m3[data-style^=imperial] .m3-tag span,.m3[data-style^=imperial] .m3-passport,.m3[data-style^=imperial] .m3-moods,.m3[data-style^=imperial] .m3-card,.m3[data-style^=imperial] .m3-book{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(253,248,236,.96)}
 
 .m3[data-style^=imperial] .m3-compass,.m3[data-style^=imperial] .m3-style-menu{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(253,248,236,.96)}
+
+/* Studio AI map builder */
+.mb{position:fixed;inset:0;z-index:90;display:grid;grid-template-columns:1fr min(400px,40vw);background:#10181a;color:#e9f1ee;font-family:Inter,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
+.mb-stage{position:relative;grid-column:1;grid-row:1;min-height:0}.mb-stage canvas{display:block;width:100%;height:100%;outline:none;cursor:grab;touch-action:none}.mb-stage canvas:active{cursor:grabbing}
+.mb-tags{grid-column:1;grid-row:1;position:relative;pointer-events:none;overflow:hidden}
+.mb-tag{position:absolute;left:0;top:0;font-size:11px;letter-spacing:1px;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.65);white-space:nowrap;transition:opacity .2s}
+.mb-tag.spot{padding:3px 9px;border-radius:999px;background:rgba(16,24,26,.62);border:1px solid rgba(127,240,255,.35);font-weight:600}
+.mb-hud{grid-column:1;grid-row:1;align-self:start;justify-self:start;margin:18px;display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:999px;background:rgba(16,24,26,.7);border:1px solid rgba(127,240,255,.25);font-size:12px;z-index:1}
+.mb-hud b{font-weight:500;max-width:46vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mb-dot{width:8px;height:8px;border-radius:50%;background:#6b7d79}.mb-dot.on{background:#7ff0ff;box-shadow:0 0 0 0 rgba(127,240,255,.7);animation:mb-pulse 1.4s infinite}
+@keyframes mb-pulse{70%{box-shadow:0 0 0 10px rgba(127,240,255,0)}100%{box-shadow:0 0 0 0 rgba(127,240,255,0)}}
+.mb-toggle{display:flex;align-items:center;gap:5px;margin:0 0 0 6px;color:#b9cbc6;font-size:11px}.mb-toggle input{width:auto;margin:0}
+.mb-side{grid-column:2;grid-row:1;display:flex;flex-direction:column;min-height:0;background:#151f21;border-left:1px solid rgba(255,255,255,.08)}
+.mb-side header{display:flex;justify-content:space-between;align-items:flex-start;padding:18px 18px 12px}.mb-side small{font-size:9px;letter-spacing:3px;color:#7ff0ff}.mb-side h2{font:18px Georgia,"Songti SC",serif;margin-top:4px}
+.mb-icon{width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:none;display:grid;place-items:center;color:#e9f1ee}
+.mb-steps{list-style:none;margin:0;padding:0 18px 10px;display:flex;flex-direction:column;gap:4px;max-height:28vh;overflow:auto;border-bottom:1px solid rgba(255,255,255,.08)}
+.mb-steps button{width:100%;display:flex;align-items:center;gap:9px;text-align:left;padding:6px 8px;border-radius:7px;border:0;background:none;color:#b9cbc6;font-size:12px}
+.mb-steps button:not(:disabled):hover{background:rgba(127,240,255,.08);color:#fff}.mb-steps button:disabled{opacity:1;cursor:default}
+.mb-steps b{flex:none;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:10px;background:rgba(255,255,255,.08)}.mb-steps .current b{background:#7ff0ff;color:#10181a}.mb-steps .current span{color:#fff}
+.mb-steps span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mb-steps svg{width:14px;height:14px;opacity:.6}
+.mb-log{flex:1;min-height:0;overflow:auto;padding:14px 18px;display:flex;flex-direction:column;gap:10px;font-size:13px;line-height:1.7}
+.mb-hint{color:#9fb3ad;font-size:12px}.mb-hint svg{width:14px;height:14px;vertical-align:-2px}
+.mb-ideas{display:flex;flex-direction:column;gap:6px}.mb-ideas button{text-align:left;padding:8px 11px;border-radius:8px;border:1px dashed rgba(127,240,255,.35);background:none;color:#cfe9e4;font-size:12px}
+.mb-msg{white-space:pre-wrap;overflow-wrap:anywhere;animation:m3-pop .25s ease}.mb-msg svg{width:14px;height:14px;vertical-align:-2px}.mb-msg small{display:block;font-size:11px;opacity:.7}
+.mb-msg.me{align-self:flex-end;max-width:88%;background:#225c4f;padding:8px 12px;border-radius:12px 12px 2px 12px}
+.mb-msg.ai{color:#e9f1ee}
+.mb-msg.tool,.mb-msg.note{font-size:11px;color:#8fa8a2}
+.mb-msg.done{font-size:12px;color:#7ff0ff;border-left:2px solid #7ff0ff;padding-left:9px}
+.mb-msg.reject,.mb-msg.err{font-size:12px;color:#ffb3a8;border-left:2px solid #ff7a6b;padding-left:9px}
+.mb-pointer{display:flex;align-items:center;gap:7px;margin:0 18px;padding:6px 10px;border-radius:8px;background:rgba(127,240,255,.1);font-size:12px;color:#cfe9e4}.mb-pointer[hidden]{display:none}.mb-pointer span{flex:1}.mb-pointer button{border:0;background:none;color:inherit;padding:0;display:grid}.mb-pointer svg{width:14px;height:14px}
+.mb-input{padding:12px 18px 18px;display:flex;flex-direction:column;gap:8px}
+.mb-input textarea{margin:0;background:#0f1719;border-color:rgba(255,255,255,.14);color:#e9f1ee;font-size:13px;resize:none}.mb-input textarea::placeholder{color:#62786f}
+.mb-actions{display:flex;gap:8px;justify-content:flex-end}
+.mb-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:7px;border:1px solid rgba(255,255,255,.16);background:none;color:#e9f1ee;font-size:12px}.mb-btn svg{width:14px;height:14px}
+.mb-btn.primary{background:#7ff0ff;border-color:#7ff0ff;color:#10181a;font-weight:600}
+@media (max-width:760px){.mb{grid-template-columns:1fr;grid-template-rows:52vh 1fr}.mb-side{grid-column:1;grid-row:2}.mb-stage,.mb-tags,.mb-hud{grid-row:1}}
+@media (prefers-reduced-motion:reduce){.mb-dot.on{animation:none}.mb-msg{animation:none}}

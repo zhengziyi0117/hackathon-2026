@@ -161,7 +161,7 @@
         },
         "minItems": 3
       },
-      "minItems": 1
+      "minItems": 0
     },
     "places": {
       "type": "object",

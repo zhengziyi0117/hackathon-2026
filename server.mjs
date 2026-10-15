@@ -4,8 +4,10 @@ import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
 import path from 'node:path';
 import {assetFiles} from './src/content/catalog.js';
+import {searchPlaces,generateMap} from './agent/osm-map.mjs';
+import {agentReady,startRun,streamRun,sendMessage,stopRun,replaceState,closeRun} from './agent/map-agent.mjs';
 // Local server: static dist/ plus two optional proxies that keep API keys on this machine.
-// /api/guide → Anthropic Messages API; /api/worlds → World Labs Marble. The public static site has neither and falls back.
+// /api/guide → Anthropic Messages API; /api/worlds → World Labs Marble; /api/map-agent → local pi CLI (its own model credentials); /api/places, /api/map-from-osm → OpenStreetMap (place name only). The public static site has neither and falls back.
 const root=path.dirname(fileURLToPath(import.meta.url));
 try{const env=await readFile(path.join(root,'.env'),'utf8');for(const line of env.split('\n')){const m=line.match(/^([A-Z_]+)=(.*)$/);if(m&&process.env[m[1]]===undefined)process.env[m[1]]=m[2].trim().replace(/^['"]|['"]$/g,'');}}catch{}
 const ENV=process.env,PORT=Number(ENV.PORT)||4173;
@@ -156,12 +158,24 @@ export async function route(req,res){
   try{
     const url=new URL(req.url,'http://'+host);
     if(req.method==='POST'&&req.headers.origin!=='http://'+host)return json(res,403,{error:'请求来源不匹配。'});
-    if(url.pathname==='/api/health')return json(res,200,{local:true,guide:guideReady(),world:worldReady()});
+    if(url.pathname==='/api/health')return json(res,200,{local:true,guide:guideReady(),world:worldReady(),mapAgent:await agentReady()});
     if(url.pathname==='/api/guide'&&req.method==='POST')return json(res,200,await askGuide(await body(req,64*1024)));
     if(url.pathname==='/api/worlds/credits'&&req.method==='GET')return json(res,200,{credits:(await marble('credits')).remaining_credits});
     if(url.pathname==='/api/worlds'&&req.method==='POST')return json(res,202,await createWorld(await body(req,70*1024*1024)));
     const poll=/^\/api\/worlds\/([a-zA-Z0-9-]{8,64})$/.exec(url.pathname);
     if(poll&&req.method==='GET')return json(res,200,await pollWorld(poll[1]));
+    if(url.pathname==='/api/places'&&req.method==='GET')return json(res,200,{places:await searchPlaces(url.searchParams.get('q'))});
+    if(url.pathname==='/api/map-from-osm'&&req.method==='POST')return json(res,200,await generateMap(await body(req,4*1024),path.join(dataRoot,'osm-cache')));
+    if(url.pathname==='/api/map-agent'&&req.method==='POST')return json(res,201,await startRun(await body(req,8*1024*1024),dataRoot));
+    const agent=/^\/api\/map-agent\/([0-9a-f-]{36})\/(events|message|stop|state|close)$/.exec(url.pathname);
+    if(agent){
+      const [,id,action]=agent,missing=()=>json(res,404,{error:'Agent 会话已结束，请重新开始。'});
+      if(action==='events'&&req.method==='GET')return streamRun(id,req,res)||missing();
+      if(req.method!=='POST')return json(res,405,{error:'不支持此方法。'});
+      if(action==='close'){await closeRun(id);return json(res,200,{ok:true});}
+      const ok=action==='message'?sendMessage(id,await body(req,16*1024)):action==='stop'?stopRun(id):await replaceState(id,await body(req,8*1024*1024));
+      return ok?json(res,200,{ok:true}):missing();
+    }
     if(url.pathname.startsWith('/api/'))return json(res,404,{error:'接口不存在。'});
     if(req.method!=='GET'&&req.method!=='HEAD')return json(res,405,{error:'不支持此方法。'});
     const generated=/^\/generated\/([a-zA-Z0-9-]{8,64})\/(world\.spz|receipt\.json|collider\.glb|model\.glb)$/.exec(url.pathname);
@@ -173,4 +187,4 @@ export async function route(req,res){
     if(!res.headersSent)return json(res,err.status||(err.name==='TimeoutError'?504:400),{error:err.name==='TimeoutError'?'上游服务超时，请稍后重试。':err.message||'请求失败。'});
   }
 }
-if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url))http.createServer(route).listen(PORT,'127.0.0.1',()=>console.log(`景见本地服务 http://127.0.0.1:${PORT}\n  AI 导游：${guideReady()?'已接入 Claude':'未配置，使用资料检索'} · 3D 生成：${worldReady()?'已接入 World Labs':'未配置'}`));
+if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url))http.createServer(route).listen(PORT,'127.0.0.1',async()=>console.log(`景见本地服务 http://127.0.0.1:${PORT}\n  AI 导游：${guideReady()?'已接入 Claude':'未配置，使用资料检索'} · 3D 生成：${worldReady()?'已接入 World Labs':'未配置'} · 地图 Agent：${await agentReady()?'使用本机 pi':'未找到 pi'}`));

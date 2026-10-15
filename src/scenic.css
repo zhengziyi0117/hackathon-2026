@@ -363,3 +363,9 @@ footer.tc-foot{display:block;max-width:none;margin:0;padding:10px 18px 14px;font
 .sw-map-index button[aria-pressed=true]{background:#e8e5d8;color:#325647;font-weight:600}
 .sw-map-index button:focus-visible{outline:2px solid #b38b53;outline-offset:1px}
 @media(max-width:640px){.sw-map-index button{font-size:10px;gap:4px;padding:4px;min-height:42px}.sw-visitor-heading>.button{white-space:nowrap;margin-top:8px;padding:8px;font-size:10px}}
+.st-advanced{border-top:1px solid var(--line);padding-top:10px}.st-advanced summary{cursor:pointer;font-size:12px;color:var(--muted)}.st-advanced[open] summary{margin-bottom:10px}
+.st-gen-row{display:flex;gap:8px;margin-top:8px}.st-gen-row input{margin:0;flex:1}.st-gen-row .button{padding:9px 14px}
+.st-gen-list{display:flex;flex-direction:column;gap:6px;margin-top:14px}.st-gen-list:empty{display:none}
+.st-gen-item{display:flex;gap:10px;align-items:flex-start;margin:0;padding:10px 12px;border:1px solid var(--line);border-radius:7px;cursor:pointer;color:inherit}
+.st-gen-item:has(input:checked){border-color:var(--green);background:#f2f6ef}.st-gen-item input{width:auto;margin:3px 0 0}.st-gen-item b{display:block;font-size:13px;font-weight:550}.st-gen-item small{font-size:11px;color:var(--muted)}
+.st-gen #gen-status{min-height:1.8em}

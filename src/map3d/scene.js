@@ -223,9 +223,13 @@ function landmarks(){
   for(const [mat,gs] of buckets){const flat=gs.map(x=>x.index?x.toNonIndexed():x),m=new T.Mesh(mergeGeometries(flat),mat);m.castShadow=m.receiveShadow=true;g.add(m);for(const x of new Set([...gs,...flat]))x.dispose();}
   decor.traverse(o=>o.geometry?.dispose());
  }
- const pond=new T.Mesh(new T.CircleGeometry(layout.pond.radius,32),new T.MeshStandardMaterial({color:style.water.pond,roughness:style.geometry==='folded-paper'?1:.2,metalness:.1}));
- place(pond,...layout.pond.at,0,.012);pond.rotation.x=-Math.PI/2;if(enabled('pond'))g.add(pond);else{pond.geometry.dispose();pond.material.dispose();}
- const koi=[];for(let i=0;i<layout.pond.koi;i++){const k=new T.Mesh(new T.CapsuleGeometry(.022,.06,3,6).rotateZ(Math.PI/2),new T.MeshStandardMaterial({color:i%3?'#f26b2a':'#f7f1e6',roughness:.5}));k.position.y=pond.position.y+.01;k.userData={r:.12+i*.042,s:.4+i*.07,p:i};koi.push(k);g.add(k);}
+ // The decorative fish pond is optional: generated maps only show water that exists in the source data.
+ const koi=[];let pond=null;
+ if(layout.pond){
+  pond=new T.Mesh(new T.CircleGeometry(layout.pond.radius,32),new T.MeshStandardMaterial({color:style.water.pond,roughness:style.geometry==='folded-paper'?1:.2,metalness:.1}));
+  place(pond,...layout.pond.at,0,.012);pond.rotation.x=-Math.PI/2;if(enabled('pond'))g.add(pond);else{pond.geometry.dispose();pond.material.dispose();}
+  for(let i=0;i<layout.pond.koi;i++){const k=new T.Mesh(new T.CapsuleGeometry(.022,.06,3,6).rotateZ(Math.PI/2),new T.MeshStandardMaterial({color:i%3?'#f26b2a':'#f7f1e6',roughness:.5}));k.position.y=pond.position.y+.01;k.userData={r:.12+i*.042,s:.4+i*.07,p:i};koi.push(k);g.add(k);}
+ }
  return {group:g,spots:out,koi,pond};
 }
 // A generated GLB replaces the procedural placeholder once loaded, fitted to the placeholder's height (or asset.height).

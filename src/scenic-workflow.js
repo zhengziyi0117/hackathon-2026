@@ -14,12 +14,26 @@ const ic=name=>`<i data-lucide="${name}"></i>`;
 const photoLabel=p=>p.kind==='real'?'实景摄影':p.kind==='ai-demo'?'AI 补全 · 示例':p.kind==='concept'?'AI 概念图':p.kind==='reference'?'参考照片':'景区上传';
 const cover=s=>s.photos.front||Object.values(s.photos)[0];
 const creditHTML=p=>p?.credit?`<div class="sw-attribution"><span>${e(p.credit.artist)} · ${e(p.credit.date?.split(' ')[0]||'')}</span><span><a href="${e(p.credit.source)}" target="_blank" rel="noopener noreferrer">原照片与作者</a> · <a href="${e(p.credit.licenseUrl)}" target="_blank" rel="noopener noreferrer">${e(p.credit.license)}</a></span><small>${e(p.credit.changes)}</small></div>`:'';
+// Survives the remount after a new scenic is created, so the builder can say what was generated.
+let pendingIntro='';
+// A plain 2D overview (water, roads) drawn from the generated package; it is the visitor's scroll map until staff upload a better one.
+async function overviewImage(pkg,name){
+  const g=pkg.geography,B=g.frame.bounds,W=1600,H=Math.round(W*(B.maxZ-B.minZ)/(B.maxX-B.minX)),k=W/(B.maxX-B.minX);
+  const pt=([x,z])=>((x-B.minX)*k).toFixed(1)+','+((z-B.minZ)*k).toFixed(1),N=g.network.nodes;
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><rect width="100%" height="100%" fill="#efe8d6"/>
+<path fill="#a9cfc9" fill-rule="evenodd" stroke="#8fbab4" stroke-width="2" d="${g.water.map(r=>'M'+r.map(pt).join('L')+'Z').join('')}"/>
+<path fill="none" stroke="#c9b99a" stroke-width="3" stroke-linecap="round" d="${g.network.edges.map(e=>'M'+pt(N[e.a])+'L'+pt(N[e.b])).join('')}"/>
+<text x="40" y="${H-40}" font-family="serif" font-size="44" fill="#5d6b5a">${name.replace(/[<&>]/g,'')}</text><text x="${W-40}" y="${H-40}" text-anchor="end" font-family="sans-serif" font-size="20" fill="#8a927f">© OpenStreetMap contributors</text></svg>`;
+  const img=new Image();img.src=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));await img.decode();
+  const c=document.createElement('canvas');c.width=W;c.height=H;c.getContext('2d').drawImage(img,0,0);URL.revokeObjectURL(img.src);
+  return new File([await new Promise(r=>c.toBlob(r,'image/png'))],name+'.png',{type:'image/png'});
+}
 const imageInput=(id,label,multiple=false)=>`<label class="button outline small sw-upload">${ic('upload')}${label}<input id="${id}" type="file" accept="image/jpeg,image/png,image/webp" ${multiple?'multiple':''}></label>`;
 
 export function mountScenic(host,{mode,hydrate,toast}) {
   const params=new URLSearchParams(location.hash.split('?')[1]),sid=params.get('s')||(mode==='studio'?'':'westlake');
   let alive=true, ws, state, selected=(mode==='map'&&params.get('id'))||'huagang', view='map', tab='info', studioScene=null, placement='', busy='', progress=0, saveError='', saving=false, activeAngle='front', jobTimer;
-  let galleryDialog,guideChat;
+  let galleryDialog,guideChat,mapBuilder;
   // What the local server can do; the public static site has no /api and gets {}.
   let caps={},worldModel='',pollTimer,ticker;const submitting=new Set();
   const $=s=>host.querySelector(s), $$=s=>[...host.querySelectorAll(s)];
@@ -114,14 +128,17 @@ export function mountScenic(host,{mode,hydrate,toast}) {
   function studioMap(){
     return `<div class="st-pane-head"><h1>景区地图</h1><div class="button-row">${imageInput('map-upload','更换地图')}<button class="button small ${placement==='add'?'primary':'outline'}" id="map-add">${ic('map-pin-plus')}${placement==='add'?'取消添加':'添加景点'}</button></div></div><label class="st-intro">景区介绍 · 显示在游客端景区列表<input id="scenic-intro" maxlength="120" value="${e(state.draft.intro||'')}" placeholder="一句话介绍这个景区"></label><p class="st-lead">${placement==='add'?'点击地图放置新景点。':state.draft.spots.length?'拖动点位调整位置，点一下打开该景点。选中点位后可用方向键微调。':'点「添加景点」，在地图上放下第一个景点。'}</p>${mapHTML(state.draft,true)}${infoNote('JPG / PNG / WebP，单张不超过 12 MB。点位按地图比例定位，更换地图后请核对位置。地图只是游览示意，不是地理坐标。')}${studio3D()}`;
   }
-  // 3D base map (map package) and batch world generation. Packages come from an agent or an exported template, never from code.
+  // 3D base map and batch world generation. The usual path is: generate from the place name, then refine with the AI builder.
   function studio3D(){
-    const own=state.draft.mapPackage,bundled=!own&&geoFor(state.id),pkgName=own?.manifest?.name||'';
-    const status=own?`已导入地图包「${e(pkgName)}」· ${Object.keys(own.geography.spots).length} 个景点有三维位置 · ${own.layout.landmarks.length} 个模型`:bundled?'使用内置三维底图':'还没有三维底图，游客端只显示绘卷地图';
+    const own=state.draft.mapPackage,bundled=!own&&geoFor(state.id),has=own||bundled;
+    const status=own?`${Object.keys(own.geography.spots).length} 个景点有三维位置 · ${own.layout.landmarks.length} 个模型`:bundled?'使用内置三维底图':'还没有三维地图。输入景区名称，从 OpenStreetMap 自动生成水体、道路和景点。';
     const ready=state.draft.spots.filter(s=>!worldProblem(s)),busyJobs=state.draft.spots.filter(s=>['uploading','running'].includes(state.jobs?.[s.id]?.status)).length;
-    return `<section class="st-3d"><h2>${ic('box')}三维底图与景点场景</h2><p class="st-lead">${status}</p><div class="button-row"><label class="button outline small sw-upload">${ic('file-json')}导入地图包<input id="map-package-upload" type="file" accept="application/json,.json"></label>${own||bundled?`<button class="button outline small" id="map-package-export">${ic('download')}导出当前地图包</button><a class="button outline small" href="#map?s=${encodeURIComponent(state.id)}${own?'&draft=1':''}" target="_blank" rel="noopener">${ic('eye')}预览三维地图</a>`:''}${own?`<button class="plain sw-danger" id="map-package-remove">${ic('trash-2')}移除导入</button>`:''}</div>
-    <div class="st-batch"><div><b>一键生成景点 3D 场景</b><small>${busyJobs?busyJobs+' 个景点正在生成 · ':''}${ready.length} / ${state.draft.spots.length} 个景点照片已满足生成条件</small></div><button class="button small primary" id="batch-world" ${!caps.world||!ready.length?'disabled':''}>${ic('sparkles')}批量生成</button></div>${caps.world?'':`<p class="sw-hint">${ic('plug-zap')} 批量生成需要本机服务：在 .env 配置 WORLDLABS_API_KEY 后运行 npm start。</p>`}
-    ${infoNote('地图包是 manifest / geography / layout / interaction 四层 JSON 合在一个文件里：{"manifest":…,"geography":…,"layout":…,"interaction":…}。导入时按与构建相同的契约和空间规则校验，景点 ID 必须是本景区已有的景点。layout 里的模型可带 asset（本站 /assets 或 /generated 下的 GLB），载入前和载入失败时显示程序化占位模型。发布后游客端使用这份底图。')}</section>`;
+    return `<section class="st-3d"><h2>${ic('box')}三维地图</h2><p class="st-lead">${status}</p>
+    <div class="button-row">${has?`<button class="button small primary" id="map-builder">${ic('wand-sparkles')}AI 搭建三维地图</button><a class="button outline small" href="#map?s=${encodeURIComponent(state.id)}${own?'&draft=1':''}" target="_blank" rel="noopener">${ic('eye')}预览</a>`:''}<button class="button small ${has?'outline':'primary'}" id="map-generate" ${caps.local?'':'disabled'}>${ic('map')}${has?'按地名重新生成':'按景区名称生成'}</button></div>
+    ${caps.local?'':`<p class="sw-hint">${ic('plug-zap')} 自动生成和 AI 搭建需要本机服务：运行 npm start。</p>`}
+    <div class="st-batch"><div><b>一键生成景点 3D 场景</b><small>${busyJobs?busyJobs+' 个景点正在生成 · ':''}${ready.length} / ${state.draft.spots.length} 个景点照片已满足生成条件</small></div><button class="button small primary" id="batch-world" ${!caps.world||!ready.length?'disabled':''}>${ic('sparkles')}批量生成</button></div>${caps.world?'':`<p class="sw-hint">${ic('plug-zap')} 批量生成需要在 .env 配置 WORLDLABS_API_KEY。</p>`}
+    <details class="st-advanced"><summary>高级：地图包文件</summary><div class="button-row"><label class="button outline small sw-upload">${ic('file-json')}导入地图包<input id="map-package-upload" type="file" accept="application/json,.json"></label>${has?`<button class="button outline small" id="map-package-export">${ic('download')}导出地图包</button>`:''}${own?`<button class="plain sw-danger" id="map-package-remove">${ic('trash-2')}移除三维地图</button>`:''}</div>
+    ${infoNote('地图包是 manifest / geography / layout / interaction 四层 JSON 合在一个文件里。导入时按与构建相同的契约和空间规则校验，景点 ID 必须是本景区已有的景点。')}</details></section>`;
   }
   function showBatchWorld(){
     const rows=state.draft.spots.map(s=>{const problem=worldProblem(s),active=['uploading','running'].includes(state.jobs?.[s.id]?.status),has=Boolean(worldAsset(s)&&!worldStale(s));
@@ -147,6 +164,15 @@ export function mountScenic(host,{mode,hydrate,toast}) {
     state.draft.mapPackage=Object.fromEntries(['manifest','geography','layout','interaction'].map(k=>[k,data[k]]));
     registerMapPackage('draft:'+state.id,state.draft.mapPackage);
     await persist('地图包已导入草稿，发布后游客端可见');
+  }
+  // AI map builder overlay: the map agent edits a copy of the package; nothing reaches the draft until staff adopt it.
+  async function openMapBuilder(intro=''){
+    if(mapBuilder)return;
+    const [{packageData,registerMapPackage},{mountMapBuilder}]=await Promise.all([import('./map3d/packages.js'),import('./map3d/builder.js')]);
+    const pkg=state.draft.mapPackage||packageData(state.id);if(!pkg)throw Error('还没有三维底图');
+    mapBuilder=mountMapBuilder({pkg,spots:state.draft.spots,ready:Boolean(caps.mapAgent),intro,hydrate,toast:notify,
+      onAdopt:async next=>{state.draft.mapPackage=next;registerMapPackage('draft:'+state.id,next);await persist('AI 修改已采用到草稿，发布后游客端可见');},
+      onClose:()=>{mapBuilder=null;}});
   }
   function studioSpot(){
     const s=spot();
@@ -286,9 +312,50 @@ export function mountScenic(host,{mode,hydrate,toast}) {
     $('#new-scenic').onclick=()=>showNewScenic();
     $$('[data-delete-scenic]').forEach(b=>b.onclick=()=>showDeleteScenic(ws.scenics.find(x=>x.id===b.dataset.deleteScenic)));
   }
-  function showNewScenic(){
-    const d=dialog(`<div class="sw-dialog-top"><span>新建景区</span><button class="plain" data-close aria-label="关闭">${ic('x')}</button></div><form class="sw-dialog-copy st-form" id="new-scenic-form"><label>景区名称<input id="new-scenic-name" maxlength="60" required placeholder="例如：灵隐 · 飞来峰"></label><label>游览地图<input id="new-scenic-map" type="file" accept="image/jpeg,image/png,image/webp" required></label><p class="sw-hint">游客在这张图上选景点，插画或示意图都可以。JPG / PNG / WebP，单张不超过 12 MB，之后可以更换。</p><div class="button-row"><button type="button" class="button outline" data-close>取消</button><button class="button primary" type="submit">${ic('plus')}创建并开始编辑</button></div></form>`);
+  function showNewScenic(){return caps.local?showMapFromPlace(null):showUploadScenic();}
+  function showUploadScenic(){
+    const d=dialog(`<div class="sw-dialog-top"><span>新建景区</span><button class="plain" data-close aria-label="关闭">${ic('x')}</button></div><form class="sw-dialog-copy st-form" id="new-scenic-form"><label>景区名称<input id="new-scenic-name" maxlength="60" required placeholder="例如：灵隐 · 飞来峰"></label><label>游览地图<input id="new-scenic-map" type="file" accept="image/jpeg,image/png,image/webp" required></label><p class="sw-hint">游客在这张图上选景点，插画或示意图都可以。运行 npm start 后可以只输入名称，自动生成三维地图。</p><div class="button-row"><button type="button" class="button outline" data-close>取消</button><button class="button primary" type="submit">${ic('plus')}创建并开始编辑</button></div></form>`);
     d.querySelector('#new-scenic-form').onsubmit=guarded(async ev=>{ev.preventDefault();const title=d.querySelector('#new-scenic-name').value.trim(),f=d.querySelector('#new-scenic-map').files[0];if(!title)throw Error('请填写景区名称');if(!f)throw Error('请选择一张地图');const img=await imageFile(f),sc=newScenic(title,{url:img.url,name:img.name,custom:true});ws.scenics.push(sc);await saveScenic(ws);d.close();location.hash='#studio?s='+encodeURIComponent(sc.id);});
+  }
+  // Name → pick the right place → generate. target null creates a new scenic; otherwise its draft gets the map and any new spots.
+  function showMapFromPlace(target){
+    const d=dialog(`<div class="sw-dialog-top"><span>${target?'按地名生成三维地图':'新建景区'}</span><button class="plain" data-close aria-label="关闭">${ic('x')}</button></div>
+    <form class="sw-dialog-copy st-form st-gen" id="gen-form"><label>景区名称<div class="st-gen-row"><input id="gen-q" maxlength="80" required placeholder="例如：颐和园、玄武湖、灵隐寺" value="${e(target?.draft.title||'')}"><button class="button outline" type="submit">${ic('search')}查找</button></div></label>
+    <div id="gen-list" class="st-gen-list" role="radiogroup" aria-label="选择地点"></div><p class="sw-hint" id="gen-status">从 OpenStreetMap 取水体、道路和景点，从 Open-Meteo 取地形起伏。只发送地名和坐标。</p>
+    <div class="button-row"><button type="button" class="button outline" data-close>取消</button>${target?'':'<button type="button" class="plain" id="gen-manual">改为上传游览图</button>'}<button type="button" class="button primary" id="gen-go" disabled>${ic('wand-sparkles')}生成三维地图</button></div></form>`);
+    const $d=x=>d.querySelector(x),status=t=>{$d('#gen-status').textContent=t;};let places=[],picked=null,working=false;
+    $d('#gen-manual')?.addEventListener('click',showUploadScenic);
+    $d('#gen-form').onsubmit=async ev=>{ev.preventDefault();if(working)return;const q=$d('#gen-q').value.trim();if(!q)return;status('正在查找…');
+      try{const r=await fetch('/api/places?q='+encodeURIComponent(q));const out=await r.json();if(!r.ok)throw Error(out.error);places=out.places;}catch(err){status(err.message||'查找失败');return;}
+      if(!places.length){status('没有找到匹配的景区。试试更完整的名称，比如加上「公园」「景区」或城市名。');$d('#gen-list').innerHTML='';return;}
+      $d('#gen-list').innerHTML=places.map((p,i)=>`<label class="st-gen-item"><input type="radio" name="gen-place" value="${i}" ${i?'':'checked'}><span><b>${e(p.name)}</b><small>${e(p.address||p.kind)}</small></span></label>`).join('');
+      picked=places[0];$d('#gen-go').disabled=false;status('确认是这个地方，然后生成。');
+      d.querySelectorAll('[name=gen-place]').forEach(x=>x.onchange=()=>{picked=places[+x.value];});
+    };
+    $d('#gen-go').onclick=async()=>{
+      if(!picked||working)return;working=true;$d('#gen-go').disabled=true;
+      const steps=['正在取水体和道路…','正在找景点…','正在计算地形和路网…','正在校验地图…'];let k=0;status(steps[0]);const tick=setInterval(()=>status(steps[Math.min(++k,steps.length-1)]),4000);
+      try{
+        const mapId=target?(/^[a-z][a-z0-9-]*$/.test(target.id)?target.id:'osm-'+target.id.toLowerCase().replace(/[^a-z0-9-]/g,'')):undefined;
+        const r=await fetch('/api/map-from-osm',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({osm:picked.osm,mapId})}),out=await r.json();if(!r.ok)throw Error(out.error);
+        const {registerMapPackage}=await import('./map3d/packages.js'),img=await imageFile(await overviewImage(out.pkg,out.name));
+        out.pkg.geography.provenance.notes.push(...out.warnings);
+        let sc=target;
+        if(!sc){
+          if(ws.scenics.some(x=>x.id===out.pkg.manifest.id))throw Error('这个景区已经在列表里了');
+          sc=newScenic(out.name,{url:img.url,name:out.name+'.png',custom:true});sc.id=out.pkg.manifest.id;ws.scenics.push(sc);
+        }else if(!sc.draft.map?.url)sc.draft.map={url:img.url,name:out.name+'.png',custom:true};
+        // New spots come from the map; existing spots with the same name keep their content.
+        const names=new Set(sc.draft.spots.map(x=>x.name));
+        for(const g of out.spots)if(!names.has(g.name))sc.draft.spots.push({...newSpot(g.id,g.x,g.y),name:g.name});
+        const keep=new Set(sc.draft.spots.map(x=>x.id));for(const id of Object.keys(out.pkg.geography.spots))if(!keep.has(id)){delete out.pkg.geography.spots[id];out.pkg.layout.landmarks=out.pkg.layout.landmarks.filter(m=>m.spotId!==id);}
+        sc.draft.mapPackage=out.pkg;registerMapPackage('draft:'+sc.id,out.pkg);
+        await saveScenic(ws);clearInterval(tick);d.close();
+        const intro=`已从 OpenStreetMap 生成「${out.name}」：${out.stats.spots} 个景点、${out.stats.waterRings} 片水面、${out.stats.edges} 段道路。${out.warnings.join(' ')} 模型造型按名称自动选择，告诉 Agent 哪里要改。`;
+        if(target){draw();await openMapBuilder(intro);}else{pendingIntro=intro;location.hash='#studio?s='+encodeURIComponent(sc.id)+'&build=1';}
+      }catch(err){clearInterval(tick);status(err.message||'生成失败');working=false;$d('#gen-go').disabled=false;}
+    };
+    if(target?.draft.title)$d('#gen-form').requestSubmit();
   }
   function showDeleteScenic(sc){
     const d=dialog(`<div class="sw-dialog-copy"><h2>删除「${e(sc.draft.title)}」？</h2><p>草稿和已发布内容会一起删除，游客端立即看不到这个景区，本机上传的图片也会被清理。需要的话先进入景区导出备份。</p><div class="button-row"><button class="button outline" data-close>保留</button><button class="button primary" id="delete-scenic-confirmed">确认删除</button></div></div>`);
@@ -354,6 +421,8 @@ export function mountScenic(host,{mode,hydrate,toast}) {
       }));
       $('#map-package-remove')?.addEventListener('click',guarded(async()=>{delete state.draft.mapPackage;(await import('./map3d/packages.js')).registerMapPackage('draft:'+state.id,null);await persist('已移除导入的地图包（草稿），发布后生效');}));
       $('#batch-world').onclick=()=>showBatchWorld();
+      $('#map-builder')?.addEventListener('click',guarded(()=>openMapBuilder()));
+      $('#map-generate')?.addEventListener('click',()=>showMapFromPlace(state));
       return;
     }
     const s=spot();
@@ -476,7 +545,8 @@ export function mountScenic(host,{mode,hydrate,toast}) {
   function draw(){if(!alive||!ws)return;if(isCreator)drawCreator();else drawVisitor();hydrate();}
   host.innerHTML=frame(`<main class="page sw-empty" role="status">正在打开景区…</main>`);
   const health=fetch('/api/health',{signal:AbortSignal.timeout(1500)}).then(r=>r.ok?r.json():{}).catch(()=>({}));
-  Promise.all([loadScenic(),health]).then(([value,h])=>{if(!alive)return;caps=h||{};ws=value;state=ws.scenics.find(x=>x.id===sid)||null;draw();if(isCreator)schedulePoll();}).catch(err=>notify(err.message));
+  Promise.all([loadScenic(),health]).then(([value,h])=>{if(!alive)return;caps=h||{};ws=value;state=ws.scenics.find(x=>x.id===sid)||null;draw();if(isCreator)schedulePoll();
+    if(isCreator&&state&&params.get('build')){history.replaceState(null,'',location.pathname+location.search+'#studio?s='+encodeURIComponent(sid));const intro=pendingIntro;pendingIntro='';openMapBuilder(intro).catch(err=>notify(err.message));}}).catch(err=>notify(err.message));
   ticker=setInterval(()=>{const el=$('#st-job-time'),job=state?.jobs?.[selected];if(el&&job?.startedAt)el.textContent=elapsed(job);},1000);
-  return ()=>{alive=false;stopSpeaking();clearTimeout(jobTimer);clearTimeout(pollTimer);clearInterval(ticker);galleryDialog?.remove();studioScene?.dispose();guideChat?.dispose();};
+  return ()=>{alive=false;stopSpeaking();clearTimeout(jobTimer);clearTimeout(pollTimer);clearInterval(ticker);galleryDialog?.remove();studioScene?.dispose();guideChat?.dispose();mapBuilder?.dispose();};
 }
