@@ -5,9 +5,9 @@ import {createHash} from 'node:crypto';
 import path from 'node:path';
 import {assetFiles} from './src/content/catalog.js';
 import {searchPlaces,generateMap} from './agent/osm-map.mjs';
-import {agentReady,startRun,streamRun,sendMessage,stopRun,replaceState,closeRun} from './agent/map-agent.mjs';
+import {agentReady,mapAgentModels,startRun,streamRun,sendMessage,stopRun,replaceState,closeRun} from './agent/map-agent.mjs';
 // Local server: static dist/ plus two optional proxies that keep API keys on this machine.
-// /api/guide → Anthropic Messages API; /api/worlds → World Labs Marble; /api/map-agent → local pi CLI (its own model credentials); /api/places, /api/map-from-osm → OpenStreetMap (place name only). The public static site has neither and falls back.
+// /api/guide → Anthropic Messages API; /api/worlds → World Labs Marble; /api/map-agent → Claude Agent SDK on the local Claude Code (its own login, models listed in map-agent.config.json); /api/places, /api/map-from-osm → OpenStreetMap (place name only). The public static site has neither and falls back.
 const root=path.dirname(fileURLToPath(import.meta.url));
 try{const env=await readFile(path.join(root,'.env'),'utf8');for(const line of env.split('\n')){const m=line.match(/^([A-Z_]+)=(.*)$/);if(m&&process.env[m[1]]===undefined)process.env[m[1]]=m[2].trim().replace(/^['"]|['"]$/g,'');}}catch{}
 const ENV=process.env,PORT=Number(ENV.PORT)||4173;
@@ -158,13 +158,13 @@ export async function route(req,res){
   try{
     const url=new URL(req.url,'http://'+host);
     if(req.method==='POST'&&req.headers.origin!=='http://'+host)return json(res,403,{error:'请求来源不匹配。'});
-    if(url.pathname==='/api/health')return json(res,200,{local:true,guide:guideReady(),world:worldReady(),mapAgent:await agentReady()});
+    if(url.pathname==='/api/health')return json(res,200,{local:true,guide:guideReady(),world:worldReady(),mapAgent:await agentReady(),mapAgentModels:mapAgentModels()});
     if(url.pathname==='/api/guide'&&req.method==='POST')return json(res,200,await askGuide(await body(req,64*1024)));
     if(url.pathname==='/api/worlds/credits'&&req.method==='GET')return json(res,200,{credits:(await marble('credits')).remaining_credits});
     if(url.pathname==='/api/worlds'&&req.method==='POST')return json(res,202,await createWorld(await body(req,70*1024*1024)));
     const poll=/^\/api\/worlds\/([a-zA-Z0-9-]{8,64})$/.exec(url.pathname);
     if(poll&&req.method==='GET')return json(res,200,await pollWorld(poll[1]));
-    if(url.pathname==='/api/places'&&req.method==='GET')return json(res,200,{places:await searchPlaces(url.searchParams.get('q'))});
+    if(url.pathname==='/api/places'&&req.method==='GET')return json(res,200,{places:await searchPlaces(url.searchParams.get('q'),path.join(dataRoot,'osm-cache'))});
     if(url.pathname==='/api/map-from-osm'&&req.method==='POST')return json(res,200,await generateMap(await body(req,4*1024),path.join(dataRoot,'osm-cache')));
     if(url.pathname==='/api/map-agent'&&req.method==='POST')return json(res,201,await startRun(await body(req,8*1024*1024),dataRoot));
     const agent=/^\/api\/map-agent\/([0-9a-f-]{36})\/(events|message|stop|state|close)$/.exec(url.pathname);

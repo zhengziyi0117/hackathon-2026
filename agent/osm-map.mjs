@@ -8,10 +8,14 @@ import {checkMapPackage} from '../src/map3d/packages.js';
 import {createGeography} from '../src/map3d/geography.js';
 
 const UA='jingjian-studio/0.1 (local scenic map editor; https://www.openstreetmap.org/copyright)';
-const OVERPASS=['https://overpass-api.de/api/interpreter','https://maps.mail.ru/osm/tools/overpass/api/interpreter','https://overpass.private.coffee/api/interpreter'];
+// The big public instances rate-limit and 5xx for minutes at a time; the French one answers when the German one will not.
+// overpass.osm.ch and friends are regional mirrors: they answer 200 with nothing outside their own country, which is
+// why an empty answer is only believed when every mirror gives one (see overpass()).
+const OVERPASS=['https://overpass.openstreetmap.fr/api/interpreter','https://overpass-api.de/api/interpreter','https://overpass.kumi.systems/api/interpreter','https://overpass.private.coffee/api/interpreter'];
+const OVERPASS_TRIES=2;
 const fail=(status,message)=>Object.assign(Error(message),{status});
 const r2=v=>Math.round(v*100)/100;
-const MAX_SPOTS=8,HALF=22,SPAN_MIN=1200,SPAN_MAX=6000;
+const MAX_SPOTS=14,HALF=22,SPAN_MIN=1200,SPAN_MAX=6000;
 
 // ---- geometry helpers ----
 const area=r=>Math.abs(r.reduce((s,p,i)=>{const q=r[(i+1)%r.length];return s+p[0]*q[1]-q[0]*p[1];},0))/2;
@@ -49,14 +53,17 @@ const isWater=t=>t.natural==='water'||t.waterway==='riverbank'||t.landuse==='res
 const ROADS=/^(footway|path|pedestrian|steps|track|service|living_street|residential|unclassified|tertiary|secondary|primary|cycleway|bridleway)$/;
 const KIND=t=>t.place==='island'||t.place==='islet'?'岛屿':t.leisure?'园林':t.tourism==='viewpoint'?'观景点':t.tourism==='museum'?'博物馆':t.amenity==='place_of_worship'?'宗教场所':t.historic?'历史遗存':t.natural==='peak'?'山峰':'景点';
 function score(t){return (t.wikidata||t.wikipedia?3:0)+(t.tourism==='attraction'?2:t.tourism==='museum'||t.tourism==='viewpoint'?1.5:0)+(t.historic&&t.historic!=='yes'?1.5:t.historic?1:0)+(t.amenity==='place_of_worship'?1.2:0)+(t.natural==='peak'?1:0)-(t.tourism==='artwork'||t.historic==='memorial'?1:0)+(t.leisure||t.place?.5:0);}
-// Procedural model by name; the agent or staff refine it later.
-function modelFor(name,t,u){
- if(/塔/.test(name))return {model:'pagoda',parameters:{tiers:/白塔|喇嘛/.test(name)?3:5}};
- if(/阁|楼/.test(name))return {model:'pagoda',parameters:{tiers:3,body:.36}};
+// Procedural model by name, sized from the real footprint when OSM has one; the agent or staff refine it later.
+function modelFor(name,t,u,size){
  if(/桥/.test(name)||t.bridge)return {model:'arch-bridge',parameters:{}};
- if(/亭|榭|舫/.test(name))return {model:'pavilion',parameters:{}};
- if(/碑|铜牛|石|鼎|麒麟|雕/.test(name)||t.historic==='memorial'||t.historic==='monument'||t.tourism==='artwork')return {model:'stele-pavilion',parameters:{}};
- if(/殿|堂|寺|庙|宫|祠|馆|斋|园|苑|院|城关|门/.test(name)||t.amenity==='place_of_worship'||t.tourism==='museum')return {model:'palace-hall',parameters:{width:r2(Math.min(2.2,Math.max(.9,40/u))),depth:r2(Math.min(1.5,Math.max(.6,26/u))),height:.7}};
+ if(/白塔|舍利|小塔/.test(name))return {model:'slender-pagoda',parameters:{}};
+ if(/塔/.test(name))return {model:'pagoda',parameters:{tiers:/大塔|主塔|舍利/.test(name)?7:5}};
+ if(/阁|楼/.test(name))return {model:'pagoda',parameters:{tiers:3,body:.36}};
+ if(/舫|榭|台|坛/.test(name))return {model:'lake-terrace',parameters:{}};
+ if(/亭|轩/.test(name))return {model:'pavilion',parameters:{}};
+ if(/碑|铜牛|石|鼎|麒麟|雕|狮|像|钟/.test(name)||t.historic==='memorial'||t.historic==='monument'||t.tourism==='artwork')return {model:'stele-pavilion',parameters:{}};
+ if(/殿|堂|寺|庙|宫|祠|馆|园|苑|院|斋|城|门|府|宅|观/.test(name)||t.amenity==='place_of_worship'||t.tourism==='museum')
+  return {model:'palace-hall',parameters:{width:r2(Math.min(3.2,Math.max(.9,size?.[0]||40/u))),depth:r2(Math.min(2.4,Math.max(.6,size?.[1]||26/u))),height:.7}};
  return {model:'pavilion',parameters:{}};
 }
 
@@ -93,12 +100,26 @@ export function buildPackage({place,osm,elevation,fetched=''}){
   for(const p of elevation){const rel=p.ele-base;if(rel<3)continue;const at=P(p).map(r2),height=r2(Math.min(5,rel*4/unitMeters)/1.6);if(height<.05||!inB(at,-2))continue;hills.push({at,radius:r2(spacing*.75),height});maxHill=Math.max(maxHill,height*1.8);}
  }else warnings.push('没有取到高程数据，地形按平地处理。');
 
+ // Built-up land from OSM landuse. The renderer's procedural town is a half-plane east or north of the sights, so it is
+ // only switched on when the built-up land clearly sits on one of those sides; otherwise the town stays off entirely.
+ const urban=[];
+ for(const x of els){const t=tags(x);if(x.type!=='way'||!/^(residential|commercial|retail|industrial)$/.test(t.landuse||''))continue;
+  const r=lineOf(x);if(r.length<4||area(r)<(120/unitMeters)**2)continue;const c=centroid(r).map(r2);if(inB(c,2))urban.push(c);}
+ const city={eastX:1000,eastWidth:1,northX:1000,northWidth:1,northZ:-1000,northDepth:1};
+ if(urban.length>=6){
+  const xs=urban.map(p=>p[0]).sort((a,b)=>a-b),zs=urban.map(p=>p[1]).sort((a,b)=>a-b),q=(a,f)=>a[Math.min(a.length-1,Math.floor(a.length*f))];
+  const east=urban.filter(p=>p[0]>0).length/urban.length,north=urban.filter(p=>p[1]<0).length/urban.length;
+  // The wall sits at the near edge of the built-up land; the 2.5-unit ramp keeps the change off the sights.
+  if(east>=.55){city.eastX=r2(q(xs,.25)-1.5);city.eastWidth=2.5;warnings.push('东侧有成片建成区，按示意生成城镇街区，需景区核对。');}
+  else if(north>=.55){city.northX=-100;city.northWidth=1;city.northZ=r2(q(zs,.75)+1.5);city.northDepth=2.5;warnings.push('北侧有成片建成区，按示意生成城镇街区，需景区核对。');}
+ }
+
  const geography={schemaVersion:1,id:place.id,name:place.name,
   frame:{origin:[+lon0.toFixed(6),+lat0.toFixed(6)],unitMeters,bounds,source:'© OpenStreetMap contributors, ODbL 1.0',axes:{x:'east',z:'south'},projection:{lonUnits,latUnits}},
   provenance:{attribution:'© OpenStreetMap contributors, ODbL 1.0',url:'https://www.openstreetmap.org/copyright',fetched:fetched||new Date().toISOString(),
    notes:[`由「${place.name}」自动生成：水体、道路和景点来自 OpenStreetMap，地形来自 Open-Meteo 高程（约 90 m 网格，竖向夸张约 4 倍）。`,'模型造型按名称自动选择，是示意，不代表实际建筑；景点需景区核对。']},
   water,places:{},causeways:[],bridge:{length:r2(Math.max(.3,30/unitMeters)),height:.12,gap:r2(Math.max(.1,10/unitMeters))},
-  terrain:{cell,hills,westRidge:{startX:-1000,width:1,height:0,noise:0},city:{eastX:1000,eastWidth:1,northX:1000,northWidth:1,northZ:-1000,northDepth:1}},
+  terrain:{cell,hills,westRidge:{startX:-1000,width:1,height:0,noise:0},city},
   network:{nodes:{},edges:[]},spots:{}};
  const interaction={schemaVersion:1,id:place.id+'-interaction',mapId:place.id,startNode:'',defaultMood:'spring',
   avatar:{scale:1.45,keyboardSpeed:2.4,walkSpeed:2.6,boatSpeed:3.6,arrivalRadius:1.1},
@@ -121,6 +142,24 @@ export function buildPackage({place,osm,elevation,fetched=''}){
  // Keep the cost of landField bounded; tagged bridges first, then the longest strips.
  if(geography.causeways.length>200){const len=c=>c.points.reduce((s,p,k)=>k?s+Math.hypot(p[0]-c.points[k-1][0],p[1]-c.points[k-1][1]):0,0);geography.causeways.sort((a,b)=>(b.name!=='桥')-(a.name!=='桥')||len(b)-len(a)).length=200;}
  const probe=createGeography(geography,interaction);
+
+ // Woods become dense tree clusters, so the trees follow the map instead of being sprinkled evenly over it.
+ const islands=[];
+ for(const x of els){const t=tags(x);if(x.type!=='way'||!(t.natural==='wood'||t.landuse==='forest'))continue;
+  const ring=lineOf(x);if(ring.length<4)continue;const xs=ring.map(p=>p[0]),zs=ring.map(p=>p[1]);
+  for(let px=Math.min(...xs)+1.2;px<Math.max(...xs)&&islands.length<20;px+=2.4)for(let pz=Math.min(...zs)+1.2;pz<Math.max(...zs)&&islands.length<20;pz+=2.4){
+   const at=[r2(px),r2(pz)];if(!inB(at,1)||!inside(at,ring)||probe.landField(...at)<.05)continue;islands.push([at[0],at[1],1.4]);}}
+ // Boats circle the biggest water, on an ellipse shrunk until it stays on water. A few land samples are tolerated:
+ // real lakes are cut by causeways, and boats pass under them.
+ const boatLoops=[];
+ for(const ring of water.slice(0,3)){
+  const [bx,bz]=centroid(ring),xs=ring.map(p=>p[0]),zs=ring.map(p=>p[1]),rx=(Math.max(...xs)-Math.min(...xs))/2,rz=(Math.max(...zs)-Math.min(...zs))/2;
+  for(const k of [.55,.45,.36,.28,.22,.16]){
+   const a=rx*k,b=rz*k;if(a<.7||b<.7)break;
+   let dry=0;for(let i=0;i<16;i++){const t=i/16*Math.PI*2;if(probe.landField(bx+Math.cos(t)*a,bz+Math.sin(t)*b)>=0)dry++;}
+   if(dry<=3){boatLoops.push([[r2(bx),r2(bz)],r2(a),r2(b)]);break;}}
+  if(boatLoops.length>=2)break;
+ }
 
  // Path network: OSM junctions and endpoints become nodes; every kept segment is sampled like the validator does.
  const ways=roadWays;
@@ -155,7 +194,7 @@ export function buildPackage({place,osm,elevation,fetched=''}){
  const inBest=new Set(best);
  geography.network.nodes=Object.fromEntries(Object.entries(nodes).filter(([id])=>inBest.has(id)));
  geography.network.edges=edges.filter(x=>inBest.has(x.a));
- contract(geography.network,walkLine);
+ for(let i=0;i<3;i++)contract(geography.network,walkLine);
  if(Object.keys(geography.network.nodes).length>1500)warnings.push('道路很密，已只保留主要连通路网。');
  // Nearest stop for a sight: an existing node, or a new node where the sight projects onto a path (the edge is split there).
  const net=geography.network;let split=0;
@@ -174,11 +213,14 @@ export function buildPackage({place,osm,elevation,fetched=''}){
 
  // Spots: named sights inside the frame, best first, deduplicated by name and spaced apart, each tied to a reachable node.
  const pointOf=x=>x.type==='node'?P(x):x.bounds?P({lon:(x.bounds.minlon+x.bounds.maxlon)/2,lat:(x.bounds.minlat+x.bounds.maxlat)/2}):x.geometry?.length?centroid(lineOf(x)):null;
+ // Footprint in map units, when the sight is drawn as an area rather than a point: the model gets its real proportions.
+ const sizeOf=x=>{const ring=x.type==='way'&&x.geometry?lineOf(x):null;if(!ring||ring.length<3)return null;
+  const xs=ring.map(p=>p[0]),zs=ring.map(p=>p[1]);return [Math.max(...xs)-Math.min(...xs),Math.max(...zs)-Math.min(...zs)];};
  const candidates=new Map(),waterNames=new Set(named.map(x=>x.name));
  for(const x of els){const t=tags(x);if(!t.name||t.name===place.name||isWater(t)||waterNames.has(t.name))continue;
   if(!(t.tourism&&/^(attraction|viewpoint|museum|artwork)$/.test(t.tourism))&&!t.historic&&t.amenity!=='place_of_worship'&&t.natural!=='peak'&&!/^(park|garden)$/.test(t.leisure||'')&&!/^(island|islet)$/.test(t.place||''))continue;
   const at=pointOf(x);if(!at||!inB(at,1.5))continue;
-  const c={id:(x.type[0]+x.id),name:t.name.slice(0,30),tags:t,at:at.map(r2),score:score(t)};
+  const c={id:(x.type[0]+x.id),name:t.name.slice(0,30),tags:t,at:at.map(r2),score:score(t),size:sizeOf(x)};
   const prev=candidates.get(c.name);if(!prev||c.score>prev.score)candidates.set(c.name,c);}
  const spots=[],labels=[],landmarks=[],gap=Math.max(1.2,60/unitMeters);
  for(const c of [...candidates.values()].sort((a,b)=>b.score-a.score)){
@@ -186,9 +228,9 @@ export function buildPackage({place,osm,elevation,fetched=''}){
   if(c.tags.natural==='peak'){labels.push({text:c.name,at:c.at,kind:'hill',lift:.5});continue;}
   if(spots.some(o=>Math.hypot(o.at[0]-c.at[0],o.at[1]-c.at[1])<gap))continue;
   const node=nearest(c.at);if(!node.id||node.d>Math.max(2.5,150/unitMeters))continue;
-  const {model,parameters}=modelFor(c.name,c.tags,unitMeters),wet=probe.landField(...c.at)<0;
-  // Land models may not stand in water; move them to their stop.
-  const at=wet&&model!=='arch-bridge'?geography.network.nodes[node.id]:c.at;
+  const {model,parameters}=modelFor(c.name,c.tags,unitMeters,c.size),wet=probe.landField(...c.at)<0;
+  // Land models may not stand in water; move them to their stop. A terrace or a bridge is allowed to stay out there.
+  const at=wet&&!['arch-bridge','lake-terrace'].includes(model)?geography.network.nodes[node.id]:c.at;
   const np=geography.network.nodes[node.id];
   spots.push({...c,node:node.id});geography.places[c.id]=c.at;
   geography.spots[c.id]={node:node.id,label:c.at,scene:`${place.name} · ${KIND(c.tags)}`,season:'spring'};
@@ -196,15 +238,20 @@ export function buildPackage({place,osm,elevation,fetched=''}){
  }
  if(!spots.length)throw fail(422,'这个范围里没有找到带名称的景点（OSM 的 tourism / historic 标签），暂时生成不了。');
  for(const n of named.slice(0,4)){const at=centroid(n.r).map(r2);if(inB(at,2)&&probe.landField(...at)<0&&!labels.some(l=>l.text===n.name))labels.push({text:n.name,at,kind:'lake',lift:.3});}
+ // Named islands and the settlement itself, so the map reads as a place and not just a shoreline.
+ for(const x of els){const t=tags(x);if(!t.name||!/^(island|islet)$/.test(t.place||'')||spots.some(s=>s.name===t.name))continue;
+  const at=pointOf(x);if(at&&inB(at,2)&&probe.landField(...at)<0&&!labels.some(l=>l.text===t.name))labels.push({text:t.name.slice(0,30),at:at.map(r2),kind:'isle',lift:.4});}
+ for(const x of els){const t=tags(x);if(!t.name||!/^(city|town|suburb|village)$/.test(t.place||''))continue;
+  const at=pointOf(x);if(at&&inB(at,2)&&!labels.some(l=>l.text===t.name))labels.push({text:t.name.slice(0,30),at:at.map(r2),kind:'city',lift:.4});}
  for(const l of labels)if(l.kind==='hill')geography.places['peak-'+labels.indexOf(l)]=l.at;
 
  interaction.startNode=spots[0].node;
  const [cx,cz]=[spots.reduce((s,p)=>s+p.at[0],0)/spots.length,spots.reduce((s,p)=>s+p.at[1],0)/spots.length].map(r2);
  interaction.camera.home.target=[cx,0,cz];
  const biggest=water[0]&&centroid(water[0]);
- const layout={schemaVersion:1,id:place.id+'-layout',mapId:place.id,catalogVersion:1,landmarks,labels:labels.slice(0,10),
-  vegetation:{seed:11,attempts:9000,islands:[]},city:{seed:5},
-  lotus:{at:biggest?biggest.map(r2):[0,0],seed:3,attempts:biggest?600:1,maxPads:biggest?80:1},boatLoops:[],
+ const layout={schemaVersion:1,id:place.id+'-layout',mapId:place.id,catalogVersion:1,landmarks,labels:labels.slice(0,12),
+  vegetation:{seed:11,attempts:9000,islands},city:{seed:5},
+  lotus:{at:biggest?biggest.map(r2):[0,0],seed:3,attempts:biggest?1600:1,maxPads:biggest?200:1},boatLoops,
   quality:{terrainSegments:230,landTextureResolution:384,shadowMapSize:4096}};
  const manifest={schemaVersion:1,id:place.id,name:place.name,geography:'./geography.json',layout:'./layout.json',interaction:'./interaction.json',styles:['miniature','papercraft','voxel','bricks','adventure'],defaultStyle:'miniature'};
  const pkg={manifest,geography,layout,interaction};
@@ -231,45 +278,68 @@ function contract(net,walkLine){
 
 // ---- network side ----
 let lastNominatim=0;
-async function nominatim(path){
- // Nominatim usage policy: at most one request per second, with an identifying User-Agent.
- const wait=lastNominatim+1100-Date.now();if(wait>0)await new Promise(r=>setTimeout(r,wait));lastNominatim=Date.now();
- const r=await fetch('https://nominatim.openstreetmap.org/'+path,{headers:{'User-Agent':UA,'Accept-Language':'zh-CN,zh'},signal:AbortSignal.timeout(20000)});
- if(!r.ok)throw fail(502,'地名搜索服务返回 HTTP '+r.status);return r.json();
+// Every answer is cached under the query that produced it, so a place generated once can be regenerated with no network.
+async function cached(cacheDir,key,load){
+ const file=cacheDir&&path.join(cacheDir,createHash('sha256').update(key).digest('hex').slice(0,24)+'.json');
+ if(file)try{return JSON.parse(await readFile(file,'utf8'));}catch{}
+ const data=await load();
+ if(file&&data!=null){await mkdir(cacheDir,{recursive:true});await writeFile(file,JSON.stringify(data));}
+ return data;
+}
+async function nominatim(path,cacheDir){
+ return cached(cacheDir,'nominatim:'+path,async()=>{
+  // Nominatim usage policy: at most one request per second, with an identifying User-Agent.
+  const wait=lastNominatim+1100-Date.now();if(wait>0)await new Promise(r=>setTimeout(r,wait));lastNominatim=Date.now();
+  const r=await fetch('https://nominatim.openstreetmap.org/'+path,{headers:{'User-Agent':UA,'Accept-Language':'zh-CN,zh'},signal:AbortSignal.timeout(20000)});
+  if(!r.ok)throw fail(502,'地名搜索服务返回 HTTP '+r.status);return r.json();});
 }
 const GOOD=new Set(['tourism','historic','natural','leisure','water','landuse','boundary']),POOR=/^(railway|highway|shop|office|building|place|amenity:(?!place_of_worship)|boundary:administrative|landuse:(residential|commercial|industrial|retail))/;
-export async function searchPlaces(q){
+export async function searchPlaces(q,cacheDir){
  q=String(q||'').trim().slice(0,80);if(!q)throw fail(400,'请输入景区名称。');
- const find=async text=>(await nominatim('search?format=jsonv2&limit=10&q='+encodeURIComponent(text))).filter(x=>!POOR.test(x.category+':'+x.type)&&(x.osm_type!=='node'||GOOD.has(x.category)||x.type==='place_of_worship'));
+ const find=async text=>(await nominatim('search?format=jsonv2&limit=10&q='+encodeURIComponent(text),cacheDir)).filter(x=>!POOR.test(x.category+':'+x.type)&&(x.osm_type!=='node'||GOOD.has(x.category)||x.type==='place_of_worship'));
  // A bare name often only matches a station of the same name; the park or scenic area usually carries a suffix.
  // Nominatim also returns transliterated look-alikes (圆明园 → 明円公園); keep results whose name contains the query.
  const own=list=>list.filter(x=>String(x.name||'').includes(q)||q.includes(String(x.name||'-')));
  let list=own(await find(q));for(const suffix of ['公园','景区','遗址公园'])if(!list.length&&!q.endsWith(suffix))list=own(await find(q+suffix));
  return list.slice(0,5).map(x=>({osm:x.osm_type[0].toUpperCase()+x.osm_id,name:x.name||q,kind:x.type,address:String(x.display_name||'').split(', ').slice(1).filter(t=>!/^\d+$/.test(t)).slice(0,3).join(' · '),center:[+x.lon,+x.lat],bbox:x.boundingbox.map(Number)}));
 }
-// Public Overpass servers are often busy: try each mirror once, and cache answers so a retry of the same place is instant.
+// Public Overpass servers are busy or 5xx for minutes at a time, so every mirror is tried twice before giving up.
+// A mirror that answers 200 with nothing is not proof that there is nothing here - regional instances only carry
+// their own country - so an empty answer is believed only when every mirror gives one.
 async function overpass(query,cacheDir){
  const file=cacheDir&&path.join(cacheDir,createHash('sha256').update(query).digest('hex').slice(0,24)+'.json');
  if(file)try{return JSON.parse(await readFile(file,'utf8'));}catch{}
- let last;
- for(const url of OVERPASS){
-  try{const r=await fetch(url,{method:'POST',headers:{'User-Agent':UA,'Content-Type':'application/x-www-form-urlencoded'},body:'data='+encodeURIComponent(query),signal:AbortSignal.timeout(40000)});
-   const text=await r.text();
-   if(r.ok&&text.trimStart().startsWith('{')){if(file){await mkdir(cacheDir,{recursive:true});await writeFile(file,text);}return JSON.parse(text);}
-   last='HTTP '+r.status;}
-  catch(err){last=err.name==='TimeoutError'?'超时':err.message;}
+ let last='',empty=null;
+ for(let round=0;round<OVERPASS_TRIES;round++){
+  for(const url of OVERPASS){
+   try{const r=await fetch(url,{method:'POST',headers:{'User-Agent':UA,'Content-Type':'application/x-www-form-urlencoded'},body:'data='+encodeURIComponent(query),signal:AbortSignal.timeout(40000)});
+    const text=await r.text();
+    if(r.ok&&text.trimStart().startsWith('{')){
+     const data=JSON.parse(text);
+     if(data.elements?.length){if(file){await mkdir(cacheDir,{recursive:true});await writeFile(file,text);}return data;}
+     empty??=text;last='返回了空结果';continue;
+    }
+    last='HTTP '+r.status;
+   }catch(err){last=err.name==='TimeoutError'?'超时':err.message;}
+  }
+  if(round<OVERPASS_TRIES-1)await new Promise(r=>setTimeout(r,1500));
  }
+ if(empty!==null)return JSON.parse(empty);   // every mirror agreed there is nothing here; not worth caching
  throw fail(502,'地图数据服务（Overpass）暂时繁忙：'+last+'。稍后再试一次。');
 }
-async function elevationGrid([s,n,w,e]){
+async function elevationGrid([s,n,w,e],cacheDir){
  const k=10,pts=[];for(let i=0;i<k;i++)for(let j=0;j<k;j++)pts.push({lat:s+(n-s)*i/(k-1),lon:w+(e-w)*j/(k-1)});
- try{const r=await fetch(`https://api.open-meteo.com/v1/elevation?latitude=${pts.map(p=>p.lat.toFixed(5))}&longitude=${pts.map(p=>p.lon.toFixed(5))}`,{signal:AbortSignal.timeout(20000)});
-  const d=await r.json();if(!Array.isArray(d.elevation))return null;return pts.map((p,i)=>({...p,ele:d.elevation[i]}));}catch{return null;}
+ const url=`https://api.open-meteo.com/v1/elevation?latitude=${pts.map(p=>p.lat.toFixed(5))}&longitude=${pts.map(p=>p.lon.toFixed(5))}`;
+ try{const d=await cached(cacheDir,'elevation:'+url,async()=>{
+   const j=await (await fetch(url,{signal:AbortSignal.timeout(20000)})).json();
+   if(!Array.isArray(j.elevation))throw Error('高程服务没有返回数据');   // an error body must not be cached as an answer
+   return j;});
+  return pts.map((p,i)=>({...p,ele:d.elevation[i]}));}catch{return null;}
 }
 // data: {osm:"W29228773", mapId?}. Returns {pkg, spots, warnings, stats}.
 export async function generateMap(data,cacheDir){
  const osm=/^([NWR])(\d{1,12})$/.exec(String(data.osm||''));if(!osm)throw fail(400,'请先选择一个地点。');
- const [hit]=await nominatim('lookup?format=jsonv2&osm_ids='+osm[1]+osm[2]);if(!hit)throw fail(404,'找不到这个地点。');
+ const [hit]=await nominatim('lookup?format=jsonv2&osm_ids='+osm[1]+osm[2],cacheDir);if(!hit)throw fail(404,'找不到这个地点。');
  const center=[+hit.lon,+hit.lat],mLon=111320*Math.cos(center[1]*Math.PI/180),mLat=110540;
  let [s,n,w,e]=hit.boundingbox.map(Number);const warnings=[];
  // Keep the frame between ~1.2 km and 6 km: points get a neighbourhood, cities are cut to their centre.
@@ -277,8 +347,9 @@ export async function generateMap(data,cacheDir){
  if((n-s)*mLat>SPAN_MAX||(e-w)*mLon>SPAN_MAX)warnings.push('范围太大，只取了中心约 6 公里。');
  const cy=(s+n)/2,cx=(w+e)/2;[s,n,w,e]=[cy-halfLat,cy+halfLat,cx-halfLon,cx+halfLon];
  const b=`(${s.toFixed(5)},${w.toFixed(5)},${n.toFixed(5)},${e.toFixed(5)})`;
- const query=`[out:json][timeout:60];(way["natural"="water"]${b};relation["natural"="water"]${b};way["waterway"="riverbank"]${b};way["landuse"="reservoir"]${b};way["highway"]${b};nwr["name"]["tourism"~"^(attraction|viewpoint|museum|artwork)$"]${b};nwr["name"]["historic"]${b};nwr["name"]["amenity"="place_of_worship"]${b};node["name"]["natural"="peak"]${b};nwr["name"]["leisure"~"^(park|garden)$"]${b};nwr["name"]["place"~"^(island|islet)$"]${b};);out geom;`;
- const [data2,elevation]=await Promise.all([overpass(query,cacheDir),elevationGrid([s,n,w,e])]);
+ const query=`[out:json][timeout:60];(way["natural"="water"]${b};relation["natural"="water"]${b};way["waterway"="riverbank"]${b};way["landuse"="reservoir"]${b};way["highway"]${b};way["natural"="wood"]${b};way["landuse"="forest"]${b};way["landuse"~"^(residential|commercial|retail|industrial)$"]${b};nwr["name"]["tourism"~"^(attraction|viewpoint|museum|artwork)$"]${b};nwr["name"]["historic"]${b};nwr["name"]["amenity"="place_of_worship"]${b};node["name"]["natural"="peak"]${b};nwr["name"]["leisure"~"^(park|garden)$"]${b};nwr["name"]["place"~"^(island|islet|city|town|suburb|village)$"]${b};);out geom;`;
+ const [data2,elevation]=await Promise.all([overpass(query,cacheDir),elevationGrid([s,n,w,e],cacheDir)]);
+ if(!data2.elements?.length)throw fail(422,'地图数据源没有返回这个范围内的任何要素，可能它覆盖不到这里。稍后再试，或换一个更知名的景区名。');
  const id=/^[a-z][a-z0-9-]*$/.test(data.mapId||'')?data.mapId:'osm-'+osm[1].toLowerCase()+osm[2];
  const out=buildPackage({place:{id,name:String(hit.name||hit.display_name||'景区').slice(0,40),center:[(w+e)/2,(s+n)/2],bbox:[s,n,w,e]},osm:data2,elevation,fetched:data2.osm3s?.timestamp_osm_base||''});
  return {...out,warnings:[...warnings,...out.warnings],name:out.pkg.manifest.name};
